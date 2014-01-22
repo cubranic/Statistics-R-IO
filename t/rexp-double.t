@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 14;
+use Test::More tests => 18;
 
 use Statistics::R::REXP::Double;
 
@@ -18,11 +18,19 @@ my $vec = Statistics::R::REXP::Double->new(elements => [3.3, 4.7, 11]);
 my $vec2 = Statistics::R::REXP::Double->new(elements => [3.3, 4.7, 11]);
 is($vec, $vec2, 'double vector equality');
 
-my $another_vec = Statistics::R::REXP::Double->new(elements => [3, 5, 11]);
+my $another_vec = Statistics::R::REXP::Double->new(elements => [3, 4.7, 11]);
 isnt($vec, $another_vec, 'double vector inequality');
+
+my $na_heavy_vec = Statistics::R::REXP::Double->new(elements => [11.3, '', undef, 0.0]);
+my $na_heavy_vec2 = Statistics::R::REXP::Double->new(elements => [11.3, 0, undef, 0]);
+is($na_heavy_vec, $na_heavy_vec, 'NA-heavy vector equality');
+isnt($na_heavy_vec, $na_heavy_vec2, 'NA-heavy vector inequality');
 
 is($empty_vec->to_s, 'double()', 'empty double vector text representation');
 is($vec->to_s, 'double(3.3, 4.7, 11)', 'double vector text representation');
+is(Statistics::R::REXP::Double->new(elements => [undef])->to_s,
+   'double(undef)', 'text representation of a singleton NA');
+is($na_heavy_vec->to_s, 'double(11.3, undef, undef, 0)', 'empty numbers representation');
 
 is_deeply($empty_vec->elements, [], 'empty double vector contents');
 is_deeply($vec->elements, [3.3, 4.7, 11], 'double vector contents');

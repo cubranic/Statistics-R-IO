@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 15;
+use Test::More tests => 19;
 
 use Statistics::R::REXP::Integer;
 
@@ -21,11 +21,21 @@ is($vec, $vec2, 'integer vector equality');
 my $another_vec = Statistics::R::REXP::Integer->new(elements => [3, 4, 1]);
 isnt($vec, $another_vec, 'integer vector inequality');
 
+## TODO: undef == 0!
+
 my $truncated_vec = Statistics::R::REXP::Integer->new(elements => [3.3, 4.0, 11]);
 is($truncated_vec, $vec, 'constructing from floats');
 
+my $na_heavy_vec = Statistics::R::REXP::Integer->new(elements => [11.3, '', undef, '0.0']);
+my $na_heavy_vec2 = Statistics::R::REXP::Integer->new(elements => [11, 0, undef, 0]);
+is($na_heavy_vec, $na_heavy_vec, 'NA-heavy vector equality');
+isnt($na_heavy_vec, $na_heavy_vec2, 'NA-heavy vector inequality');
+
 is($empty_vec->to_s, 'integer()', 'empty integer vector text representation');
 is($vec->to_s, 'integer(3, 4, 11)', 'integer vector text representation');
+is(Statistics::R::REXP::Integer->new(elements => [undef])->to_s,
+   'integer(undef)', 'text representation of a singleton NA');
+is($na_heavy_vec->to_s, 'integer(11, undef, undef, 0)', 'empty numbers representation');
 
 is_deeply($empty_vec->elements, [], 'empty integer vector contents');
 is_deeply($vec->elements, [3, 4, 11], 'integer vector contents');

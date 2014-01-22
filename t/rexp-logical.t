@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 14;
+use Test::More tests => 16;
 
 use Statistics::R::REXP::Logical;
 
@@ -18,11 +18,14 @@ my $vec = Statistics::R::REXP::Logical->new(elements => [1, 0, 1, 0]);
 my $vec2 = Statistics::R::REXP::Logical->new(elements => [3.3, '', 'bla', '0']);
 is($vec, $vec2, 'logical vector equality');
 
-my $another_vec = Statistics::R::REXP::Logical->new(elements => [1, 0, 1, '0.0']);
+my $another_vec = Statistics::R::REXP::Logical->new(elements => [1, 0, 1, undef]);
 isnt($vec, $another_vec, 'logical vector inequality');
 
 is($empty_vec->to_s, 'logical()', 'empty logical vector text representation');
 is($vec->to_s, 'logical(1, 0, 1, 0)', 'logical vector text representation');
+is($another_vec->to_s, 'logical(1, 0, 1, undef)', 'text representation with logical NAs');
+is(Statistics::R::REXP::Logical->new(elements => [undef])->to_s,
+   'logical(undef)', 'text representation of a singleton NA');
 
 is_deeply($empty_vec->elements, [], 'empty logical vector contents');
 is_deeply($vec->elements, [1, 0, 1, 0], 'logical vector contents');

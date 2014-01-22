@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 17;
+use Test::More tests => 22;
 
 use Statistics::R::REXP::List;
 
@@ -21,8 +21,18 @@ is($list, $list2, 'generic vector equality');
 my $another_list = Statistics::R::REXP::List->new(elements => [3.3, 4, 10.9]);
 isnt($list, $another_list, 'generic vector inequality');
 
+my $na_heavy_list = Statistics::R::REXP::List->new(elements => [11.3, ['', undef], '0']);
+my $na_heavy_list2 = Statistics::R::REXP::List->new(elements => [11.3, [undef, undef], 0]);
+is($na_heavy_list, $na_heavy_list, 'NA-heavy generic vector equality');
+isnt($na_heavy_list, $na_heavy_list2, 'NA-heavy generic vector inequality');
+
 is($empty_list->to_s, 'list()', 'empty generic vector text representation');
 is($list->to_s, 'list(3.3, 4, 11)', 'generic vector text representation');
+is(Statistics::R::REXP::List->new(elements => [undef])->to_s,
+   'list(undef)', 'text representation of a singleton NA');
+is(Statistics::R::REXP::List->new(elements => [[[undef]]])->to_s,
+   'list([[undef]])', 'text representation of a nested singleton NA');
+is($na_heavy_list->to_s, 'list(11.3, [, undef], 0)', 'empty string representation');
 
 is_deeply($empty_list->elements, [], 'empty generic vector contents');
 is_deeply($list->elements, [3.3, 4, 11], 'generic vector contents');
