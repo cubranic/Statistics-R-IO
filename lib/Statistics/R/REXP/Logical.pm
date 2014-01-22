@@ -19,31 +19,6 @@ has elements => (
     },
 );
 
-use overload 'eq' => \&equals,
-    'ne' => sub { ! equals(@_); },
-    '""' => \&to_s;
-
-sub equals {
-    my ($self, $obj) = (shift, shift);
-    
-    return undef unless equal_class(@_) and 
-        scalar(@{$self->elements}) == scalar(@{$obj->elements});
-    for (my $i = 0; $i < scalar(@{$self->elements}); $i++) {
-        my $a = $self->elements->[$i];
-        my $b = $obj->elements->[$i];
-        if (defined($a) and defined($b)) {
-            return undef if $a xor $b;
-        } else {
-            return undef if defined($a) or defined($b);
-        }
-    }
-    return 1;
-}
-
-sub to_s {
-    my $self = shift;
-    sub stringify { map { defined $_ ? $_ : 'undef'} @_ };
-    'logical(' . join(', ', stringify(@{$self->elements})) . ')';
-}
+sub _type { 'logical'; }
 
 1; # End of Statistics::R::REXP::Logical
