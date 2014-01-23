@@ -15,7 +15,7 @@ my $empty_vec_2 = Statistics::R::REXP::Logical->new();
 is($empty_vec, $empty_vec_2, 'empty logical vector equality');
 
 my $vec = Statistics::R::REXP::Logical->new(elements => [1, 0, 1, 0]);
-my $vec2 = Statistics::R::REXP::Logical->new(elements => [3.3, '', 'bla', '0']);
+my $vec2 = Statistics::R::REXP::Logical->new([3.3, '', 'bla', '0']);
 is($vec, $vec2, 'logical vector equality');
 
 my $another_vec = Statistics::R::REXP::Logical->new(elements => [1, 0, 1, undef]);

@@ -15,7 +15,7 @@ my $empty_vec_2 = Statistics::R::REXP::Double->new();
 is($empty_vec, $empty_vec_2, 'empty double vector equality');
 
 my $vec = Statistics::R::REXP::Double->new(elements => [3.3, 4.7, 11]);
-my $vec2 = Statistics::R::REXP::Double->new(elements => [3.3, 4.7, 11]);
+my $vec2 = Statistics::R::REXP::Double->new([3.3, 4.7, 11]);
 is($vec, $vec2, 'double vector equality');
 
 my $another_vec = Statistics::R::REXP::Double->new(elements => [3, 4.7, 11]);

@@ -15,7 +15,7 @@ my $empty_list_2 = Statistics::R::REXP::List->new();
 is($empty_list, $empty_list_2, 'empty generic vector equality');
 
 my $list = Statistics::R::REXP::List->new(elements => [3.3, '4', 11]);
-my $list2 = Statistics::R::REXP::List->new(elements => [3.3, 4, 11]);
+my $list2 = Statistics::R::REXP::List->new([3.3, 4, 11]);
 is($list, $list2, 'generic vector equality');
 
 my $another_list = Statistics::R::REXP::List->new(elements => [3.3, 4, 10.9]);

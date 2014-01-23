@@ -15,7 +15,7 @@ my $empty_vec_2 = Statistics::R::REXP::Character->new();
 is($empty_vec, $empty_vec_2, 'empty character vector equality');
 
 my $vec = Statistics::R::REXP::Character->new(elements => [3.3, '4.7', 'bar']);
-my $vec2 = Statistics::R::REXP::Character->new(elements => [3.3, 4.7, 'bar']);
+my $vec2 = Statistics::R::REXP::Character->new([3.3, 4.7, 'bar']);
 is($vec, $vec2, 'character vector equality');
 
 my $another_vec = Statistics::R::REXP::Character->new(elements => [3.3, '4.7', 'bar', undef]);

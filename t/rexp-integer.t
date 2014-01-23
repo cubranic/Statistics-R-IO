@@ -15,7 +15,7 @@ my $empty_vec_2 = Statistics::R::REXP::Integer->new();
 is($empty_vec, $empty_vec_2, 'empty integer vector equality');
 
 my $vec = Statistics::R::REXP::Integer->new(elements => [3, 4, 11]);
-my $vec2 = Statistics::R::REXP::Integer->new(elements => [3, 4, 11]);
+my $vec2 = Statistics::R::REXP::Integer->new([3, 4, 11]);
 is($vec, $vec2, 'integer vector equality');
 
 my $another_vec = Statistics::R::REXP::Integer->new(elements => [3, 4, 1]);

@@ -24,6 +24,30 @@ has elements => (
     default => sub { []; },
 );
 
+
+sub BUILDARGS {
+    my $class = shift;
+    if ( scalar @_ == 1 ) {
+        if ( defined $_[0] ) {
+            if ( ref $_[0] eq 'HASH' ) {
+                return { %{ $_[0] } };
+            } elsif ( ref $_[0] eq 'ARRAY' ) {
+                return { elements => $_[0] };
+            }
+        }
+        die "Single parameters to new() must be a HASH or ARRAY ref"
+            ." data => ". $_[0] ."\n";
+    }
+    elsif ( @_ % 2 ) {
+        die "The new() method for $class expects a hash reference or a key/value list."
+                . " You passed an odd number of arguments\n";
+    }
+    else {
+        return {@_};
+    }
+}
+
+
 sub _eq {
     my ($self, $obj) = (shift, shift);
     
