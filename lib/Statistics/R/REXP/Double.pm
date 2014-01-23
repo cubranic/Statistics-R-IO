@@ -11,15 +11,14 @@ use namespace::clean;
 
 with 'Statistics::R::REXP::Vector';
 
-around BUILDARGS => sub {
-    my $orig = shift;
-    my $args = $orig->(@_);
-    
-    sub flatten { map { ref $_ ? flatten(@{$_}) : $_ } @_; }
-    $args->{elements} = [ map { looks_like_number $_ ? $_ : undef } flatten(@{$args->{elements}}) ];
-    
-    return $args;
-};
+has '+elements' => (
+    coerce => sub {
+        my $x = shift;
+        sub flatten { map { ref $_ ? flatten(@{$_}) : $_ } @_; }
+        [ map { looks_like_number $_ ? $_ : undef } flatten(@{$x}) ]
+    },
+);
+
 
 sub _type { 'double'; }
 
