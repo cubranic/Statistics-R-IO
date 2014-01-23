@@ -31,6 +31,32 @@ use overload
     'cmp' => \&cmp,
     '""' => sub { 'symbol `'. shift->name .'`' };
 
+sub BUILDARGS {
+    my $class = shift;
+    if ( scalar @_ == 1 ) {
+        if ( defined $_[0] ) {
+            if ( ref $_[0] eq 'HASH' ) {
+                return { %{ $_[0] } };
+            } elsif ( blessed $_[0] && $_[0]->isa('Statistics::R::REXP::Symbol') ) {
+                # copy constructor from another name
+                return { name => $_[0]->name };
+            } elsif ( ! ref $_[0] ) {
+                # name as scalar
+                return { name => $_[0] };
+            }
+        }
+        die "Single parameters to new() must be a HASH data "
+            ." or a Statistics::R::REXP::Symbol object => ". $_[0] ."\n";
+    }
+    elsif ( @_ % 2 ) {
+        die "The new() method for $class expects a hash reference or a key/value list."
+                . " You passed an odd number of arguments\n";
+    }
+    else {
+        return {@_};
+    }
+}
+
 sub cmp {
     my ($self, $obj) = (shift, shift);
     return (equal_class($self, $obj) and
