@@ -3,9 +3,10 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 22;
+use Test::More tests => 24;
 
 use Statistics::R::REXP::List;
+use Statistics::R::REXP::Double;
 
 my $empty_list = new_ok('Statistics::R::REXP::List', [  ], 'new generic vector' );
 
@@ -17,6 +18,10 @@ is($empty_list, $empty_list_2, 'empty generic vector equality');
 my $list = Statistics::R::REXP::List->new(elements => [3.3, '4', 11]);
 my $list2 = Statistics::R::REXP::List->new([3.3, 4, 11]);
 is($list, $list2, 'generic vector equality');
+
+is(Statistics::R::REXP::List->new($list2), $list, 'copy constructor');
+is(Statistics::R::REXP::List->new(Statistics::R::REXP::Double->new([3.3, 4, 11])),
+   $list, 'copy constructor from a vector');
 
 my $another_list = Statistics::R::REXP::List->new(elements => [3.3, 4, 10.9]);
 isnt($list, $another_list, 'generic vector inequality');

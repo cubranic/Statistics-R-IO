@@ -4,6 +4,8 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
+use Scalar::Util qw(blessed);
+
 use Moo::Role;
 
 with 'Statistics::R::REXP';
@@ -33,10 +35,13 @@ sub BUILDARGS {
                 return { %{ $_[0] } };
             } elsif ( ref $_[0] eq 'ARRAY' ) {
                 return { elements => $_[0] };
+            } elsif ( blessed $_[0] && $_[0]->can('does') &&
+                      $_[0]->does('Statistics::R::REXP::Vector') ) {
+                return { elements => $_[0]->elements };
             }
         }
         die "Single parameters to new() must be a HASH or ARRAY ref"
-            ." data => ". $_[0] ."\n";
+            ." data or a Statistics::R::REXP::Vector object => ". $_[0] ."\n";
     }
     elsif ( @_ % 2 ) {
         die "The new() method for $class expects a hash reference or a key/value list."

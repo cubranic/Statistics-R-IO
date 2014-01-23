@@ -3,9 +3,10 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 16;
+use Test::More tests => 18;
 
 use Statistics::R::REXP::Logical;
+use Statistics::R::REXP::List;
 
 my $empty_vec = new_ok('Statistics::R::REXP::Logical', [  ], 'new logical vector' );
 
@@ -17,6 +18,10 @@ is($empty_vec, $empty_vec_2, 'empty logical vector equality');
 my $vec = Statistics::R::REXP::Logical->new(elements => [1, 0, 1, 0]);
 my $vec2 = Statistics::R::REXP::Logical->new([3.3, '', 'bla', '0']);
 is($vec, $vec2, 'logical vector equality');
+
+is(Statistics::R::REXP::Logical->new($vec2), $vec, 'copy constructor');
+is(Statistics::R::REXP::Logical->new(Statistics::R::REXP::List->new([3.3, '', ['bla', 0]])),
+   $vec, 'copy constructor from a vector');
 
 my $another_vec = Statistics::R::REXP::Logical->new(elements => [1, 0, 1, undef]);
 isnt($vec, $another_vec, 'logical vector inequality');

@@ -3,9 +3,10 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 18;
+use Test::More tests => 20;
 
 use Statistics::R::REXP::Character;
+use Statistics::R::REXP::List;
 
 my $empty_vec = new_ok('Statistics::R::REXP::Character', [  ], 'new character vector' );
 
@@ -17,6 +18,10 @@ is($empty_vec, $empty_vec_2, 'empty character vector equality');
 my $vec = Statistics::R::REXP::Character->new(elements => [3.3, '4.7', 'bar']);
 my $vec2 = Statistics::R::REXP::Character->new([3.3, 4.7, 'bar']);
 is($vec, $vec2, 'character vector equality');
+
+is(Statistics::R::REXP::Character->new($vec2), $vec, 'copy constructor');
+is(Statistics::R::REXP::Character->new(Statistics::R::REXP::List->new([3.3, [4.7, 'bar']])),
+   $vec, 'copy constructor from a vector');
 
 my $another_vec = Statistics::R::REXP::Character->new(elements => [3.3, '4.7', 'bar', undef]);
 isnt($vec, $another_vec, 'character vector inequality');

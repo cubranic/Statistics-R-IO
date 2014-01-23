@@ -3,9 +3,10 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 18;
+use Test::More tests => 20;
 
 use Statistics::R::REXP::Double;
+use Statistics::R::REXP::List;
 
 my $empty_vec = new_ok('Statistics::R::REXP::Double', [  ], 'new double vector' );
 
@@ -17,6 +18,10 @@ is($empty_vec, $empty_vec_2, 'empty double vector equality');
 my $vec = Statistics::R::REXP::Double->new(elements => [3.3, 4.7, 11]);
 my $vec2 = Statistics::R::REXP::Double->new([3.3, 4.7, 11]);
 is($vec, $vec2, 'double vector equality');
+
+is(Statistics::R::REXP::Double->new($vec2), $vec, 'copy constructor');
+is(Statistics::R::REXP::Double->new(Statistics::R::REXP::List->new([3.3, [4.7, 11]])),
+   $vec, 'copy constructor from a vector');
 
 my $another_vec = Statistics::R::REXP::Double->new(elements => [3, 4.7, 11]);
 isnt($vec, $another_vec, 'double vector inequality');
