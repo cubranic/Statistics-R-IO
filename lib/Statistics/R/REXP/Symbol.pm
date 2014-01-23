@@ -27,7 +27,9 @@ has name => (
     },
 );
 
-use overload 'cmp' => \&cmp;
+use overload
+    'cmp' => \&cmp,
+    '""' => sub { 'symbol `'. shift->name .'`' };
 
 sub cmp {
     my ($self, $obj) = (shift, shift);
