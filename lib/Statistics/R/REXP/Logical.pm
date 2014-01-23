@@ -9,15 +9,15 @@ use namespace::clean;
 
 with 'Statistics::R::REXP::Vector';
 
-has elements => (
-    is => 'ro',
-    default => sub { []; },
-    coerce => sub { 
-        my $x = shift;
-        sub flatten { map { ref $_ ? flatten(@{$_}) : $_ } @_; }
-        [ map { defined $_ ? ($_ ? 1 : 0) : undef } flatten(@{$x}) ]
-    },
-);
+around BUILDARGS => sub {
+    my $orig = shift;
+    my $args = $orig->(@_);
+    
+    sub flatten { map { ref $_ ? flatten(@{$_}) : $_ } @_; }
+    $args->{elements} = [ map { defined $_ ? ($_ ? 1 : 0) : undef } flatten(@{$args->{elements}}) ];
+    
+    return $args;
+};
 
 sub _type { 'logical'; }
 

@@ -19,6 +19,10 @@ has type => (
     default => sub { shift->_type; },
 );
 
+has elements => (
+    is => 'ro',
+    default => sub { []; },
+);
 
 sub _eq {
     my ($self, $obj) = (shift, shift);

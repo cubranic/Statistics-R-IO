@@ -9,11 +9,6 @@ use namespace::clean;
 
 with 'Statistics::R::REXP::Vector';
 
-has elements => (
-    is => 'ro',
-    default => sub { []; },
-);
-
 sub to_s {
     my $self = shift;
     
