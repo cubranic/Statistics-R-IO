@@ -22,6 +22,10 @@ has type => (
 has elements => (
     is => 'ro',
     default => sub { []; },
+    isa => sub {
+        die "Vector elements must be an ARRAY ref". $_[0] ."\n"
+            if defined $_[0] and ref $_[0] ne ref [];
+    },
 );
 
 

@@ -15,7 +15,7 @@ has '+elements' => (
     coerce => sub {
         my $x = shift;
         sub flatten { map { ref $_ ? flatten(@{$_}) : $_ } @_; }
-        [ map { looks_like_number $_ ? int($_ + 0.5) : undef } flatten(@{$x}) ]
+        [ map { looks_like_number $_ ? int($_ + 0.5) : undef } flatten(@{$x}) ] if ref $x eq ref []
     },
 );
 

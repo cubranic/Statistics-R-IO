@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 25;
+use Test::More tests => 26;
 use Test::Fatal;
 
 use Statistics::R::REXP::Logical;
@@ -33,6 +33,10 @@ like(exception {
         Statistics::R::REXP::Logical->new(1, 2, 3)
      }, qr/odd number of arguments/,
      'odd constructor arguments');
+like(exception {
+        Statistics::R::REXP::Logical->new(elements => {foo => 1, bar => 2})
+     }, qr/elements must be an ARRAY ref/,
+     'bad elements argument');
 
 my $another_vec = Statistics::R::REXP::Logical->new(elements => [1, 0, 1, undef]);
 isnt($vec, $another_vec, 'logical vector inequality');

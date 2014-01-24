@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 31;
+use Test::More tests => 32;
 use Test::Fatal;
 
 use Statistics::R::REXP::List;
@@ -33,6 +33,10 @@ like(exception {
         Statistics::R::REXP::List->new(1, 2, 3)
      }, qr/odd number of arguments/,
      'odd constructor arguments');
+like(exception {
+        Statistics::R::REXP::List->new(elements => {foo => 1, bar => 2})
+     }, qr/elements must be an ARRAY ref/,
+     'bad elements argument');
 
 my $another_list = Statistics::R::REXP::List->new(elements => [3.3, 4, 10.9]);
 isnt($list, $another_list, 'generic vector inequality');

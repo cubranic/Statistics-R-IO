@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 27;
+use Test::More tests => 28;
 use Test::Fatal;
 
 use Statistics::R::REXP::Character;
@@ -33,6 +33,10 @@ like(exception {
         Statistics::R::REXP::Character->new(1, 2, 3)
      }, qr/odd number of arguments/,
      'odd constructor arguments');
+like(exception {
+        Statistics::R::REXP::Character->new(elements => {foo => 1, bar => 2})
+     }, qr/elements must be an ARRAY ref/,
+     'bad elements argument');
 
 my $another_vec = Statistics::R::REXP::Character->new(elements => [3.3, '4.7', 'bar', undef]);
 isnt($vec, $another_vec, 'character vector inequality');
