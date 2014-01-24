@@ -28,7 +28,6 @@ has name => (
 );
 
 use overload
-    'cmp' => \&cmp,
     '""' => sub { 'symbol `'. shift->name .'`' };
 
 sub BUILDARGS {
@@ -57,10 +56,10 @@ sub BUILDARGS {
     }
 }
 
-sub cmp {
-    my ($self, $obj) = (shift, shift);
-    return (equal_class($self, $obj) and
-            ($self->name cmp $obj->name));
-}
+
+around _eq => sub {
+    my $orig = shift;
+    $orig->(@_) and ($_[0]->name eq $_[1]->name);
+};
 
 1; # End of Statistics::R::REXP::Symbol

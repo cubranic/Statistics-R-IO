@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 8;
+use Test::More tests => 12;
 
 use Statistics::R::REXP::Symbol;
 
@@ -22,3 +22,13 @@ isnt($sym, $sym_foo, 'symbol inequality');
 is($sym->name, 'sym', 'symbol name');
 
 ok(! $sym->is_null, 'is not null');
+
+
+## attributes
+is_deeply($sym->attributes, undef, 'default attributes');
+
+my $sym_attr = Statistics::R::REXP::Symbol->new(name => $sym->name,
+                                                attributes => { foo => 'bar', x => 42 });
+is_deeply($sym_attr->attributes, { foo => 'bar', x => 42 }, 'constructed attributes');
+is($sym_attr, $sym_attr, 'equality considers attributes');
+isnt($sym_attr, $sym, 'inequality considers attributes');

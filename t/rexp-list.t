@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 24;
+use Test::More tests => 28;
 
 use Statistics::R::REXP::List;
 use Statistics::R::REXP::Double;
@@ -57,3 +57,13 @@ is($nested_list->to_s, 'list(3.3, 4, [b, [cc, 44.1]], 11)',
 
 ok(! $empty_list->is_null, 'is not null');
 ok( $empty_list->is_vector, 'is vector');
+
+
+## attributes
+is_deeply($list->attributes, undef, 'default attributes');
+
+my $list_attr = Statistics::R::REXP::List->new(elements => $list->elements,
+                                               attributes => { foo => 'bar', x => 42 });
+is_deeply($list_attr->attributes, { foo => 'bar', x => 42 }, 'constructed attributes');
+is($list_attr, $list_attr, 'equality considers attributes');
+isnt($list_attr, $list, 'inequality considers attributes');

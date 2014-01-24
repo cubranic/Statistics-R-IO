@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 20;
+use Test::More tests => 24;
 
 use Statistics::R::REXP::Character;
 use Statistics::R::REXP::List;
@@ -49,3 +49,13 @@ is_deeply(Statistics::R::REXP::Character->new(elements => [3.3, 4.0, [7, ['a', '
 
 ok(! $empty_vec->is_null, 'is not null');
 ok( $empty_vec->is_vector, 'is vector');
+
+
+## attributes
+is_deeply($vec->attributes, undef, 'default attributes');
+
+my $vec_attr = Statistics::R::REXP::Character->new(elements => $vec->elements,
+                                                   attributes => { foo => 'bar', x => 42 });
+is_deeply($vec_attr->attributes, { foo => 'bar', x => 42 }, 'constructed attributes');
+is($vec_attr, $vec_attr, 'equality considers attributes');
+isnt($vec_attr, $vec, 'inequality considers attributes');

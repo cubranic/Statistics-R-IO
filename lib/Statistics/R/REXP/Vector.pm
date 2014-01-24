@@ -12,9 +12,7 @@ with 'Statistics::R::REXP';
 
 requires qw(to_s _type);
 
-use overload 'eq' => \&_eq,
-    'ne' => sub { ! _eq(@_); },
-    '""' => sub { shift->to_s; };
+use overload '""' => sub { shift->to_s; };
 
 has type => (
     is => 'ro',
@@ -53,11 +51,15 @@ sub BUILDARGS {
 }
 
 
-sub _eq {
+around _eq => sub {
+    my $orig = shift;
+
+    return undef unless $orig->(@_);
+
     my ($self, $obj) = (shift, shift);
     
-    return undef unless equal_class(@_) and
-        scalar(@{$self->elements}) == scalar(@{$obj->elements});
+    return undef unless scalar(@{$self->elements}) ==
+        scalar(@{$obj->elements});
     for (my $i = 0; $i < scalar(@{$self->elements}); $i++) {
         my $a = $self->elements->[$i];
         my $b = $obj->elements->[$i];
@@ -68,7 +70,7 @@ sub _eq {
         }
     }
     return 1;
-}
+};
 
 
 sub to_s {
