@@ -22,7 +22,7 @@ has name => (
             $x->name;
         } else {
             die "Symbol name must be a non-reference scalar or another Symbol".
-                $_[0] ."\n";
+                $x ."\n";
         }
     },
 );
@@ -44,7 +44,7 @@ sub BUILDARGS {
                 return { name => $_[0] };
             }
         }
-        die "Single parameters to new() must be a HASH data "
+        die "Single parameters to new() must be a HASH data"
             ." or a Statistics::R::REXP::Symbol object => ". $_[0] ."\n";
     }
     elsif ( @_ % 2 ) {
