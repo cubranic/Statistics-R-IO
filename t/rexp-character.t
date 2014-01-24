@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 25;
+use Test::More tests => 27;
 use Test::Fatal;
 
 use Statistics::R::REXP::Character;
@@ -23,6 +23,16 @@ is($vec, $vec2, 'character vector equality');
 is(Statistics::R::REXP::Character->new($vec2), $vec, 'copy constructor');
 is(Statistics::R::REXP::Character->new(Statistics::R::REXP::List->new([3.3, [4.7, 'bar']])),
    $vec, 'copy constructor from a vector');
+
+## error checking in constructor arguments
+like(exception {
+        Statistics::R::REXP::Character->new(sub {1+1})
+     }, qr/HASH or ARRAY ref data or a Statistics::R::REXP::Vector/,
+     'error-check in single-arg constructor');
+like(exception {
+        Statistics::R::REXP::Character->new(1, 2, 3)
+     }, qr/odd number of arguments/,
+     'odd constructor arguments');
 
 my $another_vec = Statistics::R::REXP::Character->new(elements => [3.3, '4.7', 'bar', undef]);
 isnt($vec, $another_vec, 'character vector inequality');

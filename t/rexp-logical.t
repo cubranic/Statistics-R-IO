@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 23;
+use Test::More tests => 25;
 use Test::Fatal;
 
 use Statistics::R::REXP::Logical;
@@ -23,6 +23,16 @@ is($vec, $vec2, 'logical vector equality');
 is(Statistics::R::REXP::Logical->new($vec2), $vec, 'copy constructor');
 is(Statistics::R::REXP::Logical->new(Statistics::R::REXP::List->new([3.3, '', ['bla', 0]])),
    $vec, 'copy constructor from a vector');
+
+## error checking in constructor arguments
+like(exception {
+        Statistics::R::REXP::Logical->new(sub {1+1})
+     }, qr/HASH or ARRAY ref data or a Statistics::R::REXP::Vector/,
+     'error-check in single-arg constructor');
+like(exception {
+        Statistics::R::REXP::Logical->new(1, 2, 3)
+     }, qr/odd number of arguments/,
+     'odd constructor arguments');
 
 my $another_vec = Statistics::R::REXP::Logical->new(elements => [1, 0, 1, undef]);
 isnt($vec, $another_vec, 'logical vector inequality');

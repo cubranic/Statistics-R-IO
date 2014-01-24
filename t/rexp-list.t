@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 29;
+use Test::More tests => 31;
 use Test::Fatal;
 
 use Statistics::R::REXP::List;
@@ -23,6 +23,16 @@ is($list, $list2, 'generic vector equality');
 is(Statistics::R::REXP::List->new($list2), $list, 'copy constructor');
 is(Statistics::R::REXP::List->new(Statistics::R::REXP::Double->new([3.3, 4, 11])),
    $list, 'copy constructor from a vector');
+
+## error checking in constructor arguments
+like(exception {
+        Statistics::R::REXP::List->new(sub {1+1})
+     }, qr/HASH or ARRAY ref data or a Statistics::R::REXP::Vector/,
+     'error-check in single-arg constructor');
+like(exception {
+        Statistics::R::REXP::List->new(1, 2, 3)
+     }, qr/odd number of arguments/,
+     'odd constructor arguments');
 
 my $another_list = Statistics::R::REXP::List->new(elements => [3.3, 4, 10.9]);
 isnt($list, $another_list, 'generic vector inequality');

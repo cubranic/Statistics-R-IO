@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 26;
+use Test::More tests => 28;
 use Test::Fatal;
 
 use Statistics::R::REXP::Integer;
@@ -23,6 +23,16 @@ is($vec, $vec2, 'integer vector equality');
 is(Statistics::R::REXP::Integer->new($vec2), $vec, 'copy constructor');
 is(Statistics::R::REXP::Integer->new(Statistics::R::REXP::List->new([3.3, [4, '11']])),
    $vec, 'copy constructor from a vector');
+
+## error checking in constructor arguments
+like(exception {
+        Statistics::R::REXP::Integer->new(sub {1+1})
+     }, qr/HASH or ARRAY ref data or a Statistics::R::REXP::Vector/,
+     'error-check in single-arg constructor');
+like(exception {
+        Statistics::R::REXP::Integer->new(1, 2, 3)
+     }, qr/odd number of arguments/,
+     'odd constructor arguments');
 
 my $another_vec = Statistics::R::REXP::Integer->new(elements => [3, 4, 1]);
 isnt($vec, $another_vec, 'integer vector inequality');
