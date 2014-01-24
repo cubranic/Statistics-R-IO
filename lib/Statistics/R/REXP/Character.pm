@@ -1,8 +1,6 @@
 package Statistics::R::REXP::Character;
 
 use 5.012;
-use strict;
-use warnings FATAL => 'all';
 
 use Scalar::Util qw(looks_like_number);
 

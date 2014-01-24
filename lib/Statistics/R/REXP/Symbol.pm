@@ -1,8 +1,6 @@
 package Statistics::R::REXP::Symbol;
 
 use 5.012;
-use strict;
-use warnings FATAL => 'all';
 
 use Scalar::Util qw(blessed);
 

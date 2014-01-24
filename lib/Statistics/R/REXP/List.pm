@@ -1,8 +1,6 @@
 package Statistics::R::REXP::List;
 
 use 5.012;
-use strict;
-use warnings FATAL => 'all';
 
 use Moo;
 use namespace::clean;
