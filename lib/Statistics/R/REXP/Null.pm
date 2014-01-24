@@ -9,6 +9,10 @@ use namespace::clean;
 
 with 'Statistics::R::REXP';
 
+has '+attributes' => (
+    isa => sub { die 'Null cannot have attributes' if defined shift; },
+);
+
 sub is_null {
     return 1;
 }

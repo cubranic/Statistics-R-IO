@@ -3,7 +3,8 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 5;
+use Test::More tests => 7;
+use Test::Fatal;
 
 use Statistics::R::REXP::Null;
 
@@ -16,3 +17,13 @@ is($null, $null_2, 'null equality');
 isnt($null, 'null', 'null inequality');
 
 ok($null->is_null, 'is null');
+
+
+## attributes
+is_deeply($null->attributes, undef, 'default attributes');
+
+## cannot set attributes on Null
+like(exception {
+        Statistics::R::REXP::Null->new(attributes => { foo => 'bar', x => 42 })
+     }, qr/Null cannot have attributes/, 'setting null attributes');
+
