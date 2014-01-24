@@ -3,7 +3,8 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 12;
+use Test::More tests => 13;
+use Test::Fatal;
 
 use Statistics::R::REXP::Symbol;
 
@@ -32,3 +33,8 @@ my $sym_attr = Statistics::R::REXP::Symbol->new(name => $sym->name,
 is_deeply($sym_attr->attributes, { foo => 'bar', x => 42 }, 'constructed attributes');
 is($sym_attr, $sym_attr, 'equality considers attributes');
 isnt($sym_attr, $sym, 'inequality considers attributes');
+
+## attributes must be a hash
+like(exception {
+        Statistics::R::REXP::Symbol->new(attributes => 1)
+     }, qr/not a HASH ref/, 'setting non-HASH attributes');

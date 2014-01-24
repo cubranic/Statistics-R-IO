@@ -3,7 +3,8 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 28;
+use Test::More tests => 29;
+use Test::Fatal;
 
 use Statistics::R::REXP::List;
 use Statistics::R::REXP::Double;
@@ -67,3 +68,8 @@ my $list_attr = Statistics::R::REXP::List->new(elements => $list->elements,
 is_deeply($list_attr->attributes, { foo => 'bar', x => 42 }, 'constructed attributes');
 is($list_attr, $list_attr, 'equality considers attributes');
 isnt($list_attr, $list, 'inequality considers attributes');
+
+## attributes must be a hash
+like(exception {
+        Statistics::R::REXP::List->new(attributes => 1)
+     }, qr/not a HASH ref/, 'setting non-HASH attributes');

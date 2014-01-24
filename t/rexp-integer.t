@@ -3,7 +3,8 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 25;
+use Test::More tests => 26;
+use Test::Fatal;
 
 use Statistics::R::REXP::Integer;
 use Statistics::R::REXP::List;
@@ -64,3 +65,8 @@ my $vec_attr = Statistics::R::REXP::Integer->new(elements => $vec->elements,
 is_deeply($vec_attr->attributes, { foo => 'bar', x => 42 }, 'constructed attributes');
 is($vec_attr, $vec_attr, 'equality considers attributes');
 isnt($vec_attr, $vec, 'inequality considers attributes');
+
+## attributes must be a hash
+like(exception {
+        Statistics::R::REXP::Integer->new(attributes => 1)
+     }, qr/not a HASH ref/, 'setting non-HASH attributes');
