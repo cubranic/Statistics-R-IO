@@ -34,6 +34,5 @@ is_deeply(Statistics::R::IO::Parser::count(0, \&Statistics::R::IO::Parser::char)
                                            position => 0)],
           'count 0 char');
 
-is_deeply(Statistics::R::IO::Parser::count(7, \&Statistics::R::IO::Parser::char)->($state),
-          undef,
-          'count fails');
+is(Statistics::R::IO::Parser::count(7, \&Statistics::R::IO::Parser::char)->($state), undef,
+   'count fails');

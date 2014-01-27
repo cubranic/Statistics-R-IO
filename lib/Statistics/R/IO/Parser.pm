@@ -20,8 +20,7 @@ sub count {
         my @value;
 
         for (1..$n) {
-            my $result = $parser->($state);
-            return undef unless $result;
+            my $result = $parser->($state) or return;
 
             push @value, shift @$result;
             $state = shift @$result;
