@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 13;
+use Test::More tests => 15;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser;
@@ -59,3 +59,11 @@ is(Statistics::R::IO::Parser::uint32($num_state)->[0], 0x12345678,
    'uint32');
 is(Statistics::R::IO::Parser::uint32(Statistics::R::IO::Parser::uint32($num_state)->[1]), undef,
    'second uint32');
+
+
+## floating point parsers
+is(Statistics::R::IO::Parser::real32(Statistics::R::IO::ParserState->new(data => "\x45\xcc\x79\0"))->[0],
+   6543.125, 'real32');
+
+is(Statistics::R::IO::Parser::real64(Statistics::R::IO::ParserState->new(data => "\x40\x93\x4a\x45\x6d\x5c\xfa\xad"))->[0],
+   1234.5678, 'real64');

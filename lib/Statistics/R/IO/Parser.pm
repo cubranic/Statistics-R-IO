@@ -44,6 +44,22 @@ sub uint32 {
 }
 
 
+sub real32 {
+    my ($value, $state) = @{count(4, \&uint8)->(@_) or return};
+    
+    [ unpack('f>', pack 'C4' => @{$value}),
+      $state ]
+}
+
+
+sub real64 {
+    my ($value, $state) = @{count(8, \&uint8)->(@_) or return};
+    
+    [ unpack('d>', pack 'C8' => @{$value}),
+      $state ]
+}
+
+
 sub count {
     my ($n, $parser) = (shift, shift);
     sub {
