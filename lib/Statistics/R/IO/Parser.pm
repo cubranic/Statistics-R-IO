@@ -4,6 +4,19 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
+use Exporter 'import';
+
+our @EXPORT = qw( );
+our @EXPORT_OK = qw( endianness any_char char string byte
+                     uint8 uint16 uint24 uint32 real32 real64
+                     count seq choose bind );
+
+our %EXPORT_TAGS = ( all => [ @EXPORT_OK ],
+                     num => [ qw( uint8 uint16 uint24 uint32 real32 real64 ) ],
+                     char => [ qw( any_char char string byte ) ],
+                     combinator => [ qw( count seq choose bind ) ] );
+
+
 use Scalar::Util qw(looks_like_number);
 
 sub endianness {

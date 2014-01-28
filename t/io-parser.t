@@ -6,23 +6,23 @@ use warnings FATAL => 'all';
 use Test::More tests => 45;
 use Test::Fatal;
 
-use Statistics::R::IO::Parser;
+use Statistics::R::IO::Parser qw(:all);
 use Statistics::R::IO::ParserState;
 
 my $state = Statistics::R::IO::ParserState->new(data => 'foobar');
 
 ## any_char parser
-is_deeply(Statistics::R::IO::Parser::any_char($state),
+is_deeply(any_char($state),
           ['f',
            Statistics::R::IO::ParserState->new(data => 'foobar',
                                            position => 1)],
           'any_char');
-is_deeply(Statistics::R::IO::Parser::any_char($state->next->next->next->next->next->next),
+is_deeply(any_char($state->next->next->next->next->next->next),
           undef,
           'any_char at eof');
 
 ## char parser
-my $f_char = Statistics::R::IO::Parser::char('f');
+my $f_char = char('f');
 
 is_deeply($f_char->($state),
           ['f',
@@ -30,17 +30,15 @@ is_deeply($f_char->($state),
                                                position => 1)],
           'char');
 is($f_char->($state->next),
-          undef,
-          'char doesn\'t match');
+   undef, 'char doesn\'t match');
 is($f_char->($state->next->next->next->next->next->next),
-          undef,
-          'char at eof');
-like(exception { Statistics::R::IO::Parser::char('foo') },
+   undef, 'char at eof');
+like(exception { char('foo') },
      qr/Must be a single-char argument/, "bad 'char' argument");
 
 
 ## string parser
-my $foo_string = Statistics::R::IO::Parser::string('foo');
+my $foo_string = string('foo');
 
 is_deeply($foo_string->($state),
           ['foo',
@@ -51,12 +49,12 @@ is($foo_string->($state->next),
    undef, 'string doesn\'t match');
 is($foo_string->($state->next->next->next->next->next->next),
    undef, 'string at eof');
-like(exception { Statistics::R::IO::Parser::string(['foo']) },
+like(exception { string(['foo']) },
      qr/Must be a scalar argument/, "bad 'string' argument");
 
 
 ## byte parser
-my $f_byte = Statistics::R::IO::Parser::byte(ord('f'));
+my $f_byte = byte(ord('f'));
 
 is_deeply($f_byte->($state),
           [ord('f'),
@@ -67,91 +65,91 @@ is($f_byte->($state->next),
    undef, 'byte doesn\'t match');
 is($f_byte->($state->next->next->next->next->next->next),
    undef, 'byte at eof');
-like(exception { Statistics::R::IO::Parser::byte('f') },
+like(exception { byte('f') },
      qr/Argument must be a number 0-255/, "bad 'byte' argument");
 
 
 ## count combinator
-is_deeply(Statistics::R::IO::Parser::count(3, \&Statistics::R::IO::Parser::any_char)->($state),
+is_deeply(count(3, \&any_char)->($state),
           [['f', 'o', 'o'],
            Statistics::R::IO::ParserState->new(data => 'foobar',
                                            position => 3)],
           'count 3 any_char');
 
-is_deeply(Statistics::R::IO::Parser::count(0, \&Statistics::R::IO::Parser::any_char)->($state),
+is_deeply(count(0, \&any_char)->($state),
           [[],
            Statistics::R::IO::ParserState->new(data => 'foobar',
                                                position => 0)],
           'count 0 any_char');
 
-is(Statistics::R::IO::Parser::count(7, \&Statistics::R::IO::Parser::any_char)->($state), undef,
+is(count(7, \&any_char)->($state), undef,
    'count fails');
 
 
 ## int parsers
 my $num_state = Statistics::R::IO::ParserState->new(data => pack('N', 0x12345678));
-is(Statistics::R::IO::Parser::uint8($num_state)->[0], 0x12,
+is(uint8($num_state)->[0], 0x12,
    'uint8');
-is(Statistics::R::IO::Parser::uint8(Statistics::R::IO::Parser::uint8($num_state)->[1])->[0], 0x34,
+is(uint8(uint8($num_state)->[1])->[0], 0x34,
    'second uint8');
 
-is(Statistics::R::IO::Parser::uint16($num_state)->[0], 0x1234,
+is(uint16($num_state)->[0], 0x1234,
    'uint16');
-is(Statistics::R::IO::Parser::uint16(Statistics::R::IO::Parser::uint16($num_state)->[1])->[0], 0x5678,
+is(uint16(uint16($num_state)->[1])->[0], 0x5678,
    'second uint16');
 
-is(Statistics::R::IO::Parser::uint24($num_state)->[0], 0x123456,
+is(uint24($num_state)->[0], 0x123456,
    'uint24');
-is(Statistics::R::IO::Parser::uint24(Statistics::R::IO::Parser::uint24($num_state)->[1]), undef,
+is(uint24(uint24($num_state)->[1]), undef,
    'second uint24');
 
-is(Statistics::R::IO::Parser::uint32($num_state)->[0], 0x12345678,
+is(uint32($num_state)->[0], 0x12345678,
    'uint32');
-is(Statistics::R::IO::Parser::uint32(Statistics::R::IO::Parser::uint32($num_state)->[1]), undef,
+is(uint32(uint32($num_state)->[1]), undef,
    'second uint32');
 
 
 ## floating point parsers
-is(Statistics::R::IO::Parser::real32(Statistics::R::IO::ParserState->new(data => "\x45\xcc\x79\0"))->[0],
+is(real32(Statistics::R::IO::ParserState->new(data => "\x45\xcc\x79\0"))->[0],
    6543.125, 'real32');
 
-is(Statistics::R::IO::Parser::real64(Statistics::R::IO::ParserState->new(data => "\x40\x93\x4a\x45\x6d\x5c\xfa\xad"))->[0],
+is(real64(Statistics::R::IO::ParserState->new(data => "\x40\x93\x4a\x45\x6d\x5c\xfa\xad"))->[0],
    1234.5678, 'real64');
 
 
 ## endianness
-is(Statistics::R::IO::Parser::endianness, '>',
+is(endianness, '>',
    'get endianness');
-is(Statistics::R::IO::Parser::endianness('<'), '<',
+is(endianness('<'), '<',
    'set endianness');
-is(Statistics::R::IO::Parser::endianness('bla'), '<',
+is(endianness('bla'), '<',
    'ignore bad endianness value');
 
-is(Statistics::R::IO::Parser::uint16($num_state)->[0], 0x3412,
+is(uint16($num_state)->[0], 0x3412,
    'uint16 little endian');
-is(Statistics::R::IO::Parser::uint16(Statistics::R::IO::Parser::uint16($num_state)->[1])->[0], 0x7856,
+is(uint16(uint16($num_state)->[1])->[0], 0x7856,
    'second uint16 little endian');
 
-is(Statistics::R::IO::Parser::uint24($num_state)->[0], 0x563412,
+is(uint24($num_state)->[0], 0x563412,
    'uint24 little endian');
-is(Statistics::R::IO::Parser::uint24(Statistics::R::IO::Parser::uint24($num_state)->[1]), undef,
+is(uint24(uint24($num_state)->[1]), undef,
    'second uint24 little endian');
 
-is(Statistics::R::IO::Parser::uint32($num_state)->[0], 0x78563412,
+is(uint32($num_state)->[0], 0x78563412,
    'uint32 little endian');
-is(Statistics::R::IO::Parser::uint32(Statistics::R::IO::Parser::uint32($num_state)->[1]), undef,
+is(uint32(uint32($num_state)->[1]), undef,
    'second uint32 little endian');
 
-is(Statistics::R::IO::Parser::real32(Statistics::R::IO::ParserState->new(data => "\0\x79\xcc\x45"))->[0],
+is(real32(Statistics::R::IO::ParserState->new(data => "\0\x79\xcc\x45"))->[0],
    6543.125, 'real32 little endian');
 
-is(Statistics::R::IO::Parser::real64(Statistics::R::IO::ParserState->new(data => "\xad\xfa\x5c\x6d\x45\x4a\x93\x40"))->[0],
+is(real64(Statistics::R::IO::ParserState->new(data => "\xad\xfa\x5c\x6d\x45\x4a\x93\x40"))->[0],
    1234.5678, 'real64 little endian');
 
 
 ## seq combinator
-my $f_oob_seq = Statistics::R::IO::Parser::seq(Statistics::R::IO::Parser::char('f'),
-                                               Statistics::R::IO::Parser::string('oob'));
+my $f_oob_seq = seq(char('f'),
+                                               string('oob'));
 is_deeply($f_oob_seq->($state),
           [['f', 'oob'],
            Statistics::R::IO::ParserState->new(data => 'foobar',
@@ -162,9 +160,9 @@ is($f_oob_seq->($state->next),
 
 
 ## choose combinator
-my $f_oob_choose = Statistics::R::IO::Parser::choose(Statistics::R::IO::Parser::char('f'),
-                                                     Statistics::R::IO::Parser::string('oob'),
-                                                     Statistics::R::IO::Parser::char('o'));
+my $f_oob_choose = choose(char('f'),
+                                                     string('oob'),
+                                                     char('o'));
 is_deeply($f_oob_choose->($state),
           ['f',
            Statistics::R::IO::ParserState->new(data => 'foobar',
@@ -180,11 +178,11 @@ is($f_oob_choose->($state->next->next->next),
 
 
 ## bind combinator
-my $len_chars_bind = Statistics::R::IO::Parser::bind(
-    \&Statistics::R::IO::Parser::uint8,
+my $len_chars_bind = bind(
+    \&uint8,
     sub {
         my $n = shift or return;
-        Statistics::R::IO::Parser::count($n, \&Statistics::R::IO::Parser::uint8)
+        count($n, \&uint8)
     });
 
 is_deeply($len_chars_bind->(Statistics::R::IO::ParserState->new(data => "\3\x2a\7\0"))->[0],
