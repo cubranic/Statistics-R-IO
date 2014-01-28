@@ -33,6 +33,19 @@ sub char {
 }
 
 
+sub string {
+    my $arg = shift;
+    die 'Must be a scalar argument: ' . $arg unless $arg && !ref($arg);
+    my $chars = count(length($arg), \&any_char);
+
+    sub {
+        my ($char_values, $state) = @{$chars->(@_) or return};
+        return unless join('', @{$char_values}) eq $arg;
+        [ $arg, $state ]
+    }
+}
+
+
 sub uint8 {
     my ($value, $state) = @{any_char @_ or return};
     

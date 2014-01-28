@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 30;
+use Test::More tests => 34;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser;
@@ -37,6 +37,23 @@ is($f_char->($state->next->next->next->next->next->next),
           'char at eof');
 like(exception { Statistics::R::IO::Parser::char('foo') },
      qr/Must be a single-char argument/, "bad 'char' argument");
+
+
+## string parser
+my $foo_string = Statistics::R::IO::Parser::string('foo');
+
+is_deeply($foo_string->($state),
+          ['foo',
+           Statistics::R::IO::ParserState->new(data => 'foobar',
+                                               position => 3)],
+          'string');
+is($foo_string->($state->next),
+   undef, 'string doesn\'t match');
+is($foo_string->($state->next->next->next->next->next->next),
+   undef, 'string at eof');
+like(exception { Statistics::R::IO::Parser::string(['foo']) },
+     qr/Must be a scalar argument/, "bad 'string' argument");
+
 
 ## count combinator
 is_deeply(Statistics::R::IO::Parser::count(3, \&Statistics::R::IO::Parser::any_char)->($state),
