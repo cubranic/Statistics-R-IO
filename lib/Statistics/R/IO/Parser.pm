@@ -4,6 +4,13 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
+sub endianness {
+    state $endianness = '>';
+    my $new_value = shift if @_ or return $endianness;
+    $endianness = $new_value =~ /^[<>]$/ && $new_value || $endianness;
+}
+
+
 sub char {
     my $state = shift;
 
@@ -23,7 +30,7 @@ sub uint8 {
 sub uint16 {
     my ($value, $state) = @{count(2, \&uint8)->(@_) or return};
     
-    [ unpack('S>', pack 'C2' => @{$value}),
+    [ unpack("S" . endianness, pack 'C2' => @{$value}),
       $state ]
 }
 
@@ -31,7 +38,8 @@ sub uint16 {
 sub uint24 {
     my ($value, $state) = @{count(3, \&uint8)->(@_) or return};
     
-    [ unpack('L>', "\0" . pack 'C3' => @{$value}),
+    [ unpack("L" . endianness,
+             pack(endianness eq '>' ? 'xC3' : 'C3x', @{$value})),
       $state ]
 }
 
@@ -39,7 +47,7 @@ sub uint24 {
 sub uint32 {
     my ($value, $state) = @{count(4, \&uint8)->(@_) or return};
     
-    [ unpack('L>', pack 'C4' => @{$value}),
+    [ unpack("L" . endianness, pack 'C4' => @{$value}),
       $state ]
 }
 
@@ -47,7 +55,7 @@ sub uint32 {
 sub real32 {
     my ($value, $state) = @{count(4, \&uint8)->(@_) or return};
     
-    [ unpack('f>', pack 'C4' => @{$value}),
+    [ unpack("f" . endianness, pack 'C4' => @{$value}),
       $state ]
 }
 
@@ -55,7 +63,7 @@ sub real32 {
 sub real64 {
     my ($value, $state) = @{count(8, \&uint8)->(@_) or return};
     
-    [ unpack('d>', pack 'C8' => @{$value}),
+    [ unpack("d" . endianness, pack 'C8' => @{$value}),
       $state ]
 }
 

@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 15;
+use Test::More tests => 26;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser;
@@ -67,3 +67,33 @@ is(Statistics::R::IO::Parser::real32(Statistics::R::IO::ParserState->new(data =>
 
 is(Statistics::R::IO::Parser::real64(Statistics::R::IO::ParserState->new(data => "\x40\x93\x4a\x45\x6d\x5c\xfa\xad"))->[0],
    1234.5678, 'real64');
+
+
+## endianness
+is(Statistics::R::IO::Parser::endianness, '>',
+   'get endianness');
+is(Statistics::R::IO::Parser::endianness('<'), '<',
+   'set endianness');
+is(Statistics::R::IO::Parser::endianness('bla'), '<',
+   'ignore bad endianness value');
+
+is(Statistics::R::IO::Parser::uint16($num_state)->[0], 0x3412,
+   'uint16 little endian');
+is(Statistics::R::IO::Parser::uint16(Statistics::R::IO::Parser::uint16($num_state)->[1])->[0], 0x7856,
+   'second uint16 little endian');
+
+is(Statistics::R::IO::Parser::uint24($num_state)->[0], 0x563412,
+   'uint24 little endian');
+is(Statistics::R::IO::Parser::uint24(Statistics::R::IO::Parser::uint24($num_state)->[1]), undef,
+   'second uint24 little endian');
+
+is(Statistics::R::IO::Parser::uint32($num_state)->[0], 0x78563412,
+   'uint32 little endian');
+is(Statistics::R::IO::Parser::uint32(Statistics::R::IO::Parser::uint32($num_state)->[1]), undef,
+   'second uint32 little endian');
+
+is(Statistics::R::IO::Parser::real32(Statistics::R::IO::ParserState->new(data => "\0\x79\xcc\x45"))->[0],
+   6543.125, 'real32 little endian');
+
+is(Statistics::R::IO::Parser::real64(Statistics::R::IO::ParserState->new(data => "\xad\xfa\x5c\x6d\x45\x4a\x93\x40"))->[0],
+   1234.5678, 'real64 little endian');
