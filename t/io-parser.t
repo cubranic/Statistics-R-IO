@@ -11,30 +11,30 @@ use Statistics::R::IO::ParserState;
 
 my $state = Statistics::R::IO::ParserState->new(data => 'foobar');
 
-## char parser
-is_deeply(Statistics::R::IO::Parser::char($state),
+## any_char parser
+is_deeply(Statistics::R::IO::Parser::any_char($state),
           ['f',
            Statistics::R::IO::ParserState->new(data => 'foobar',
                                            position => 1)],
-          'char');
-is_deeply(Statistics::R::IO::Parser::char($state->next->next->next->next->next->next),
+          'any_char');
+is_deeply(Statistics::R::IO::Parser::any_char($state->next->next->next->next->next->next),
           undef,
-          'char at eof');
+          'any_char at eof');
 
 ## count combinator
-is_deeply(Statistics::R::IO::Parser::count(3, \&Statistics::R::IO::Parser::char)->($state),
+is_deeply(Statistics::R::IO::Parser::count(3, \&Statistics::R::IO::Parser::any_char)->($state),
           [['f', 'o', 'o'],
            Statistics::R::IO::ParserState->new(data => 'foobar',
                                            position => 3)],
-          'count 3 char');
+          'count 3 any_char');
 
-is_deeply(Statistics::R::IO::Parser::count(0, \&Statistics::R::IO::Parser::char)->($state),
+is_deeply(Statistics::R::IO::Parser::count(0, \&Statistics::R::IO::Parser::any_char)->($state),
           [[],
            Statistics::R::IO::ParserState->new(data => 'foobar',
-                                           position => 0)],
-          'count 0 char');
+                                               position => 0)],
+          'count 0 any_char');
 
-is(Statistics::R::IO::Parser::count(7, \&Statistics::R::IO::Parser::char)->($state), undef,
+is(Statistics::R::IO::Parser::count(7, \&Statistics::R::IO::Parser::any_char)->($state), undef,
    'count fails');
 
 

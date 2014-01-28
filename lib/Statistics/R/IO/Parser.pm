@@ -11,7 +11,7 @@ sub endianness {
 }
 
 
-sub char {
+sub any_char {
     my $state = shift;
 
     return undef if !$state || $state->eof;
@@ -21,7 +21,7 @@ sub char {
 
 
 sub uint8 {
-    my ($value, $state) = @{char @_ or return};
+    my ($value, $state) = @{any_char @_ or return};
     
     [ unpack('C', $value), $state ]
 }
