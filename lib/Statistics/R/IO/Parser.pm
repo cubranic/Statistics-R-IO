@@ -147,4 +147,20 @@ sub seq {
 }
 
 
+sub choose {
+    my @parsers = @_;
+    
+    sub {
+        my $state = shift or return;
+        
+        foreach my $parser (@parsers) {
+            my $result = $parser->($state);
+            return $result if $result;
+        }
+        
+        return;
+    }
+}
+
+
 1;

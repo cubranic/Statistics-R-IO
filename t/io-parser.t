@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 40;
+use Test::More tests => 43;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser;
@@ -159,3 +159,21 @@ is_deeply($f_oob_seq->($state),
           'seq');
 is($f_oob_seq->($state->next),
    undef, 'seq fails');
+
+
+## choose combinator
+my $f_oob_choose = Statistics::R::IO::Parser::choose(Statistics::R::IO::Parser::char('f'),
+                                                     Statistics::R::IO::Parser::string('oob'),
+                                                     Statistics::R::IO::Parser::char('o'));
+is_deeply($f_oob_choose->($state),
+          ['f',
+           Statistics::R::IO::ParserState->new(data => 'foobar',
+                                               position => 1)],
+          'seq first');
+is_deeply($f_oob_choose->($state->next),
+          ['oob',
+           Statistics::R::IO::ParserState->new(data => 'foobar',
+                                               position => 4)],
+          'seq second');
+is($f_oob_choose->($state->next->next->next),
+   undef, 'choose fails');
