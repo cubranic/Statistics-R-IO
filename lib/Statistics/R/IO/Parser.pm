@@ -163,4 +163,17 @@ sub choose {
 }
 
 
+sub bind {
+    my ($p1, $fp2) = (shift, shift);
+    die "'bind' expects two arguments" unless $p1 && $fp2;
+    
+    sub {
+        my $v1 = $p1->(shift or return);
+        
+        my ($value, $state) = @{$v1 or return};
+        $fp2->($value)->($state)
+    }
+}
+
+
 1;

@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 43;
+use Test::More tests => 45;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser;
@@ -177,3 +177,18 @@ is_deeply($f_oob_choose->($state->next),
           'seq second');
 is($f_oob_choose->($state->next->next->next),
    undef, 'choose fails');
+
+
+## bind combinator
+my $len_chars_bind = Statistics::R::IO::Parser::bind(
+    \&Statistics::R::IO::Parser::uint8,
+    sub {
+        my $n = shift or return;
+        Statistics::R::IO::Parser::count($n, \&Statistics::R::IO::Parser::uint8)
+    });
+
+is_deeply($len_chars_bind->(Statistics::R::IO::ParserState->new(data => "\3\x2a\7\0"))->[0],
+          [42, 7, 0],
+          'bind');
+is($len_chars_bind->(Statistics::R::IO::ParserState->new(data => "\3\x2a\7")),
+   undef, 'bind fails');
