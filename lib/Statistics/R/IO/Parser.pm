@@ -20,6 +20,19 @@ sub any_char {
 }
 
 
+sub char {
+    my $arg = shift;
+    die 'Must be a single-char argument: ' . $arg unless length($arg) == 1;
+    
+    sub {
+        my $state = shift or return;
+        return if $state->eof || $arg ne $state->at;
+        
+        [ $arg, $state->next ]
+    }
+}
+
+
 sub uint8 {
     my ($value, $state) = @{any_char @_ or return};
     
