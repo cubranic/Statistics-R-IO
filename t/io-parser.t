@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 38;
+use Test::More tests => 40;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser;
@@ -147,3 +147,15 @@ is(Statistics::R::IO::Parser::real32(Statistics::R::IO::ParserState->new(data =>
 
 is(Statistics::R::IO::Parser::real64(Statistics::R::IO::ParserState->new(data => "\xad\xfa\x5c\x6d\x45\x4a\x93\x40"))->[0],
    1234.5678, 'real64 little endian');
+
+
+## seq combinator
+my $f_oob_seq = Statistics::R::IO::Parser::seq(Statistics::R::IO::Parser::char('f'),
+                                               Statistics::R::IO::Parser::string('oob'));
+is_deeply($f_oob_seq->($state),
+          [['f', 'oob'],
+           Statistics::R::IO::ParserState->new(data => 'foobar',
+                                               position => 4)],
+          'seq');
+is($f_oob_seq->($state->next),
+   undef, 'seq fails');

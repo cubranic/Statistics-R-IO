@@ -127,4 +127,24 @@ sub count {
     }
 }
 
+
+sub seq {
+    my @parsers = @_;
+    
+    sub {
+        my $state = shift;
+        my @value;
+
+        foreach my $parser (@parsers) {
+            my $result = $parser->($state) or return;
+
+            push @value, shift @$result;
+            $state = shift @$result;
+        }
+
+        return [ [ @value ], $state ];
+    }
+}
+
+
 1;
