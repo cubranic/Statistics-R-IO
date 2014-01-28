@@ -4,6 +4,8 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
+use Scalar::Util qw(looks_like_number);
+
 sub endianness {
     state $endianness = '>';
     my $new_value = shift if @_ or return $endianness;
@@ -41,6 +43,20 @@ sub string {
     sub {
         my ($char_values, $state) = @{$chars->(@_) or return};
         return unless join('', @{$char_values}) eq $arg;
+        [ $arg, $state ]
+    }
+}
+
+
+sub byte {
+    my $arg = shift;
+    die 'Argument must be a number 0-255: ' . $arg
+        unless looks_like_number($arg) && $arg < 256 && $arg >= 0;
+    
+    sub {
+        my ($value, $state) = @{any_char @_ or return};
+        return unless $arg == unpack('C', $value);
+
         [ $arg, $state ]
     }
 }
