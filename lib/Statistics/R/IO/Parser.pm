@@ -9,10 +9,11 @@ use Exporter 'import';
 our @EXPORT = qw( );
 our @EXPORT_OK = qw( endianness any_char char string byte
                      any_uint8 any_uint16 any_uint24 any_uint32 any_real32 any_real64
+                     uint8 uint16 uint24 uint32
                      count seq choose bind );
 
 our %EXPORT_TAGS = ( all => [ @EXPORT_OK ],
-                     num => [ qw( any_uint8 any_uint16 any_uint24 any_uint32 any_real32 any_real64 ) ],
+                     num => [ qw( any_uint8 any_uint16 any_uint24 any_uint32 any_real32 any_real64 uint8 uint16 uint24 uint32 ) ],
                      char => [ qw( any_char char string byte ) ],
                      combinator => [ qw( count seq choose bind ) ] );
 
@@ -104,6 +105,62 @@ sub any_uint32 {
     
     [ unpack("L" . endianness, pack 'C4' => @{$value}),
       $state ]
+}
+
+
+sub uint8 {
+    my $arg = shift;
+    die 'Argument must be a number 0-255: ' . $arg
+        unless looks_like_number($arg) && $arg < 1<<8 && $arg >= 0;
+    
+    sub {
+        my ($value, $state) = @{any_uint8 @_ or return};
+        return unless $arg == $value;
+        
+        [ $arg, $state ]
+    }
+}
+
+
+sub uint16 {
+    my $arg = shift;
+    die 'Argument must be a number 0-65535: ' . $arg
+        unless looks_like_number($arg) && $arg < 1<<16 && $arg >= 0;
+    
+    sub {
+        my ($value, $state) = @{any_uint16 @_ or return};
+        return unless $arg == $value;
+        
+        [ $arg, $state ]
+    }
+}
+
+
+sub uint24 {
+    my $arg = shift;
+    die 'Argument must be a number 0-16777215: ' . $arg
+        unless looks_like_number($arg) && $arg < 1<<24 && $arg >= 0;
+    
+    sub {
+        my ($value, $state) = @{any_uint24 @_ or return};
+        return unless $arg == $value;
+        
+        [ $arg, $state ]
+    }
+}
+
+
+sub uint32 {
+    my $arg = shift;
+    die 'Argument must be a number 0-4294967295: ' . $arg
+        unless looks_like_number($arg) && $arg < 1<<32 && $arg >= 0;
+    
+    sub {
+        my ($value, $state) = @{any_uint32 @_ or return};
+        return unless $arg == $value;
+        
+        [ $arg, $state ]
+    }
 }
 
 

@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 45;
+use Test::More tests => 69;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -109,6 +109,36 @@ is(any_uint32(any_uint32($num_state)->[1]), undef,
    'second any_uint32');
 
 
+## int parsers
+is(uint8(0x12)->($num_state)->[0], 0x12,
+   'uint8');
+is(uint8(0x34)->(uint8(0x12)->($num_state)->[1])->[0], 0x34,
+   'second uint8');
+is(uint8(0x10)->($num_state), undef,
+   'uint8 fails');
+
+is(uint16(0x1234)->($num_state)->[0], 0x1234,
+   'uint16');
+is(uint16(0x5678)->(uint16(0x1234)->($num_state)->[1])->[0], 0x5678,
+   'second uint16');
+is(uint16(0x1010)->($num_state), undef,
+   'uint16 fails');
+
+is(uint24(0x123456)->($num_state)->[0], 0x123456,
+   'uint24');
+is(uint24(0x78)->(uint24(0x123456)->($num_state)->[1]), undef,
+   'second uint24');
+is(uint24(0x1010)->($num_state), undef,
+   'uint24 fails');
+
+is(uint32(0x12345678)->($num_state)->[0], 0x12345678,
+   'uint32');
+is(uint32(0)->(uint32(0x12345678)->($num_state)->[1]), undef,
+   'second uint32');
+is(uint32(0x1010)->($num_state), undef,
+   'uint32 fails');
+
+
 ## floating point parsers
 is(any_real32(Statistics::R::IO::ParserState->new(data => "\x45\xcc\x79\0"))->[0],
    6543.125, 'any_real32');
@@ -139,6 +169,35 @@ is(any_uint32($num_state)->[0], 0x78563412,
    'any_uint32 little endian');
 is(any_uint32(any_uint32($num_state)->[1]), undef,
    'second any_uint32 little endian');
+
+## little-endian uint's
+is(uint8(0x12)->($num_state)->[0], 0x12,
+   'little-endian uint8');
+is(uint8(0x34)->(uint8(0x12)->($num_state)->[1])->[0], 0x34,
+   'second little-endian uint8');
+is(uint8(0x10)->($num_state), undef,
+   'little-endian uint8 fails');
+
+is(uint16(0x3412)->($num_state)->[0], 0x3412,
+   'little-endian uint16');
+is(uint16(0x7856)->(uint16(0x3412)->($num_state)->[1])->[0], 0x7856,
+   'second little-endian uint16');
+is(uint16(0x1010)->($num_state), undef,
+   'little-endian uint16 fails');
+
+is(uint24(0x563412)->($num_state)->[0], 0x563412,
+   'little-endian uint24');
+is(uint24(0x78)->(uint24(0x563412)->($num_state)->[1]), undef,
+   'second little-endian uint24');
+is(uint24(0x1010)->($num_state), undef,
+   'little-endian uint24 fails');
+
+is(uint32(0x78563412)->($num_state)->[0], 0x78563412,
+   'little-endian uint32');
+is(uint32(0)->(uint32(0x78563412)->($num_state)->[1]), undef,
+   'second little-endian uint32');
+is(uint32(0x1010)->($num_state), undef,
+   'little-endian uint32 fails');
 
 is(any_real32(Statistics::R::IO::ParserState->new(data => "\0\x79\xcc\x45"))->[0],
    6543.125, 'any_real32 little endian');
