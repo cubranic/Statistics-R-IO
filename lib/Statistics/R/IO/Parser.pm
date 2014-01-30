@@ -10,12 +10,12 @@ our @EXPORT = qw( );
 our @EXPORT_OK = qw( endianness any_char char string byte
                      any_uint8 any_uint16 any_uint24 any_uint32 any_real32 any_real64
                      uint8 uint16 uint24 uint32
-                     count seq choose bind );
+                     count with_count seq choose bind );
 
 our %EXPORT_TAGS = ( all => [ @EXPORT_OK ],
                      num => [ qw( any_uint8 any_uint16 any_uint24 any_uint32 any_real32 any_real64 uint8 uint16 uint24 uint32 ) ],
                      char => [ qw( any_char char string byte ) ],
-                     combinator => [ qw( count seq choose bind ) ] );
+                     combinator => [ qw( count with_count seq choose bind ) ] );
 
 
 use Scalar::Util qw(looks_like_number);
@@ -242,6 +242,20 @@ sub bind {
         my ($value, $state) = @{$v1 or return};
         $fp2->($value)->($state)
     }
+}
+
+sub with_count {
+    die "'bind' expects one or two arguments"
+        unless @_ and scalar(@_) <= 2;
+
+    unshift(@_, \&any_uint32) if (scalar(@_) == 1);
+    my ($counter, $content) = (shift, shift);
+
+    &bind($counter,
+          sub {
+              my $n = shift or return;
+              count($n, $content)
+          })
 }
 
 

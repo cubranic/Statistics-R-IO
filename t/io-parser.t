@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 69;
+use Test::More tests => 72;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -249,3 +249,20 @@ is_deeply($len_chars_bind->(Statistics::R::IO::ParserState->new(data => "\3\x2a\
           'bind');
 is($len_chars_bind->(Statistics::R::IO::ParserState->new(data => "\3\x2a\7")),
    undef, 'bind fails');
+
+
+## with_count combinator
+endianness('>');
+is_deeply(with_count(\&any_uint8,
+                     \&any_uint8)->(Statistics::R::IO::ParserState->new(data => "\3\x2a\7\0"))->[0],
+          [42, 7, 0],
+          'with_count');
+
+is_deeply(with_count(\&any_real64)->
+    (Statistics::R::IO::ParserState->new(data => "\0\0\0\1\x40\x93\x4a\x3d\x70\xa3\xd7\x0a"))->[0],
+    [ 1234.56 ],
+    'with_count default counter');
+
+is(with_count(\&any_uint8,
+              \&any_uint8)->(Statistics::R::IO::ParserState->new(data => "\3\x2a\7")),
+   undef, 'with_count fails');
