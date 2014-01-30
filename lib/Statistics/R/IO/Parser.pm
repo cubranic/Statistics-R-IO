@@ -8,11 +8,11 @@ use Exporter 'import';
 
 our @EXPORT = qw( );
 our @EXPORT_OK = qw( endianness any_char char string byte
-                     uint8 uint16 uint24 uint32 real32 real64
+                     any_uint8 any_uint16 any_uint24 any_uint32 any_real32 any_real64
                      count seq choose bind );
 
 our %EXPORT_TAGS = ( all => [ @EXPORT_OK ],
-                     num => [ qw( uint8 uint16 uint24 uint32 real32 real64 ) ],
+                     num => [ qw( any_uint8 any_uint16 any_uint24 any_uint32 any_real32 any_real64 ) ],
                      char => [ qw( any_char char string byte ) ],
                      combinator => [ qw( count seq choose bind ) ] );
 
@@ -75,23 +75,23 @@ sub byte {
 }
 
 
-sub uint8 {
+sub any_uint8 {
     my ($value, $state) = @{any_char @_ or return};
     
     [ unpack('C', $value), $state ]
 }
 
 
-sub uint16 {
-    my ($value, $state) = @{count(2, \&uint8)->(@_) or return};
+sub any_uint16 {
+    my ($value, $state) = @{count(2, \&any_uint8)->(@_) or return};
     
     [ unpack("S" . endianness, pack 'C2' => @{$value}),
       $state ]
 }
 
 
-sub uint24 {
-    my ($value, $state) = @{count(3, \&uint8)->(@_) or return};
+sub any_uint24 {
+    my ($value, $state) = @{count(3, \&any_uint8)->(@_) or return};
     
     [ unpack("L" . endianness,
              pack(endianness eq '>' ? 'xC3' : 'C3x', @{$value})),
@@ -99,24 +99,24 @@ sub uint24 {
 }
 
 
-sub uint32 {
-    my ($value, $state) = @{count(4, \&uint8)->(@_) or return};
+sub any_uint32 {
+    my ($value, $state) = @{count(4, \&any_uint8)->(@_) or return};
     
     [ unpack("L" . endianness, pack 'C4' => @{$value}),
       $state ]
 }
 
 
-sub real32 {
-    my ($value, $state) = @{count(4, \&uint8)->(@_) or return};
+sub any_real32 {
+    my ($value, $state) = @{count(4, \&any_uint8)->(@_) or return};
     
     [ unpack("f" . endianness, pack 'C4' => @{$value}),
       $state ]
 }
 
 
-sub real64 {
-    my ($value, $state) = @{count(8, \&uint8)->(@_) or return};
+sub any_real64 {
+    my ($value, $state) = @{count(8, \&any_uint8)->(@_) or return};
     
     [ unpack("d" . endianness, pack 'C8' => @{$value}),
       $state ]
@@ -182,7 +182,6 @@ sub bind {
     
     sub {
         my $v1 = $p1->(shift or return);
-        
         my ($value, $state) = @{$v1 or return};
         $fp2->($value)->($state)
     }

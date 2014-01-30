@@ -88,33 +88,33 @@ is(count(7, \&any_char)->($state), undef,
 
 ## int parsers
 my $num_state = Statistics::R::IO::ParserState->new(data => pack('N', 0x12345678));
-is(uint8($num_state)->[0], 0x12,
-   'uint8');
-is(uint8(uint8($num_state)->[1])->[0], 0x34,
-   'second uint8');
+is(any_uint8($num_state)->[0], 0x12,
+   'any_uint8');
+is(any_uint8(any_uint8($num_state)->[1])->[0], 0x34,
+   'second any_uint8');
 
-is(uint16($num_state)->[0], 0x1234,
-   'uint16');
-is(uint16(uint16($num_state)->[1])->[0], 0x5678,
-   'second uint16');
+is(any_uint16($num_state)->[0], 0x1234,
+   'any_uint16');
+is(any_uint16(any_uint16($num_state)->[1])->[0], 0x5678,
+   'second any_uint16');
 
-is(uint24($num_state)->[0], 0x123456,
-   'uint24');
-is(uint24(uint24($num_state)->[1]), undef,
-   'second uint24');
+is(any_uint24($num_state)->[0], 0x123456,
+   'any_uint24');
+is(any_uint24(any_uint24($num_state)->[1]), undef,
+   'second any_uint24');
 
-is(uint32($num_state)->[0], 0x12345678,
-   'uint32');
-is(uint32(uint32($num_state)->[1]), undef,
-   'second uint32');
+is(any_uint32($num_state)->[0], 0x12345678,
+   'any_uint32');
+is(any_uint32(any_uint32($num_state)->[1]), undef,
+   'second any_uint32');
 
 
 ## floating point parsers
-is(real32(Statistics::R::IO::ParserState->new(data => "\x45\xcc\x79\0"))->[0],
-   6543.125, 'real32');
+is(any_real32(Statistics::R::IO::ParserState->new(data => "\x45\xcc\x79\0"))->[0],
+   6543.125, 'any_real32');
 
-is(real64(Statistics::R::IO::ParserState->new(data => "\x40\x93\x4a\x45\x6d\x5c\xfa\xad"))->[0],
-   1234.5678, 'real64');
+is(any_real64(Statistics::R::IO::ParserState->new(data => "\x40\x93\x4a\x45\x6d\x5c\xfa\xad"))->[0],
+   1234.5678, 'any_real64');
 
 
 ## endianness
@@ -125,26 +125,26 @@ is(endianness('<'), '<',
 is(endianness('bla'), '<',
    'ignore bad endianness value');
 
-is(uint16($num_state)->[0], 0x3412,
-   'uint16 little endian');
-is(uint16(uint16($num_state)->[1])->[0], 0x7856,
-   'second uint16 little endian');
+is(any_uint16($num_state)->[0], 0x3412,
+   'any_uint16 little endian');
+is(any_uint16(any_uint16($num_state)->[1])->[0], 0x7856,
+   'second any_uint16 little endian');
 
-is(uint24($num_state)->[0], 0x563412,
-   'uint24 little endian');
-is(uint24(uint24($num_state)->[1]), undef,
-   'second uint24 little endian');
+is(any_uint24($num_state)->[0], 0x563412,
+   'any_uint24 little endian');
+is(any_uint24(any_uint24($num_state)->[1]), undef,
+   'second any_uint24 little endian');
 
-is(uint32($num_state)->[0], 0x78563412,
-   'uint32 little endian');
-is(uint32(uint32($num_state)->[1]), undef,
-   'second uint32 little endian');
+is(any_uint32($num_state)->[0], 0x78563412,
+   'any_uint32 little endian');
+is(any_uint32(any_uint32($num_state)->[1]), undef,
+   'second any_uint32 little endian');
 
-is(real32(Statistics::R::IO::ParserState->new(data => "\0\x79\xcc\x45"))->[0],
-   6543.125, 'real32 little endian');
+is(any_real32(Statistics::R::IO::ParserState->new(data => "\0\x79\xcc\x45"))->[0],
+   6543.125, 'any_real32 little endian');
 
-is(real64(Statistics::R::IO::ParserState->new(data => "\xad\xfa\x5c\x6d\x45\x4a\x93\x40"))->[0],
-   1234.5678, 'real64 little endian');
+is(any_real64(Statistics::R::IO::ParserState->new(data => "\xad\xfa\x5c\x6d\x45\x4a\x93\x40"))->[0],
+   1234.5678, 'any_real64 little endian');
 
 
 ## seq combinator
@@ -179,10 +179,10 @@ is($f_oob_choose->($state->next->next->next),
 
 ## bind combinator
 my $len_chars_bind = bind(
-    \&uint8,
+    \&any_uint8,
     sub {
         my $n = shift or return;
-        count($n, \&uint8)
+        count($n, \&any_uint8)
     });
 
 is_deeply($len_chars_bind->(Statistics::R::IO::ParserState->new(data => "\3\x2a\7\0"))->[0],
