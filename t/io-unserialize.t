@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 9;
+use Test::More tests => 11;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -79,6 +79,31 @@ is_deeply(bind(Statistics::R::IO::REXPFactory::header,
 is_deeply(unserialize($noatt_abc_xdr->data)->[0],
           [ 'a', 'b', 'c' ],
           'character vector no atts');
+
+
+## list (i.e., generic vector)
+## serialize list(1:3, list('a', 'b', 11), 'foo'), XDR: true
+my $noatt_list_xdr = Statistics::R::IO::ParserState->new(
+    data => "\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\0\x13\0\0\0\3\0\0\0" .
+    "\x0d\0\0\0\3\0\0\0\1\0\0\0\2\0\0\0\3\0\0\0\x13\0\0\0\3" .
+    "\0\0\0\x10\0\0\0\1\0\4\0\x09\0\0\0\1\x61\0\0\0\x10\0\0\0\1" .
+    "\0\4\0\x09\0\0\0\1\x62\0\0\0\x0e\0\0\0\1\x40\x26\0\0\0\0\0\0" .
+    "\0\0\0\x10\0\0\0\1\0\4\0\x09\0\0\0\3\x66\x6f\x6f");
+
+is_deeply(bind(Statistics::R::IO::REXPFactory::header,
+               sub {
+                   \&Statistics::R::IO::REXPFactory::unpack_object_info
+               })->($noatt_list_xdr)->[0],
+          { is_object => 0,
+            has_attributes => 0,
+            has_tag => 0,
+            object_type => 19,
+            levels => 0, },
+          'header plus object info - generic vector no atts');
+
+is_deeply(unserialize($noatt_list_xdr->data)->[0],
+          [ [ 1, 2, 3], [ ['a'], ['b'], [11] ], ['foo'] ],
+          'generic vector no atts');
 
 
 ## pairlist

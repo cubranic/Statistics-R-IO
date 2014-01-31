@@ -61,6 +61,9 @@ sub object_data {
         } elsif ($object_info->{object_type} == 16) {
             # character vector
             strsxp($object_info)->($state)
+        } elsif ($object_info->{object_type} == 19) {
+            # list (generic vector)
+            vecsxp($object_info)->($state)
         } elsif ($object_info->{object_type} == 9) {
             # internal character string
             charsxp($object_info)->($state)
@@ -139,6 +142,12 @@ sub realsxp {
 sub strsxp {
     my $object_info = shift;
     with_count(object_content)  # each element should be a charsxp
+}
+
+
+sub vecsxp {
+    my $object_info = shift;
+    with_count(object_content)  # each element can be anything
 }
 
 
