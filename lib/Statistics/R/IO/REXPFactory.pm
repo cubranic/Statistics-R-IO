@@ -64,10 +64,57 @@ sub object_data {
         } elsif ($object_info->{object_type} == 9) {
             # internal character string
             charsxp($object_info)->($state)
+        } elsif ($object_info->{object_type} == 2) {
+            # pairlist
+            listsxp($object_info)->($state)
+        } elsif ($object_info->{object_type} == 1) {
+            # sumbol
+            symsxp($object_info)->($state)
+        } elsif ($object_info->{object_type} == 0xfe) {
+            # encoded Nil
+            [ undef, ($state) ]
         } else {
             die "unimplemented SEXPTYPE: " . $object_info->{object_type};
         }
     }
+}
+
+
+sub listsxp {
+    my $object_info = shift;
+    my $sub_items = 1;          # one for CAR and one for CDR
+    if ($object_info->{has_attributes}) {
+        die "attributes on pairlists are not implemented yet";
+    }
+    if ($object_info->{has_tag}) {
+        $sub_items++;
+    }
+    
+    bind(seq(bind(count($sub_items, object_content),
+                  sub {
+                      my @args = @{shift or return};
+                      sub {
+                          my %value = (value => $args[-1]);
+                          $value{tag} = $args[-2] if $object_info->{has_tag};
+                          $value{attributes} = $args[0] if $object_info->{has_attributes};
+                          [ { %value } , shift ]
+                      }
+                  }),
+             object_content),
+         sub {
+             my @elements = @{shift or return};
+             
+             sub {
+                 my @value;
+                 while (@elements) {
+                     my ($car, $cdr) = @elements;
+                     push @value, $car;
+                     last unless defined $cdr;
+                     @elements = @{$cdr};
+                 }
+                 [ [@value], shift ]
+             }
+         })
 }
 
 
@@ -108,6 +155,11 @@ sub charsxp {
          })
 }
 
+
+sub symsxp {
+    my $object_info = shift;
+    object_content              # should be followed by a charsxp
+}
 
 sub unserialize {
     my $data = shift;

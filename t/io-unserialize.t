@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 7;
+use Test::More tests => 9;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -79,3 +79,24 @@ is_deeply(bind(Statistics::R::IO::REXPFactory::header,
 is_deeply(unserialize($noatt_abc_xdr->data)->[0],
           [ 'a', 'b', 'c' ],
           'character vector no atts');
+
+
+## pairlist
+
+my $names_attribute_pairlist = Statistics::R::IO::ParserState->new(
+    data => "\0\0\4\2\0\0\0\1\0\4\0\x09\0\0\0\5".
+    "\x6e\x61\x6d\x65\x73\0\0\0\x10\0\0\0\3\0\4\0\x09\0\0\0\1\x61\0\4\0".
+    "\x09\0\0\0\1\x62\0\4\0\x09\0\0\0\1\x63\0\0\0\xfe");
+
+is_deeply(Statistics::R::IO::REXPFactory::unpack_object_info($names_attribute_pairlist)->[0],
+          { is_object => 0,
+            has_attributes => 0,
+            has_tag => 1<<10,
+            object_type => 2,
+            levels => 0, },
+          'object info - names attribute pairlist');
+
+is_deeply(Statistics::R::IO::REXPFactory::object_content->($names_attribute_pairlist)->[0],
+          [ { tag => 'names',
+              value => [ 'a', 'b', 'c' ] } ],
+          'names attribute pairlist');
