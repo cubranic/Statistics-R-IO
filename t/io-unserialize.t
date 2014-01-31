@@ -15,8 +15,8 @@ use Statistics::R::IO::REXPFactory qw(:all);
 
 ## serialize 1:3, XDR: true
 my $noatt_123_xdr = Statistics::R::IO::ParserState->new(
-    data => "\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\0\x0d\0\0\0\3\0\0\0" .
-    "\1\0\0\0\2\0\0\0\3");
+    data => "\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\0\x0d\0\0\0\5" .
+    "\xff\xff\xff\xff" . "\0\0\0\0" . "\0\0\0\1" . "\0\0\0\2" . "\0\0\0\3");
 
 is_deeply(Statistics::R::IO::REXPFactory::header->($noatt_123_xdr)->[0],
           [ "X\n", 2, 0x030002, 0x020300 ],
@@ -34,7 +34,7 @@ is_deeply(bind(Statistics::R::IO::REXPFactory::header,
           'header plus object info - int vector no atts');
 
 is_deeply(unserialize($noatt_123_xdr->data)->[0],
-          [ 1, 2, 3 ],
+          [ -1, 0, 1, 2, 3 ],
           'int vector no atts');
 
 ## double vectors

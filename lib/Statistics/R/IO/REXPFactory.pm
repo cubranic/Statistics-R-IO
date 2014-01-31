@@ -126,7 +126,7 @@ sub lglsxp {
 
 sub intsxp {
     my $object_info = shift;
-    with_count(\&any_uint32)
+    with_count(\&any_int32)
 }
 
 
