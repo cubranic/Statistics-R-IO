@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 72;
+use Test::More tests => 90;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -137,6 +137,56 @@ is(uint32(0)->(uint32(0x12345678)->($num_state)->[1]), undef,
    'second uint32');
 is(uint32(0x1010)->($num_state), undef,
    'uint32 fails');
+
+
+## signed any int parsers
+my $signed_num_state = Statistics::R::IO::ParserState->new(data => pack('N', 0x12bacafe));
+is(any_int8($signed_num_state)->[0],
+   0x12, 'any_int8');
+is(any_int8($signed_num_state->next->next)->[0],
+   -54, 'negative any_int8');
+
+is(any_int16($signed_num_state)->[0],
+   0x12ba, 'any_int16');
+is(any_int16($signed_num_state->next->next)->[0],
+   -13570, 'negative any_int16');
+
+is(any_int24($signed_num_state)->[0],
+   0x12baca, 'any_int24');
+is(any_int24($signed_num_state->next)->[0],
+   -4535554, 'negative any_int24');
+
+is(any_int32($signed_num_state)->[0],
+   0x12bacafe, 'any_int32');
+is(any_int32(Statistics::R::IO::ParserState->new(data => pack('N', 0xbabecafe)))->[0],
+   -1161901314, 'negative any_int32');
+is(any_int32(any_int32($signed_num_state)->[1]),
+   undef, 'failed any_int32');
+
+
+## signed int parsers
+is(int8(0x12)->($signed_num_state)->[0],
+   0x12, 'int8');
+is(int8(unpack c=>"\xca")->($signed_num_state->next->next)->[0],
+   -54, 'negative int8');
+
+is(int16(0x12ba)->($signed_num_state)->[0],
+   0x12ba, 'int16');
+is(int16(unpack 's>'=>"\xca\xfe")->($signed_num_state->next->next)->[0],
+   -13570, 'negative any_int16');
+
+is(int24(0x12baca)->($signed_num_state)->[0],
+   0x12baca, 'int24');
+is(int24(unpack 'l>'=>"\xff\xba\xca\xfe")->($signed_num_state->next)->[0],
+   -4535554, 'negative int24');
+
+is(int32(0x12bacafe)->($signed_num_state)->[0],
+   0x12bacafe, 'int32');
+is(int32(unpack 'l>'=>"\xba\xbe\xca\xfe")->
+       (Statistics::R::IO::ParserState->new(data => pack('N', 0xbabecafe)))->[0],
+   -1161901314, 'negative int32');
+is(int32(0x00bacafe)->($signed_num_state->next),
+   undef, 'failed int32');
 
 
 ## floating point parsers

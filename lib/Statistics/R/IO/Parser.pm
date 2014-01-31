@@ -10,6 +10,8 @@ our @EXPORT = qw( );
 our @EXPORT_OK = qw( endianness any_char char string byte
                      any_uint8 any_uint16 any_uint24 any_uint32 any_real32 any_real64
                      uint8 uint16 uint24 uint32
+                     any_int8 any_int16 any_int24 any_int32
+                     int8 int16 int24 int32
                      count with_count seq choose bind );
 
 our %EXPORT_TAGS = ( all => [ @EXPORT_OK ],
@@ -157,6 +159,96 @@ sub uint32 {
     
     sub {
         my ($value, $state) = @{any_uint32 @_ or return};
+        return unless $arg == $value;
+        
+        [ $arg, $state ]
+    }
+}
+
+
+sub any_int8 {
+    my ($value, $state) = @{any_char @_ or return};
+    
+    [ unpack('c', $value), $state ]
+}
+
+
+sub any_int16 {
+    my ($value, $state) = @{any_uint16 @_ or return};
+    
+    $value |= 0x8000 if ($value >= 1<<15);
+    [ unpack('s', pack 's' => $value),
+      $state ]
+}
+
+
+sub any_int24 {
+    my ($value, $state) = @{any_uint24 @_ or return};
+    
+    $value |= 0xff800000 if ($value >= 1<<23);
+    [ unpack('l', pack 'l' => $value),
+      $state ]
+}
+
+
+sub any_int32 {
+    my ($value, $state) = @{any_uint32 @_ or return};
+    
+    $value |= 0x80000000 if ($value >= 1<<31);
+    [ unpack('l', pack 'l' => $value),
+      $state ]
+}
+
+
+sub int8 {
+    my $arg = shift;
+    die 'Argument must be a number -128-127: ' . $arg
+        unless looks_like_number($arg) && $arg < 1<<7 && $arg >= -(1<<7);
+    
+    sub {
+        my ($value, $state) = @{any_int8 @_ or return};
+        return unless $arg == $value;
+        
+        [ $arg, $state ]
+    }
+}
+
+
+sub int16 {
+    my $arg = shift;
+    die 'Argument must be a number -32768-32767: ' . $arg
+        unless looks_like_number($arg) && $arg < 1<<15 && $arg >= -(1<<15);
+    
+    sub {
+        my ($value, $state) = @{any_int16 @_ or return};
+        return unless $arg == $value;
+        
+        [ $arg, $state ]
+    }
+}
+
+
+sub int24 {
+    my $arg = shift;
+    die 'Argument must be a number 0-16777215: ' . $arg
+        unless looks_like_number($arg) && $arg < 1<<23 && $arg >= -(1<<23);
+    
+    sub {
+        my ($value, $state) = @{any_int24 @_ or return};
+        return unless $arg == $value;
+        
+        [ $arg, $state ]
+    }
+}
+
+
+sub int32 {
+    my $arg = shift;
+    die 'Argument must be a number -2147483648-2147483647: ' . $arg
+        unless looks_like_number($arg) && $arg < 1<<31 && $arg >= -(1<<31);
+    
+    sub {
+        my ($value, $state) = @{any_int32 @_ or return};
         return unless $arg == $value;
         
         [ $arg, $state ]
