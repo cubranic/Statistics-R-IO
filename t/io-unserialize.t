@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 11;
+use Test::More tests => 13;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -125,3 +125,29 @@ is_deeply(Statistics::R::IO::REXPFactory::object_content->($names_attribute_pair
           [ { tag => 'names',
               value => [ 'a', 'b', 'c' ] } ],
           'names attribute pairlist');
+
+
+## a more complicated pairlist:
+## attributes from a matrix(1:6, 2, 3, dimnames=list(c('a', 'b'))),
+## i.e., dims = c(2,3) and dimnames = list(c('a', 'b'), NULL)
+my $matrix_dims_attribute_pairlist = Statistics::R::IO::ParserState->new(
+    data => "\0\0\4\2" .
+    "\0\0\0\1\0\4\0\x09\0\0\0\3\x64\x69\x6d\0\0\0\x0d\0\0\0\2\0\0" .
+    "\0\2\0\0\0\3\0\0\4\2\0\0\0\1\0\4\0\x09\0\0\0\x08\x64\x69\x6d" .
+    "\x6e\x61\x6d\x65\x73\0\0\0\x13\0\0\0\2\0\0\0\x10\0\0\0\2\0\4\0\x09" .
+    "\0\0\0\1\x61\0\4\0\x09\0\0\0\1\x62\0\0\0\xfe\0\0\0\xfe");
+
+is_deeply(Statistics::R::IO::REXPFactory::unpack_object_info($matrix_dims_attribute_pairlist)->[0],
+          { is_object => 0,
+            has_attributes => 0,
+            has_tag => 1<<10,
+            object_type => 2,
+            levels => 0, },
+          'object info - matrix dims attribute pairlist');
+
+is_deeply(Statistics::R::IO::REXPFactory::object_content->($matrix_dims_attribute_pairlist)->[0],
+          [ { tag => 'dim',
+              value => [ 2, 3 ] },
+            { tag => 'dimnames',
+              value => [ [ 'a', 'b' ], undef ] } ],
+          'matrix dims attribute pairlist');
