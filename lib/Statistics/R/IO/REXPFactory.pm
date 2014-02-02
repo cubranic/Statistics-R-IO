@@ -16,11 +16,38 @@ use Statistics::R::IO::Parser qw( :all );
 
 
 sub header {
-    seq(string("X\n"),     # XDR header
+    seq(choose(xdr(),
+               bin()),
         uint32(2),         # serialization format v2
         \&any_uint32,      # creator's R version
         uint32(0x020300)   # min R version to read (2.3.0 as of 3.0.2)
     )
+}
+
+
+sub xdr {
+    bind(string("X\n"),         # XDR header
+         sub {
+             my $args = shift;
+             endianness('>');
+             
+             sub {
+                 return [ $args, shift ]
+             }
+         })
+}
+
+
+sub bin {
+    bind(string("B\n"),         # "binary" header
+         sub {
+             my $args = shift;
+             endianness('<');
+             
+             sub {
+                 return [ $args, shift ]
+             }
+         })
 }
 
 

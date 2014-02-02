@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 13;
+use Test::More tests => 18;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -37,6 +37,31 @@ is_deeply(unserialize($noatt_123_xdr->data)->[0],
           [ -1, 0, 1, 2, 3 ],
           'int vector no atts');
 
+## serialize 1:3, XDR: false
+my $noatt_123_bin = Statistics::R::IO::ParserState->new(
+    data => "\x42\x0a\2\0\0\0\2\0\3\0\0\3\2\0\x0d\0\0\0\5\0\0\0" .
+    "\xff\xff\xff\xff" . "\0\0\0\0" . "\1\0\0\0" . "\2\0\0\0" . "\3\0\0\0");
+
+is_deeply(Statistics::R::IO::REXPFactory::header->($noatt_123_bin)->[0],
+          [ "B\n", 2, 0x030002, 0x020300 ],
+          'binary header');
+
+is_deeply(bind(Statistics::R::IO::REXPFactory::header,
+               sub {
+                   \&Statistics::R::IO::REXPFactory::unpack_object_info
+               })->($noatt_123_bin)->[0],
+          { is_object => 0,
+            has_attributes => 0,
+            has_tag => 0,
+            object_type => 13,
+            levels => 0, },
+          'binary header plus object info - int vector no atts');
+
+is_deeply(unserialize($noatt_123_bin->data)->[0],
+          [ -1, 0, 1, 2, 3 ],
+          'int vector no atts - binary');
+
+
 ## double vectors
 ## serialize 1234.56, XDR: true
 my $noatt_123456_xdr = Statistics::R::IO::ParserState->new(
@@ -57,6 +82,27 @@ is_deeply(bind(Statistics::R::IO::REXPFactory::header,
 is_deeply(unserialize($noatt_123456_xdr->data)->[0],
           [ 1234.56 ],
           'double vector no atts');
+
+
+## serialize 1234.56, XDR: false
+my $noatt_123456_bin = Statistics::R::IO::ParserState->new(
+    data => "\x42\x0a\2\0\0\0\2\0\3\0\0\3\2\0\x0e\0\0\0\1\0\0\0\x0a\xd7\xa3".
+    "\x70\x3d\x4a\x93\x40");
+
+is_deeply(bind(Statistics::R::IO::REXPFactory::header,
+               sub {
+                   \&Statistics::R::IO::REXPFactory::unpack_object_info
+               })->($noatt_123456_bin)->[0],
+          { is_object => 0,
+            has_attributes => 0,
+            has_tag => 0,
+            object_type => 14,
+            levels => 0, },
+          'binary header plus object info - double vector no atts');
+
+is_deeply(unserialize($noatt_123456_bin->data)->[0],
+          [ 1234.56 ],
+          'double vector no atts - binary');
 
 
 ## character vectors
