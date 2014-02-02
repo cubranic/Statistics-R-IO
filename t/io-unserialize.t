@@ -24,7 +24,7 @@ is_deeply(Statistics::R::IO::REXPFactory::header->($noatt_123_xdr)->[0],
 
 is_deeply(bind(Statistics::R::IO::REXPFactory::header,
                sub {
-                   \&Statistics::R::IO::REXPFactory::unpack_object_info
+                   Statistics::R::IO::REXPFactory::unpack_object_info
                })->($noatt_123_xdr)->[0],
           { is_object => 0,
             has_attributes => 0,
@@ -48,7 +48,7 @@ is_deeply(Statistics::R::IO::REXPFactory::header->($noatt_123_bin)->[0],
 
 is_deeply(bind(Statistics::R::IO::REXPFactory::header,
                sub {
-                   \&Statistics::R::IO::REXPFactory::unpack_object_info
+                   Statistics::R::IO::REXPFactory::unpack_object_info
                })->($noatt_123_bin)->[0],
           { is_object => 0,
             has_attributes => 0,
@@ -70,7 +70,7 @@ my $noatt_123456_xdr = Statistics::R::IO::ParserState->new(
 
 is_deeply(bind(Statistics::R::IO::REXPFactory::header,
                sub {
-                   \&Statistics::R::IO::REXPFactory::unpack_object_info
+                   Statistics::R::IO::REXPFactory::unpack_object_info
                })->($noatt_123456_xdr)->[0],
           { is_object => 0,
             has_attributes => 0,
@@ -91,7 +91,7 @@ my $noatt_123456_bin = Statistics::R::IO::ParserState->new(
 
 is_deeply(bind(Statistics::R::IO::REXPFactory::header,
                sub {
-                   \&Statistics::R::IO::REXPFactory::unpack_object_info
+                   Statistics::R::IO::REXPFactory::unpack_object_info
                })->($noatt_123456_bin)->[0],
           { is_object => 0,
             has_attributes => 0,
@@ -113,7 +113,7 @@ my $noatt_abc_xdr = Statistics::R::IO::ParserState->new(
 
 is_deeply(bind(Statistics::R::IO::REXPFactory::header,
                sub {
-                   \&Statistics::R::IO::REXPFactory::unpack_object_info
+                   Statistics::R::IO::REXPFactory::unpack_object_info
                })->($noatt_abc_xdr)->[0],
           { is_object => 0,
             has_attributes => 0,
@@ -138,7 +138,7 @@ my $noatt_list_xdr = Statistics::R::IO::ParserState->new(
 
 is_deeply(bind(Statistics::R::IO::REXPFactory::header,
                sub {
-                   \&Statistics::R::IO::REXPFactory::unpack_object_info
+                   Statistics::R::IO::REXPFactory::unpack_object_info
                })->($noatt_list_xdr)->[0],
           { is_object => 0,
             has_attributes => 0,
@@ -159,7 +159,7 @@ my $names_attribute_pairlist = Statistics::R::IO::ParserState->new(
     "\x6e\x61\x6d\x65\x73\0\0\0\x10\0\0\0\3\0\4\0\x09\0\0\0\1\x61\0\4\0".
     "\x09\0\0\0\1\x62\0\4\0\x09\0\0\0\1\x63\0\0\0\xfe");
 
-is_deeply(Statistics::R::IO::REXPFactory::unpack_object_info($names_attribute_pairlist)->[0],
+is_deeply(Statistics::R::IO::REXPFactory::unpack_object_info->($names_attribute_pairlist)->[0],
           { is_object => 0,
             has_attributes => 0,
             has_tag => 1<<10,
@@ -183,7 +183,7 @@ my $matrix_dims_attribute_pairlist = Statistics::R::IO::ParserState->new(
     "\x6e\x61\x6d\x65\x73\0\0\0\x13\0\0\0\2\0\0\0\x10\0\0\0\2\0\4\0\x09" .
     "\0\0\0\1\x61\0\4\0\x09\0\0\0\1\x62\0\0\0\xfe\0\0\0\xfe");
 
-is_deeply(Statistics::R::IO::REXPFactory::unpack_object_info($matrix_dims_attribute_pairlist)->[0],
+is_deeply(Statistics::R::IO::REXPFactory::unpack_object_info->($matrix_dims_attribute_pairlist)->[0],
           { is_object => 0,
             has_attributes => 0,
             has_tag => 1<<10,

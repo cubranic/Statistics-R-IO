@@ -28,12 +28,8 @@ sub header {
 sub xdr {
     bind(string("X\n"),         # XDR header
          sub {
-             my $args = shift;
              endianness('>');
-             
-             sub {
-                 return [ $args, shift ]
-             }
+             mreturn shift;
          })
 }
 
@@ -41,72 +37,79 @@ sub xdr {
 sub bin {
     bind(string("B\n"),         # "binary" header
          sub {
-             my $args = shift;
              endianness('<');
-             
-             sub {
-                 return [ $args, shift ]
-             }
+             mreturn shift;
          })
 }
 
 
 sub object_content {
-    bind(\&unpack_object_info,
+    bind(&unpack_object_info,
          \&object_data)
 }
 
 
 sub unpack_object_info {
-    my $state = shift or return;
-    my $object_info_state = any_uint32($state) or return;
-    my $object_info = $object_info_state->[0];
-    [ { is_object => $object_info & 1<<8,
-        has_attributes => $object_info & 1<<9,
-        has_tag => $object_info & 1<<10,
-        object_type => $object_info & 0xFF,
-        levels => $object_info >> 12,
-      },
-      $object_info_state->[1] ]
+    bind(\&any_uint32,
+         sub {
+             my $object_info = shift or return;
+             mreturn { is_object => $object_info & 1<<8,
+                       has_attributes => $object_info & 1<<9,
+                       has_tag => $object_info & 1<<10,
+                       object_type => $object_info & 0xFF,
+                       levels => $object_info >> 12,
+                     };
+         })
 }
 
 
 sub object_data {
     my $object_info = shift;
     ## TODO: handle attributes
-    sub {
-        my $state = shift or return;
-        if ($object_info->{object_type} == 10) {
-            # logical vector
-            lglsxp($object_info)->($state)
-        } elsif ($object_info->{object_type} == 13) {
-            # integer vector
-            intsxp($object_info)->($state)
-        } elsif ($object_info->{object_type} == 14) {
-            # numeric vector
-            realsxp($object_info)->($state)
-        } elsif ($object_info->{object_type} == 16) {
-            # character vector
-            strsxp($object_info)->($state)
-        } elsif ($object_info->{object_type} == 19) {
-            # list (generic vector)
-            vecsxp($object_info)->($state)
-        } elsif ($object_info->{object_type} == 9) {
-            # internal character string
-            charsxp($object_info)->($state)
-        } elsif ($object_info->{object_type} == 2) {
-            # pairlist
-            listsxp($object_info)->($state)
-        } elsif ($object_info->{object_type} == 1) {
-            # sumbol
-            symsxp($object_info)->($state)
-        } elsif ($object_info->{object_type} == 0xfe) {
-            # encoded Nil
-            [ undef, ($state) ]
-        } else {
-            die "unimplemented SEXPTYPE: " . $object_info->{object_type};
-        }
+    if ($object_info->{object_type} == 10) {
+        # logical vector
+        lglsxp($object_info)
+    } elsif ($object_info->{object_type} == 13) {
+        # integer vector
+        intsxp($object_info)
+    } elsif ($object_info->{object_type} == 14) {
+        # numeric vector
+        realsxp($object_info)
+    } elsif ($object_info->{object_type} == 16) {
+        # character vector
+        strsxp($object_info)
+    } elsif ($object_info->{object_type} == 19) {
+        # list (generic vector)
+        vecsxp($object_info)
+    } elsif ($object_info->{object_type} == 9) {
+        # internal character string
+        charsxp($object_info)
+    } elsif ($object_info->{object_type} == 2) {
+        # pairlist
+        listsxp($object_info)
+    } elsif ($object_info->{object_type} == 1) {
+        # symbol
+        symsxp($object_info)
+    } elsif ($object_info->{object_type} == 0xfe) {
+        # encoded Nil
+        mreturn
+    } else {
+        die "unimplemented SEXPTYPE: " . $object_info->{object_type};
     }
+}
+
+
+sub flatten_pairlist {
+    my @value;
+
+    my @elements = @_;
+    while (@elements) {
+        my ($car, $cdr) = @elements;
+        push @value, $car;
+        last unless defined $cdr;
+        @elements = @{$cdr};
+    }
+    @value
 }
 
 
@@ -123,27 +126,14 @@ sub listsxp {
     bind(seq(bind(count($sub_items, object_content),
                   sub {
                       my @args = @{shift or return};
-                      sub {
-                          my %value = (value => $args[-1]);
-                          $value{tag} = $args[-2] if $object_info->{has_tag};
-                          $value{attributes} = $args[0] if $object_info->{has_attributes};
-                          [ { %value } , shift ]
-                      }
+                      my %value = (value => $args[-1]);
+                      $value{tag} = $args[-2] if $object_info->{has_tag};
+                      $value{attributes} = $args[0] if $object_info->{has_attributes};
+                      mreturn { %value };
                   }),
              object_content),
          sub {
-             my @elements = @{shift or return};
-             
-             sub {
-                 my @value;
-                 while (@elements) {
-                     my ($car, $cdr) = @elements;
-                     push @value, $car;
-                     last unless defined $cdr;
-                     @elements = @{$cdr};
-                 }
-                 [ [@value], shift ]
-             }
+             mreturn [ flatten_pairlist @{shift or return} ]
          })
 }
 
@@ -184,10 +174,7 @@ sub charsxp {
     bind(with_count(\&any_char),
          sub {
              my @chars = @{shift or return};
-             sub {
-                 [ join('', @chars),
-                   shift ]
-             }
+             mreturn join('', @chars);
          })
 }
 
