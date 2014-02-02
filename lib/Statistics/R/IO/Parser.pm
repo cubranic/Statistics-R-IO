@@ -12,12 +12,12 @@ our @EXPORT_OK = qw( endianness any_char char string byte
                      uint8 uint16 uint24 uint32
                      any_int8 any_int16 any_int24 any_int32
                      int8 int16 int24 int32
-                     count with_count seq choose bind );
+                     count with_count seq choose mreturn bind );
 
 our %EXPORT_TAGS = ( all => [ @EXPORT_OK ],
                      num => [ qw( any_uint8 any_uint16 any_uint24 any_uint32 any_real32 any_real64 uint8 uint16 uint24 uint32 ) ],
                      char => [ qw( any_char char string byte ) ],
-                     combinator => [ qw( count with_count seq choose bind ) ] );
+                     combinator => [ qw( count with_count seq choose mreturn bind ) ] );
 
 
 use Scalar::Util qw(looks_like_number);
@@ -321,6 +321,14 @@ sub choose {
         }
         
         return;
+    }
+}
+
+
+sub mreturn {
+    my $arg = shift;
+    sub {
+        [ $arg, shift ]
     }
 }
 

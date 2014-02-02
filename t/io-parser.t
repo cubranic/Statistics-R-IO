@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 90;
+use Test::More tests => 91;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -284,6 +284,12 @@ is_deeply($f_oob_choose->($state->next),
           'seq second');
 is($f_oob_choose->($state->next->next->next),
    undef, 'choose fails');
+
+
+## mreturn
+is_deeply(mreturn('foobar')->($state),
+          [ 'foobar', $state ],
+          'mreturn');
 
 
 ## bind combinator
