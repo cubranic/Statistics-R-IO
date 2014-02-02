@@ -14,6 +14,7 @@ our %EXPORT_TAGS = ( all => [ @EXPORT_OK ], );
 
 use Statistics::R::IO::Parser qw( :all );
 
+use Carp;
 
 sub header {
     seq(choose(xdr(),
@@ -184,13 +185,23 @@ sub symsxp {
     object_content              # should be followed by a charsxp
 }
 
+
 sub unserialize {
     my $data = shift;
     die "Unserialize requires a scalar data" if ref $data && ref $data ne ref [];
 
-    bind(header,
-         \&object_content,
+    my $result =
+        bind(header,
+             \&object_content,
         )->(Statistics::R::IO::ParserState->new(data => $data));
+    
+    if ($result) {
+        my $state = $result->[1];
+        carp("remaining data: " . (scalar(@{$state->data}) - $state->position))
+            unless $state->eof;
+    }
+    
+    $result;
 }
 
 1;
