@@ -13,6 +13,13 @@ our @EXPORT_OK = qw( unserialize );
 our %EXPORT_TAGS = ( all => [ @EXPORT_OK ], );
 
 use Statistics::R::IO::Parser qw( :all );
+use Statistics::R::REXP::Character;
+use Statistics::R::REXP::Double;
+use Statistics::R::REXP::Integer;
+use Statistics::R::REXP::List;
+use Statistics::R::REXP::Logical;
+use Statistics::R::REXP::Symbol;
+use Statistics::R::REXP::Null;
 
 use Carp;
 
@@ -93,7 +100,7 @@ sub object_data {
         symsxp($object_info)
     } elsif ($object_info->{object_type} == 0xfe) {
         # encoded Nil
-        mreturn
+        mreturn(Statistics::R::REXP::Null->new)
     } else {
         die "unimplemented SEXPTYPE: " . $object_info->{object_type};
     }
@@ -107,7 +114,7 @@ sub flatten_pairlist {
     while (@elements) {
         my ($car, $cdr) = @elements;
         push @value, $car;
-        last unless defined $cdr;
+        last unless $cdr and ref $cdr ne 'Statistics::R::REXP::Null';
         @elements = @{$cdr};
     }
     @value
@@ -141,31 +148,46 @@ sub listsxp {
 
 sub lglsxp {
     my $object_info = shift;
-    with_count(\&any_uint32)
+    bind(with_count(\&any_uint32),
+         sub {
+             mreturn(Statistics::R::REXP::Logical->new(shift or return));
+         })
 }
 
 
 sub intsxp {
     my $object_info = shift;
-    with_count(\&any_int32)
+    bind(with_count(\&any_int32),
+         sub {
+             mreturn(Statistics::R::REXP::Integer->new(shift or return));
+         })
 }
 
 
 sub realsxp {
     my $object_info = shift;
-    with_count(\&any_real64)
+    bind(with_count(\&any_real64),
+         sub {
+             mreturn(Statistics::R::REXP::Double->new(shift or return));
+         })
 }
 
 
 sub strsxp {
     my $object_info = shift;
-    with_count(object_content)  # each element should be a charsxp
+    bind(with_count(object_content), # each element should be a charsxp
+         sub {
+             mreturn(Statistics::R::REXP::Character->new(shift or return));
+         })
 }
 
 
 sub vecsxp {
     my $object_info = shift;
-    with_count(object_content)  # each element can be anything
+    bind(with_count(object_content), # each element can be anything
+         sub {
+             mreturn(Statistics::R::REXP::List->new(shift or return));
+         })
 }
 
 
@@ -182,7 +204,10 @@ sub charsxp {
 
 sub symsxp {
     my $object_info = shift;
-    object_content              # should be followed by a charsxp
+    bind(object_content,        # should be followed by a charsxp
+         sub {
+             mreturn(Statistics::R::REXP::Symbol->new(shift or return));
+         })
 }
 
 

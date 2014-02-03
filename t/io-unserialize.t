@@ -34,7 +34,7 @@ is_deeply(bind(Statistics::R::IO::REXPFactory::header,
           'header plus object info - int vector no atts');
 
 is_deeply(unserialize($noatt_123_xdr->data)->[0],
-          [ -1, 0, 1, 2, 3 ],
+          Statistics::R::REXP::Integer->new([ -1, 0, 1, 2, 3 ]),
           'int vector no atts');
 
 ## serialize 1:3, XDR: false
@@ -58,7 +58,7 @@ is_deeply(bind(Statistics::R::IO::REXPFactory::header,
           'binary header plus object info - int vector no atts');
 
 is_deeply(unserialize($noatt_123_bin->data)->[0],
-          [ -1, 0, 1, 2, 3 ],
+          Statistics::R::REXP::Integer->new([ -1, 0, 1, 2, 3 ]),
           'int vector no atts - binary');
 
 
@@ -80,7 +80,7 @@ is_deeply(bind(Statistics::R::IO::REXPFactory::header,
           'header plus object info - double vector no atts');
 
 is_deeply(unserialize($noatt_123456_xdr->data)->[0],
-          [ 1234.56 ],
+          Statistics::R::REXP::Double->new([ 1234.56 ]),
           'double vector no atts');
 
 
@@ -101,7 +101,7 @@ is_deeply(bind(Statistics::R::IO::REXPFactory::header,
           'binary header plus object info - double vector no atts');
 
 is_deeply(unserialize($noatt_123456_bin->data)->[0],
-          [ 1234.56 ],
+          Statistics::R::REXP::Double->new([ 1234.56 ]),
           'double vector no atts - binary');
 
 
@@ -123,7 +123,7 @@ is_deeply(bind(Statistics::R::IO::REXPFactory::header,
           'header plus object info - character vector no atts');
 
 is_deeply(unserialize($noatt_abc_xdr->data)->[0],
-          [ 'a', 'b', 'c' ],
+          Statistics::R::REXP::Character->new([ 'a', 'b', 'c' ]),
           'character vector no atts');
 
 
@@ -148,7 +148,13 @@ is_deeply(bind(Statistics::R::IO::REXPFactory::header,
           'header plus object info - generic vector no atts');
 
 is_deeply(unserialize($noatt_list_xdr->data)->[0],
-          [ [ 1, 2, 3], [ ['a'], ['b'], [11] ], ['foo'] ],
+          Statistics::R::REXP::List->new([
+              Statistics::R::REXP::Integer->new([ 1, 2, 3]),
+              Statistics::R::REXP::List->new([
+                  Statistics::R::REXP::Character->new(['a']),
+                  Statistics::R::REXP::Character->new(['b']),
+                  Statistics::R::REXP::Double->new([11]) ]),
+              Statistics::R::REXP::Character->new(['foo']) ]),
           'generic vector no atts');
 
 
@@ -168,8 +174,8 @@ is_deeply(Statistics::R::IO::REXPFactory::unpack_object_info->($names_attribute_
           'object info - names attribute pairlist');
 
 is_deeply(Statistics::R::IO::REXPFactory::object_content->($names_attribute_pairlist)->[0],
-          [ { tag => 'names',
-              value => [ 'a', 'b', 'c' ] } ],
+          [ { tag => Statistics::R::REXP::Symbol->new('names'),
+              value => Statistics::R::REXP::Character->new([ 'a', 'b', 'c' ]) } ],
           'names attribute pairlist');
 
 
@@ -192,8 +198,10 @@ is_deeply(Statistics::R::IO::REXPFactory::unpack_object_info->($matrix_dims_attr
           'object info - matrix dims attribute pairlist');
 
 is_deeply(Statistics::R::IO::REXPFactory::object_content->($matrix_dims_attribute_pairlist)->[0],
-          [ { tag => 'dim',
-              value => [ 2, 3 ] },
-            { tag => 'dimnames',
-              value => [ [ 'a', 'b' ], undef ] } ],
+          [ { tag => Statistics::R::REXP::Symbol->new('dim'),
+              value => Statistics::R::REXP::Integer->new([ 2, 3 ]) },
+            { tag => Statistics::R::REXP::Symbol->new('dimnames'),
+              value => Statistics::R::REXP::List->new([
+                  Statistics::R::REXP::Character->new([ 'a', 'b' ]),
+                  Statistics::R::REXP::Null->new ]) } ],
           'matrix dims attribute pairlist');
