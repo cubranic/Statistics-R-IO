@@ -11,7 +11,7 @@ sub to_s {
     my $self = shift;
     
     sub unfold {
-        join(', ', map { ref $_ ?
+        join(', ', map { ref $_ eq ref [] ?
                              '[' . unfold(@{$_}) . ']' :
                              (defined $_? $_ : 'undef') } @_);
     }

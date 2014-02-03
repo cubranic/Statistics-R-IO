@@ -3,11 +3,13 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 32;
+use Test::More tests => 33;
 use Test::Fatal;
 
 use Statistics::R::REXP::List;
+use Statistics::R::REXP::Character;
 use Statistics::R::REXP::Double;
+use Statistics::R::REXP::Integer;
 
 my $empty_list = new_ok('Statistics::R::REXP::List', [  ], 'new generic vector' );
 
@@ -69,6 +71,18 @@ is_deeply($nested_list->elements->[3], 11, 'non-nested element');
 
 is($nested_list->to_s, 'list(3.3, 4, [b, [cc, 44.1]], 11)', 
    'nested generic vector text representation');
+
+my $nested_rexps = Statistics::R::REXP::List->new([
+    Statistics::R::REXP::Integer->new([ 1, 2, 3]),
+    Statistics::R::REXP::List->new([
+        Statistics::R::REXP::Character->new(['a']),
+        Statistics::R::REXP::Character->new(['b']),
+        Statistics::R::REXP::Double->new([11]) ]),
+    Statistics::R::REXP::Character->new(['foo']) ]);
+
+is($nested_rexps->to_s,
+   'list(integer(1, 2, 3), list(character(a), character(b), double(11)), character(foo))',
+   'nested generic vector of REXPs text representation');
 
 ok(! $empty_list->is_null, 'is not null');
 ok( $empty_list->is_vector, 'is vector');
