@@ -16,7 +16,8 @@ sub is_null {
 }
 
 use overload 'eq' => \&eq,
-    'ne' => sub {! equal_class(@_);};
+    'ne' => sub {! equal_class(@_);},
+    '""' => sub { 'NULL' };
 
 sub eq {
     return equal_class(@_);

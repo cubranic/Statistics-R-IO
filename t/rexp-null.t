@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 7;
+use Test::More tests => 8;
 use Test::Fatal;
 
 use Statistics::R::REXP::Null;
@@ -18,6 +18,7 @@ isnt($null, 'null', 'null inequality');
 
 ok($null->is_null, 'is null');
 
+is($null .'', 'NULL', 'null text representation');
 
 ## attributes
 is_deeply($null->attributes, undef, 'default attributes');
