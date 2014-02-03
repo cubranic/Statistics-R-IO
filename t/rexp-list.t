@@ -48,13 +48,13 @@ my $na_heavy_list2 = Statistics::R::REXP::List->new(elements => [11.3, [undef, u
 is($na_heavy_list, $na_heavy_list, 'NA-heavy generic vector equality');
 isnt($na_heavy_list, $na_heavy_list2, 'NA-heavy generic vector inequality');
 
-is($empty_list->to_s, 'list()', 'empty generic vector text representation');
-is($list->to_s, 'list(3.3, 4, 11)', 'generic vector text representation');
-is(Statistics::R::REXP::List->new(elements => [undef])->to_s,
+is($empty_list .'', 'list()', 'empty generic vector text representation');
+is($list .'', 'list(3.3, 4, 11)', 'generic vector text representation');
+is(Statistics::R::REXP::List->new(elements => [undef]) .'',
    'list(undef)', 'text representation of a singleton NA');
-is(Statistics::R::REXP::List->new(elements => [[[undef]]])->to_s,
+is(Statistics::R::REXP::List->new(elements => [[[undef]]]) .'',
    'list([[undef]])', 'text representation of a nested singleton NA');
-is($na_heavy_list->to_s, 'list(11.3, [, undef], 0)', 'empty string representation');
+is($na_heavy_list .'', 'list(11.3, [, undef], 0)', 'empty string representation');
 
 is_deeply($empty_list->elements, [], 'empty generic vector contents');
 is_deeply($list->elements, [3.3, 4, 11], 'generic vector contents');
@@ -69,7 +69,7 @@ is_deeply($nested_list->elements,
 is_deeply($nested_list->elements->[2]->[1], ['cc', 44.1], 'nested element');
 is_deeply($nested_list->elements->[3], 11, 'non-nested element');
 
-is($nested_list->to_s, 'list(3.3, 4, [b, [cc, 44.1]], 11)', 
+is($nested_list .'', 'list(3.3, 4, [b, [cc, 44.1]], 11)', 
    'nested generic vector text representation');
 
 my $nested_rexps = Statistics::R::REXP::List->new([
@@ -80,7 +80,7 @@ my $nested_rexps = Statistics::R::REXP::List->new([
         Statistics::R::REXP::Double->new([11]) ]),
     Statistics::R::REXP::Character->new(['foo']) ]);
 
-is($nested_rexps->to_s,
+is($nested_rexps .'',
    'list(integer(1, 2, 3), list(character(a), character(b), double(11)), character(foo))',
    'nested generic vector of REXPs text representation');
 

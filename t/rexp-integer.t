@@ -51,11 +51,11 @@ my $na_heavy_vec2 = Statistics::R::REXP::Integer->new(elements => [11, 0, undef,
 is($na_heavy_vec, $na_heavy_vec, 'NA-heavy vector equality');
 isnt($na_heavy_vec, $na_heavy_vec2, 'NA-heavy vector inequality');
 
-is($empty_vec->to_s, 'integer()', 'empty integer vector text representation');
-is($vec->to_s, 'integer(3, 4, 11)', 'integer vector text representation');
-is(Statistics::R::REXP::Integer->new(elements => [undef])->to_s,
+is($empty_vec .'', 'integer()', 'empty integer vector text representation');
+is($vec .'', 'integer(3, 4, 11)', 'integer vector text representation');
+is(Statistics::R::REXP::Integer->new(elements => [undef]) .'',
    'integer(undef)', 'text representation of a singleton NA');
-is($na_heavy_vec->to_s, 'integer(11, undef, undef, 0)', 'empty numbers representation');
+is($na_heavy_vec .'', 'integer(11, undef, undef, 0)', 'empty numbers representation');
 
 is_deeply($empty_vec->elements, [], 'empty integer vector contents');
 is_deeply($vec->elements, [3, 4, 11], 'integer vector contents');

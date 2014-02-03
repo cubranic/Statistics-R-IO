@@ -41,10 +41,10 @@ like(exception {
 my $another_vec = Statistics::R::REXP::Logical->new(elements => [1, 0, 1, undef]);
 isnt($vec, $another_vec, 'logical vector inequality');
 
-is($empty_vec->to_s, 'logical()', 'empty logical vector text representation');
-is($vec->to_s, 'logical(1, 0, 1, 0)', 'logical vector text representation');
-is($another_vec->to_s, 'logical(1, 0, 1, undef)', 'text representation with logical NAs');
-is(Statistics::R::REXP::Logical->new(elements => [undef])->to_s,
+is($empty_vec .'', 'logical()', 'empty logical vector text representation');
+is($vec .'', 'logical(1, 0, 1, 0)', 'logical vector text representation');
+is($another_vec .'', 'logical(1, 0, 1, undef)', 'text representation with logical NAs');
+is(Statistics::R::REXP::Logical->new(elements => [undef]) .'',
    'logical(undef)', 'text representation of a singleton NA');
 
 is_deeply($empty_vec->elements, [], 'empty logical vector contents');

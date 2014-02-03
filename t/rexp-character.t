@@ -46,11 +46,11 @@ my $na_heavy_vec2 = Statistics::R::REXP::Character->new(elements => ['foo', 0, u
 is($na_heavy_vec, $na_heavy_vec, 'NA-heavy vector equality');
 isnt($na_heavy_vec, $na_heavy_vec2, 'NA-heavy vector inequality');
 
-is($empty_vec->to_s, 'character()', 'empty character vector text representation');
-is($vec->to_s, 'character(3.3, 4.7, bar)', 'character vector text representation');
-is(Statistics::R::REXP::Character->new(elements => [undef])->to_s,
+is($empty_vec .'', 'character()', 'empty character vector text representation');
+is($vec .'', 'character(3.3, 4.7, bar)', 'character vector text representation');
+is(Statistics::R::REXP::Character->new(elements => [undef]) .'',
    'character(undef)', 'text representation of a singleton NA');
-is($na_heavy_vec->to_s, 'character(foo, , undef, 23)', 'empty characters representation');
+is($na_heavy_vec .'', 'character(foo, , undef, 23)', 'empty characters representation');
 
 is_deeply($empty_vec->elements, [], 'empty character vector contents');
 is_deeply($vec->elements, [3.3, 4.7, 'bar'], 'character vector contents');

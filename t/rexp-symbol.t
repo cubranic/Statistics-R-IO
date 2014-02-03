@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 16;
+use Test::More tests => 17;
 use Test::Fatal;
 
 use Statistics::R::REXP::Symbol;
@@ -38,6 +38,7 @@ is($sym->name, 'sym', 'symbol name');
 
 ok(! $sym->is_null, 'is not null');
 
+is($sym .'', 'symbol `sym`', 'symbol text representation');
 
 ## attributes
 is_deeply($sym->attributes, undef, 'default attributes');
