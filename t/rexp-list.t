@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 38;
+use Test::More tests => 39;
 use Test::Fatal;
 
 use Statistics::R::REXP::List;
@@ -91,11 +91,21 @@ ok( $empty_list->is_vector, 'is vector');
 ## attributes
 is_deeply($list->attributes, undef, 'default attributes');
 
-my $list_attr = Statistics::R::REXP::List->new(elements => $list->elements,
-                                               attributes => { foo => 'bar', x => 42 });
-is_deeply($list_attr->attributes, { foo => 'bar', x => 42 }, 'constructed attributes');
-is($list_attr, $list_attr, 'equality considers attributes');
+my $list_attr = Statistics::R::REXP::List->new(elements => [3.3, '4', 11],
+                                               attributes => { foo => 'bar',
+                                                               x => [40, 41, 42] });
+is_deeply($list_attr->attributes,
+          { foo => 'bar', x => [40, 41, 42] }, 'constructed attributes');
+
+my $list_attr2 = Statistics::R::REXP::List->new(elements => [3.3, '4', 11],
+                                                attributes => { foo => 'bar',
+                                                                x => [40, 41, 42] });
+my $another_list_attr = Statistics::R::REXP::List->new(elements => [3.3, '4', 11],
+                                                       attributes => { foo => 'bar',
+                                                                       x => [40, 42, 42] });
+is($list_attr, $list_attr2, 'equality considers attributes');
 isnt($list_attr, $list, 'inequality considers attributes');
+isnt($list_attr, $another_list_attr, 'inequality considers attributes deeply');
 
 ## attributes must be a hash
 like(exception {

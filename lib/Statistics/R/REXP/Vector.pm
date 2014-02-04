@@ -59,19 +59,8 @@ around _eq => sub {
     return undef unless $orig->(@_);
 
     my ($self, $obj) = (shift, shift);
-    
-    return undef unless scalar(@{$self->elements}) ==
-        scalar(@{$obj->elements});
-    for (my $i = 0; $i < scalar(@{$self->elements}); $i++) {
-        my $a = $self->elements->[$i];
-        my $b = $obj->elements->[$i];
-        if (defined($a) and defined($b)) {
-            return undef unless $a eq $b;
-        } else {
-            return undef if defined($a) or defined($b);
-        }
-    }
-    return 1;
+
+    compare_deeply($self->elements, $obj->elements)
 };
 
 

@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 29;
+use Test::More tests => 30;
 use Test::Fatal;
 
 use Statistics::R::REXP::Logical;
@@ -64,11 +64,21 @@ ok( $empty_vec->is_vector, 'is vector');
 ## attributes
 is_deeply($vec->attributes, undef, 'default attributes');
 
-my $vec_attr = Statistics::R::REXP::Logical->new(elements => $vec->elements,
-                                                 attributes => { foo => 'bar', x => 42 });
-is_deeply($vec_attr->attributes, { foo => 'bar', x => 42 }, 'constructed attributes');
-is($vec_attr, $vec_attr, 'equality considers attributes');
+my $vec_attr = Statistics::R::REXP::Logical->new(elements => [1, 0, 1, 0],
+                                                 attributes => { foo => 'bar',
+                                                                 x => [40, 41, 42] });
+is_deeply($vec_attr->attributes,
+          { foo => 'bar', x => [40, 41, 42] }, 'constructed attributes');
+
+my $vec_attr2 = Statistics::R::REXP::Logical->new(elements => [1, 0, 1, 0],
+                                                  attributes => { foo => 'bar',
+                                                                  x => [40, 41, 42] });
+my $another_vec_attr = Statistics::R::REXP::Logical->new(elements => [1, 0, 1, 0],
+                                                         attributes => { foo => 'bar',
+                                                                         x => [40, 42, 42] });
+is($vec_attr, $vec_attr2, 'equality considers attributes');
 isnt($vec_attr, $vec, 'inequality considers attributes');
+isnt($vec_attr, $another_vec_attr, 'inequality considers attributes deeply');
 
 ## attributes must be a hash
 like(exception {

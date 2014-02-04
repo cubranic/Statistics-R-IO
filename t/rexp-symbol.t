@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 18;
+use Test::More tests => 19;
 use Test::Fatal;
 
 use Statistics::R::REXP::Symbol;
@@ -43,11 +43,21 @@ is($sym .'', 'symbol `sym`', 'symbol text representation');
 ## attributes
 is_deeply($sym->attributes, undef, 'default attributes');
 
-my $sym_attr = Statistics::R::REXP::Symbol->new(name => $sym->name,
-                                                attributes => { foo => 'bar', x => 42 });
-is_deeply($sym_attr->attributes, { foo => 'bar', x => 42 }, 'constructed attributes');
-is($sym_attr, $sym_attr, 'equality considers attributes');
+my $sym_attr = Statistics::R::REXP::Symbol->new(name => 'sym',
+                                                attributes => { foo => 'bar',
+                                                                x => [40, 41, 42] });
+is_deeply($sym_attr->attributes,
+          { foo => 'bar', x => [40, 41, 42] }, 'constructed attributes');
+
+my $sym_attr2 = Statistics::R::REXP::Symbol->new(name => 'sym',
+                                                 attributes => { foo => 'bar',
+                                                                 x => [40, 41, 42] });
+my $another_sym_attr = Statistics::R::REXP::Symbol->new(name => 'sym',
+                                                        attributes => { foo => 'bar',
+                                                                        x => [40, 42, 42] });
+is($sym_attr, $sym_attr2, 'equality considers attributes');
 isnt($sym_attr, $sym, 'inequality considers attributes');
+isnt($sym_attr, $another_sym_attr, 'inequality considers attributes deeply');
 
 ## attributes must be a hash
 like(exception {
