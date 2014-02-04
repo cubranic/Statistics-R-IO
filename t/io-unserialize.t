@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 24;
+use Test::More tests => 34;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -75,6 +75,17 @@ is(unserialize($abc_123l_xdr)->[0],
    'int vector names att - xdr');
 
 
+## handling of negative integer vector length
+like(exception {
+        unserialize("\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\0\x0d\xff\xff\xff\xff" .
+                    "\0\0\0\0" . "\0\0\0\1")
+     }, qr/TODO: Long vectors are not supported/, 'long integer vector length');
+
+like(exception {
+        unserialize("\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\0\x0d\xff\xff\xff\x0")
+     }, qr/Negative length/, 'negative integer vector length');
+
+
 ## double vectors
 ## serialize 1234.56, XDR: true
 my $noatt_123456_xdr = Statistics::R::IO::ParserState->new(
@@ -130,6 +141,17 @@ is(unserialize($foo_123456_xdr)->[0],
    'double vector names att - xdr');
 
 
+## handling of negative double vector length
+like(exception {
+        unserialize("\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\0\x0e\xff\xff\xff\xff" .
+                    "\0\0\0\0" . "\0\0\0\1")
+     }, qr/TODO: Long vectors are not supported/, 'long double vector length');
+
+like(exception {
+        unserialize("\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\0\x0e\xff\xff\xff\x0")
+     }, qr/Negative length/, 'negative double vector length');
+
+
 ## character vectors
 ## serialize letters[1:3], XDR: true
 my $noatt_abc_xdr = Statistics::R::IO::ParserState->new(
@@ -166,6 +188,17 @@ is(unserialize($ABC_abc_xdr)->[0],
    'character vector names att - xdr');
 
 
+## handling of negative character vector length
+like(exception {
+        unserialize("\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\0\x10\xff\xff\xff\xff" .
+                    "\0\0\0\0" . "\0\0\0\1")
+     }, qr/TODO: Long vectors are not supported/, 'long character vector length');
+
+like(exception {
+        unserialize("\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\0\x10\xff\xff\xff\x0")
+     }, qr/Negative length/, 'negative character vector length');
+
+
 ## raw vectors
 ## serialize as.raw(c(1:3, 255, 0), XDR: true
 my $noatt_raw_xdr = "\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\0\x18\0\0\0\5" .
@@ -181,6 +214,17 @@ my $noatt_raw_bin = "\x42\x0a\2\0\0\0\2\0\3\0\0\3\2\0\x18\0\0\0\5\0\0\0" .
 is(unserialize($noatt_raw_bin)->[0],
    Statistics::R::REXP::Raw->new([ 1, 2, 3, 255, 0 ]),
    'raw vector');
+
+
+## handling of negative raw vector length
+like(exception {
+        unserialize("\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\0\x18\xff\xff\xff\xff" .
+                    "\0\0\0\0" . "\0\0\0\1")
+     }, qr/TODO: Long vectors are not supported/, 'long raw vector length');
+
+like(exception {
+        unserialize("\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\0\x18\xff\xff\xff\x0")
+     }, qr/Negative length/, 'negative raw vector length');
 
 
 ## list (i.e., generic vector)
@@ -236,6 +280,17 @@ is(unserialize($foobar_list_xdr)->[0],
            Statistics::R::REXP::Character->new(['foo']) ],
        attributes => {names => ['foo', '', 'bar'] }),
    'generic vector names att - xdr');
+
+
+## handling of negative generic vector length
+like(exception {
+        unserialize("\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\0\x13\xff\xff\xff\xff" .
+                    "\0\0\0\0" . "\0\0\0\1")
+     }, qr/TODO: Long vectors are not supported/, 'long generic vector length');
+
+like(exception {
+        unserialize("\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\0\x13\xff\xff\xff\x0")
+     }, qr/Negative length/, 'negative generic vector length');
 
 
 ## pairlist

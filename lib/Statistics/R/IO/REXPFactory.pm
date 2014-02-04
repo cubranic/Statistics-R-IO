@@ -168,12 +168,31 @@ sub tagged_pairlist_to_attribute_hash {
 }
 
 
+## Vector lengths are encoded as signed integers. This was fine when
+## the maximum allowed length was 2^31-1; long vectors were introduced
+## in R 3.0 and their length is encoded in three bytes: -1, followed
+## by high and low word of a 64-bit length.
+sub maybe_long_length {
+    bind(\&any_int32,
+         sub {
+             my $len = shift;
+             if ($len >= 0) {
+                 mreturn $len;
+             } elsif ($len == -1) {
+                 die 'TODO: Long vectors are not supported';
+             } else {
+                 die 'Negative length detected: ' . $len;
+             }
+         })
+}
+
+
 ## Vectors are serialized first with a SEXP for the vector elements,
 ## followed by attributes stored as a tagged pairlist.
 sub vector_and_attributes {
     my ($object_info, $element_parser, $rexp_class) = @_;
 
-    my @parsers = ($element_parser);
+    my @parsers = ( with_count(maybe_long_length, $element_parser) );
     if ($object_info->{has_attributes}) {
         push @parsers, object_content
     }
@@ -192,28 +211,28 @@ sub vector_and_attributes {
 
 sub lglsxp {
     my $object_info = shift;
-    vector_and_attributes($object_info, with_count(\&any_uint32),
+    vector_and_attributes($object_info, \&any_uint32,
                           'Statistics::R::REXP::Logical')
 }
 
 
 sub intsxp {
     my $object_info = shift;
-    vector_and_attributes($object_info, with_count(\&any_int32),
+    vector_and_attributes($object_info, \&any_int32,
                           'Statistics::R::REXP::Integer')
 }
 
 
 sub realsxp {
     my $object_info = shift;
-    vector_and_attributes($object_info, with_count(\&any_real64),
+    vector_and_attributes($object_info, \&any_real64,
                           'Statistics::R::REXP::Double')
 }
 
 
 sub strsxp {
     my $object_info = shift;
-    vector_and_attributes($object_info, with_count(object_content),
+    vector_and_attributes($object_info, object_content,
                           'Statistics::R::REXP::Character')
 }
 
@@ -223,7 +242,7 @@ sub rawsxp {
     die "No attributes are allowed on raw vectors"
         if $object_info->{has_attributes};
 
-    bind(with_count(\&any_uint8),
+    bind(with_count(maybe_long_length, \&any_uint8),
          sub {
              mreturn(Statistics::R::REXP::Raw->new(shift or return));
          })
@@ -232,7 +251,7 @@ sub rawsxp {
 
 sub vecsxp {
     my $object_info = shift;
-    vector_and_attributes($object_info, with_count(object_content),
+    vector_and_attributes($object_info, object_content,
                           'Statistics::R::REXP::List')
 }
 
