@@ -33,9 +33,9 @@ is_deeply(bind(Statistics::R::IO::REXPFactory::header,
             levels => 0, },
           'header plus object info - int vector no atts');
 
-is_deeply(unserialize($noatt_123_xdr->data)->[0],
-          Statistics::R::REXP::Integer->new([ -1, 0, 1, 2, 3 ]),
-          'int vector no atts');
+is(unserialize($noatt_123_xdr->data)->[0],
+   Statistics::R::REXP::Integer->new([ -1, 0, 1, 2, 3 ]),
+   'int vector no atts');
 
 ## serialize 1:3, XDR: false
 my $noatt_123_bin = Statistics::R::IO::ParserState->new(
@@ -57,9 +57,9 @@ is_deeply(bind(Statistics::R::IO::REXPFactory::header,
             levels => 0, },
           'binary header plus object info - int vector no atts');
 
-is_deeply(unserialize($noatt_123_bin->data)->[0],
-          Statistics::R::REXP::Integer->new([ -1, 0, 1, 2, 3 ]),
-          'int vector no atts - binary');
+is(unserialize($noatt_123_bin->data)->[0],
+   Statistics::R::REXP::Integer->new([ -1, 0, 1, 2, 3 ]),
+   'int vector no atts - binary');
 
 
 ## double vectors
@@ -79,9 +79,9 @@ is_deeply(bind(Statistics::R::IO::REXPFactory::header,
             levels => 0, },
           'header plus object info - double vector no atts');
 
-is_deeply(unserialize($noatt_123456_xdr->data)->[0],
-          Statistics::R::REXP::Double->new([ 1234.56 ]),
-          'double vector no atts');
+is(unserialize($noatt_123456_xdr->data)->[0],
+   Statistics::R::REXP::Double->new([ 1234.56 ]),
+   'double vector no atts');
 
 
 ## serialize 1234.56, XDR: false
@@ -100,9 +100,9 @@ is_deeply(bind(Statistics::R::IO::REXPFactory::header,
             levels => 0, },
           'binary header plus object info - double vector no atts');
 
-is_deeply(unserialize($noatt_123456_bin->data)->[0],
-          Statistics::R::REXP::Double->new([ 1234.56 ]),
-          'double vector no atts - binary');
+is(unserialize($noatt_123456_bin->data)->[0],
+   Statistics::R::REXP::Double->new([ 1234.56 ]),
+   'double vector no atts - binary');
 
 
 ## character vectors
@@ -122,9 +122,9 @@ is_deeply(bind(Statistics::R::IO::REXPFactory::header,
             levels => 0, },
           'header plus object info - character vector no atts');
 
-is_deeply(unserialize($noatt_abc_xdr->data)->[0],
-          Statistics::R::REXP::Character->new([ 'a', 'b', 'c' ]),
-          'character vector no atts');
+is(unserialize($noatt_abc_xdr->data)->[0],
+   Statistics::R::REXP::Character->new([ 'a', 'b', 'c' ]),
+   'character vector no atts');
 
 
 ## list (i.e., generic vector)
@@ -147,15 +147,15 @@ is_deeply(bind(Statistics::R::IO::REXPFactory::header,
             levels => 0, },
           'header plus object info - generic vector no atts');
 
-is_deeply(unserialize($noatt_list_xdr->data)->[0],
-          Statistics::R::REXP::List->new([
-              Statistics::R::REXP::Integer->new([ 1, 2, 3]),
-              Statistics::R::REXP::List->new([
-                  Statistics::R::REXP::Character->new(['a']),
-                  Statistics::R::REXP::Character->new(['b']),
-                  Statistics::R::REXP::Double->new([11]) ]),
-              Statistics::R::REXP::Character->new(['foo']) ]),
-          'generic vector no atts');
+is(unserialize($noatt_list_xdr->data)->[0],
+   Statistics::R::REXP::List->new([
+       Statistics::R::REXP::Integer->new([ 1, 2, 3]),
+       Statistics::R::REXP::List->new([
+           Statistics::R::REXP::Character->new(['a']),
+           Statistics::R::REXP::Character->new(['b']),
+           Statistics::R::REXP::Double->new([11]) ]),
+       Statistics::R::REXP::Character->new(['foo']) ]),
+   'generic vector no atts');
 
 
 ## pairlist
