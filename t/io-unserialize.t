@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 18;
+use Test::More tests => 22;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -62,6 +62,19 @@ is(unserialize($noatt_123_bin->data)->[0],
    'int vector no atts - binary');
 
 
+## serialize a=1L, b=2L, c=3L, XDR: true
+my $abc_123l_xdr = "\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\2\x0d\0\0\0\3\0\0\0" .
+    "\1\0\0\0\2\0\0\0\3\0\0\4\2\0\0\0\1\0\4\0\x09\0\0\0\5" .
+    "\x6e\x61\x6d\x65\x73\0\0\0\x10\0\0\0\3\0\4\0\x09\0\0\0\1\x61\0\4\0" .
+    "\x09\0\0\0\1\x62\0\4\0\x09\0\0\0\1\x63\0\0\0\xfe";
+
+is(unserialize($abc_123l_xdr)->[0],
+   Statistics::R::REXP::Integer->new(
+       elements => [ 1, 2, 3 ],
+       attributes => { names => ['a', 'b', 'c'] }),
+   'int vector names att - xdr');
+
+
 ## double vectors
 ## serialize 1234.56, XDR: true
 my $noatt_123456_xdr = Statistics::R::IO::ParserState->new(
@@ -105,6 +118,18 @@ is(unserialize($noatt_123456_bin->data)->[0],
    'double vector no atts - binary');
 
 
+## serialize foo=1234.56, XDR: true
+my $foo_123456_xdr = "\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\2\x0e\0\0\0\1\x40\x93\x4a" .
+    "\x3d\x70\xa3\xd7\x0a\0\0\4\2\0\0\0\1\0\4\0\x09\0\0\0\5\x6e\x61\x6d\x65" .
+    "\x73\0\0\0\x10\0\0\0\1\0\4\0\x09\0\0\0\3\x66\x6f\x6f\0\0\0\xfe";
+
+is(unserialize($foo_123456_xdr)->[0],
+   Statistics::R::REXP::Double->new(
+       elements => [ 1234.56 ],
+       attributes => { names => ['foo'] }),
+   'double vector names att - xdr');
+
+
 ## character vectors
 ## serialize letters[1:3], XDR: true
 my $noatt_abc_xdr = Statistics::R::IO::ParserState->new(
@@ -125,6 +150,20 @@ is_deeply(bind(Statistics::R::IO::REXPFactory::header,
 is(unserialize($noatt_abc_xdr->data)->[0],
    Statistics::R::REXP::Character->new([ 'a', 'b', 'c' ]),
    'character vector no atts');
+
+
+## serialize A='a', B='b', C='c', XDR: true
+my $ABC_abc_xdr = "\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\2\x10\0\0\0\3\0\4\0" .
+    "\x09\0\0\0\1\x61\0\4\0\x09\0\0\0\1\x62\0\4\0\x09\0\0\0\1\x63\0" .
+    "\0\4\2\0\0\0\1\0\4\0\x09\0\0\0\5\x6e\x61\x6d\x65\x73\0\0\0\x10\0" .
+    "\0\0\3\0\4\0\x09\0\0\0\1\x41\0\4\0\x09\0\0\0\1\x42\0\4\0\x09" .
+    "\0\0\0\1\x43\0\0\0\xfe";
+
+is(unserialize($ABC_abc_xdr)->[0],
+   Statistics::R::REXP::Character->new(
+       elements => [ 'a', 'b', 'c' ],
+       attributes => { names => ['A', 'B', 'C'] }),
+   'character vector names att - xdr');
 
 
 ## list (i.e., generic vector)
@@ -156,6 +195,30 @@ is(unserialize($noatt_list_xdr->data)->[0],
            Statistics::R::REXP::Double->new([11]) ]),
        Statistics::R::REXP::Character->new(['foo']) ]),
    'generic vector no atts');
+
+
+## serialize list(foo=1:3, list('a', 'b', 11), bar='foo'), XDR: true
+my $foobar_list_xdr = "\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\2\x13\0\0\0\3\0\0\0" .
+    "\x0d\0\0\0\3\0\0\0\1\0\0\0\2\0\0\0\3\0\0\0\x13\0\0\0\3" .
+    "\0\0\0\x10\0\0\0\1\0\4\0\x09\0\0\0\1\x61\0\0\0\x10\0\0\0\1" .
+    "\0\4\0\x09\0\0\0\1\x62\0\0\0\x0e\0\0\0\1\x40\x26\0\0\0\0\0\0" .
+    "\0\0\0\x10\0\0\0\1\0\4\0\x09\0\0\0\3\x66\x6f\x6f\0\0\4\2\0\0" .
+    "\0\1\0\4\0\x09\0\0\0\5\x6e\x61\x6d\x65\x73\0\0\0\x10\0\0\0\3\0\4" .
+    "\0\x09\0\0\0\3\x66\x6f\x6f\0\4\0\x09\0\0\0\0\0\4\0\x09\0\0\0\3" .
+    "\x62\x61\x72\0\0\0\xfe";
+
+
+is(unserialize($foobar_list_xdr)->[0],
+   Statistics::R::REXP::List->new(
+       elements => [
+           Statistics::R::REXP::Integer->new([ 1, 2, 3]),
+           Statistics::R::REXP::List->new([
+               Statistics::R::REXP::Character->new(['a']),
+               Statistics::R::REXP::Character->new(['b']),
+               Statistics::R::REXP::Double->new([11]) ]),
+           Statistics::R::REXP::Character->new(['foo']) ],
+       attributes => {names => ['foo', '', 'bar'] }),
+   'generic vector names att - xdr');
 
 
 ## pairlist

@@ -73,7 +73,7 @@ sub unpack_object_info {
 
 sub object_data {
     my $object_info = shift;
-    ## TODO: handle attributes
+    
     if ($object_info->{object_type} == 10) {
         # logical vector
         lglsxp($object_info)
@@ -123,7 +123,7 @@ sub flatten_pairlist {
 
 sub listsxp {
     my $object_info = shift;
-    my $sub_items = 1;          # one for CAR and one for CDR
+    my $sub_items = 1;          # CAR, CDR will be read separately
     if ($object_info->{has_attributes}) {
         die "attributes on pairlists are not implemented yet";
     }
@@ -139,55 +139,85 @@ sub listsxp {
                       $value{attributes} = $args[0] if $object_info->{has_attributes};
                       mreturn { %value };
                   }),
-             object_content),
+             object_content),   # CDR
          sub {
              mreturn [ flatten_pairlist @{shift or return} ]
          })
 }
 
 
+## Attributes are recorded as a pairlist, with attribute name in the
+## element's tag, and attribute value in the element itself. Pairlists
+## that serialize attributes should not have their own attribute.
+sub tagged_pairlist_to_attribute_hash {
+    my $list = shift;
+    my %attributes;
+
+    foreach my $element (@$list) {
+        croak "Serialized attribute has itself an attribute?!"
+            if exists $element->{attribute};
+        my $tag = $element->{tag} or next;
+        my $value = $element->{value};
+        $attributes{$tag->name} = $value->to_pl;
+    }
+    %attributes;
+}
+
+
+## Vectors are serialized first with a SEXP for the vector elements,
+## followed by attributes stored as a tagged pairlist.
+sub vector_and_attributes {
+    my ($object_info, $element_parser, $rexp_class) = @_;
+
+    my @parsers = ($element_parser);
+    if ($object_info->{has_attributes}) {
+        push @parsers, object_content
+    }
+
+    bind(seq(@parsers),
+         sub {
+             return unless $_[0];
+             my %args = (elements => (shift($_[0]) || []));
+             if ($object_info->{has_attributes}) {
+                 $args{attributes} = { tagged_pairlist_to_attribute_hash(shift $_[0]) };
+             }
+             mreturn($rexp_class->new(%args))
+         })
+}
+
+
 sub lglsxp {
     my $object_info = shift;
-    bind(with_count(\&any_uint32),
-         sub {
-             mreturn(Statistics::R::REXP::Logical->new(shift or return));
-         })
+    vector_and_attributes($object_info, with_count(\&any_uint32),
+                          'Statistics::R::REXP::Logical')
 }
 
 
 sub intsxp {
     my $object_info = shift;
-    bind(with_count(\&any_int32),
-         sub {
-             mreturn(Statistics::R::REXP::Integer->new(shift or return));
-         })
+    vector_and_attributes($object_info, with_count(\&any_int32),
+                          'Statistics::R::REXP::Integer')
 }
 
 
 sub realsxp {
     my $object_info = shift;
-    bind(with_count(\&any_real64),
-         sub {
-             mreturn(Statistics::R::REXP::Double->new(shift or return));
-         })
+    vector_and_attributes($object_info, with_count(\&any_real64),
+                          'Statistics::R::REXP::Double')
 }
 
 
 sub strsxp {
     my $object_info = shift;
-    bind(with_count(object_content), # each element should be a charsxp
-         sub {
-             mreturn(Statistics::R::REXP::Character->new(shift or return));
-         })
+    vector_and_attributes($object_info, with_count(object_content),
+                          'Statistics::R::REXP::Character')
 }
 
 
 sub vecsxp {
     my $object_info = shift;
-    bind(with_count(object_content), # each element can be anything
-         sub {
-             mreturn(Statistics::R::REXP::List->new(shift or return));
-         })
+    vector_and_attributes($object_info, with_count(object_content),
+                          'Statistics::R::REXP::List')
 }
 
 
