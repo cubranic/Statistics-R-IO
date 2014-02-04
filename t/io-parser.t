@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 91;
+use Test::More tests => 92;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -318,6 +318,11 @@ is_deeply(with_count(\&any_real64)->
     (Statistics::R::IO::ParserState->new(data => "\0\0\0\1\x40\x93\x4a\x3d\x70\xa3\xd7\x0a"))->[0],
     [ 1234.56 ],
     'with_count default counter');
+
+is_deeply(with_count(\&any_uint)->
+    (Statistics::R::IO::ParserState->new(data => "\0\0\0\0"))->[0],
+    [ ],
+    'with_count zero counter');
 
 is(with_count(\&any_uint8,
               \&any_uint8)->(Statistics::R::IO::ParserState->new(data => "\3\x2a\7")),

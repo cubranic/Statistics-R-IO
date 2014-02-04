@@ -344,6 +344,7 @@ sub bind {
     }
 }
 
+
 sub with_count {
     die "'bind' expects one or two arguments"
         unless @_ and scalar(@_) <= 2;
@@ -353,7 +354,7 @@ sub with_count {
 
     &bind($counter,
           sub {
-              my $n = shift or return;
+              my $n = shift;
               count($n, $content)
           })
 }
