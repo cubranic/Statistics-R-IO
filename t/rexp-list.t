@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 33;
+use Test::More tests => 38;
 use Test::Fatal;
 
 use Statistics::R::REXP::List;
@@ -101,3 +101,24 @@ isnt($list_attr, $list, 'inequality considers attributes');
 like(exception {
         Statistics::R::REXP::List->new(attributes => 1)
      }, qr/not a HASH ref/, 'setting non-HASH attributes');
+
+## Perl representation
+is_deeply($empty_list->to_pl,
+          [], 'empty list Perl representation');
+
+is_deeply($list->to_pl,
+          [3.3, '4', 11],
+          'Perl representation');
+
+is_deeply($na_heavy_list->to_pl,
+          [11.3, ['', undef], '0'],
+          'list with NAs Perl representation');
+
+is_deeply($nested_list->to_pl,
+          [3.3, 4.0, ['b', ['cc', 44.1]], 11],
+          'nested lists Perl representation');
+
+is_deeply($nested_rexps->to_pl,
+          [ [ 1, 2, 3], [ ['a'], ['b'], [11] ], ['foo'] ],
+          'list with nested REXPs Perl representation');
+

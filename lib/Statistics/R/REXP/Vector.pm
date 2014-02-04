@@ -86,4 +86,12 @@ sub is_vector {
     return 1;
 }
 
+
+sub to_pl {
+    my $self = shift;
+    [ map { (blessed $_ && $_->can('to_pl')) ?
+                $_->to_pl : $_ }
+          @{$self->elements} ]
+}
+
 1; # End of Statistics::R::REXP::Vector

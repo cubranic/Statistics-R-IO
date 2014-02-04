@@ -60,4 +60,10 @@ around _eq => sub {
     $orig->(@_) and ($_[0]->name eq $_[1]->name);
 };
 
+
+sub to_pl {
+    my $self = shift;
+    $self->name
+}
+
 1; # End of Statistics::R::REXP::Symbol

@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 17;
+use Test::More tests => 18;
 use Test::Fatal;
 
 use Statistics::R::REXP::Symbol;
@@ -53,3 +53,7 @@ isnt($sym_attr, $sym, 'inequality considers attributes');
 like(exception {
         Statistics::R::REXP::Symbol->new(attributes => 1)
      }, qr/not a HASH ref/, 'setting non-HASH attributes');
+
+## Perl representation
+is_deeply($sym->to_pl,
+          'sym', 'Perl representation');

@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 28;
+use Test::More tests => 31;
 use Test::Fatal;
 
 use Statistics::R::REXP::Character;
@@ -79,3 +79,14 @@ isnt($vec_attr, $vec, 'inequality considers attributes');
 like(exception {
         Statistics::R::REXP::Character->new(attributes => 1)
      }, qr/not a HASH ref/, 'setting non-HASH attributes');
+
+## Perl representation
+is_deeply($empty_vec->to_pl,
+          [], 'empty vector Perl representation');
+
+is_deeply($vec->to_pl,
+          [3.3, 4.7, 'bar'], 'Perl representation');
+
+is_deeply($na_heavy_vec->to_pl,
+          ['foo', '', undef, 23], 'NA-heavy vector Perl representation');
+

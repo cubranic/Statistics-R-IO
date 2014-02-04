@@ -4,6 +4,8 @@ use 5.012;
 
 use Moo::Role;
 
+requires qw( to_pl );
+
 has attributes => (
     is => 'ro',
     isa => sub {

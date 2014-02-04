@@ -23,4 +23,9 @@ sub eq {
     return equal_class(@_);
 }
 
+
+sub to_pl {
+    undef
+}
+
 1; # End of Statistics::R::REXP::Null

@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 8;
+use Test::More tests => 9;
 use Test::Fatal;
 
 use Statistics::R::REXP::Null;
@@ -28,3 +28,6 @@ like(exception {
         Statistics::R::REXP::Null->new(attributes => { foo => 'bar', x => 42 })
      }, qr/Null cannot have attributes/, 'setting null attributes');
 
+## Perl representation
+is_deeply($null->to_pl,
+          undef, 'Perl representation');
