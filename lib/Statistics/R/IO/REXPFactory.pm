@@ -259,10 +259,20 @@ sub vecsxp {
 sub charsxp {
     my $object_info = shift;
     ## TODO: handle character set encodings (UTF8, LATIN1, native)
-    bind(with_count(\&any_char),
+    bind(\&any_int32,
          sub {
-             my @chars = @{shift or return};
-             mreturn join('', @chars);
+             my $len = shift;
+             if ($len >= 0) {
+                 bind(count( $len, \&any_char),
+                      sub {
+                          my @chars = @{shift or return};
+                          mreturn join('', @chars);
+                      })
+             } elsif ($len == -1) {
+                 die 'TODO: NA charsxps';
+             } else {
+                 die 'Negative length detected: ' . $len;
+             }
          })
 }
 

@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 34;
+use Test::More tests => 36;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -197,6 +197,18 @@ like(exception {
 like(exception {
         unserialize("\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\0\x10\xff\xff\xff\x0")
      }, qr/Negative length/, 'negative character vector length');
+
+
+## handling of negative charsxp length
+like(exception {
+        unserialize("\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\0\x10\0\0\0\1".
+            "\0\4\0\x09" . "\xff\xff\xff\xff")
+     }, qr/TODO: NA charsxp/, 'NA_STRING');
+
+like(exception {
+        unserialize("\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\0\x10\0\0\0\1".
+            "\0\4\0\x09" . "\xff\xff\xff\xf0")
+     }, qr/Negative length/, 'negative charsxp length');
 
 
 ## raw vectors
