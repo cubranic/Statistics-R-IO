@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 22;
+use Test::More tests => 24;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -164,6 +164,23 @@ is(unserialize($ABC_abc_xdr)->[0],
        elements => [ 'a', 'b', 'c' ],
        attributes => { names => ['A', 'B', 'C'] }),
    'character vector names att - xdr');
+
+
+## raw vectors
+## serialize as.raw(c(1:3, 255, 0), XDR: true
+my $noatt_raw_xdr = "\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\0\x18\0\0\0\5" .
+    "\1\2\3\xff\0";
+
+is(unserialize($noatt_raw_xdr)->[0],
+   Statistics::R::REXP::Raw->new([ 1, 2, 3, 255, 0 ]),
+   'raw vector');
+
+my $noatt_raw_bin = "\x42\x0a\2\0\0\0\2\0\3\0\0\3\2\0\x18\0\0\0\5\0\0\0" .
+    "\1\2\3\xff\0";
+
+is(unserialize($noatt_raw_bin)->[0],
+   Statistics::R::REXP::Raw->new([ 1, 2, 3, 255, 0 ]),
+   'raw vector');
 
 
 ## list (i.e., generic vector)

@@ -18,6 +18,7 @@ use Statistics::R::REXP::Double;
 use Statistics::R::REXP::Integer;
 use Statistics::R::REXP::List;
 use Statistics::R::REXP::Logical;
+use Statistics::R::REXP::Raw;
 use Statistics::R::REXP::Symbol;
 use Statistics::R::REXP::Null;
 
@@ -86,6 +87,9 @@ sub object_data {
     } elsif ($object_info->{object_type} == 16) {
         # character vector
         strsxp($object_info)
+    } elsif ($object_info->{object_type} == 24) {
+        # raw vector
+        rawsxp($object_info)
     } elsif ($object_info->{object_type} == 19) {
         # list (generic vector)
         vecsxp($object_info)
@@ -211,6 +215,18 @@ sub strsxp {
     my $object_info = shift;
     vector_and_attributes($object_info, with_count(object_content),
                           'Statistics::R::REXP::Character')
+}
+
+
+sub rawsxp {
+    my $object_info = shift;
+    die "No attributes are allowed on raw vectors"
+        if $object_info->{has_attributes};
+
+    bind(with_count(\&any_uint8),
+         sub {
+             mreturn(Statistics::R::REXP::Raw->new(shift or return));
+         })
 }
 
 
