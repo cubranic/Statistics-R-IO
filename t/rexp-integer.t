@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 33;
+use Test::More tests => 34;
 use Test::Fatal;
 
 use Statistics::R::REXP::Integer;
@@ -60,6 +60,8 @@ is($na_heavy_vec .'', 'integer(11, undef, undef, 0)', 'empty numbers representat
 is_deeply($empty_vec->elements, [], 'empty integer vector contents');
 is_deeply($vec->elements, [3, 4, 11], 'integer vector contents');
 is($vec->elements->[2], 11, 'single element access');
+is_deeply(Statistics::R::REXP::Integer->new([-1, -1.5, -1.6, -1.4])->elements,
+          [-1, -2, -2, -1], 'negative integer vector contents');
 
 is_deeply(Statistics::R::REXP::Integer->new(elements => [3.3, 4.0, '3x', 11])->elements,
           [3, 4, undef, 11], 'constructor with non-numeric values');
