@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 39;
+use Test::More tests => 40;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -395,3 +395,26 @@ is_deeply(Statistics::R::IO::REXPFactory::object_content->($matrix_dims_attribut
                   Statistics::R::REXP::Character->new([ 'a', 'b' ]),
                   Statistics::R::REXP::Null->new ]) } ],
           'matrix dims attribute pairlist');
+
+## yet more complicated pairlist:
+## attributes from the head of the 'cars' data frame,
+## i.e., names = ['speed', 'dist'], row.names = 1..6, class = 'data.frame'
+my $cars_attribute_pairlist = Statistics::R::IO::ParserState->new(
+    data => "\0\0\4\2" .
+    "\0\0\0\1\0\4\0\x09\0\0\0\5" .
+    "\x6e\x61\x6d\x65\x73\0\0\0\x10\0\0\0\2\0\4\0\x09\0\0\0\5\x73\x70\x65\x65" .
+    "\x64\0\4\0\x09\0\0\0\4\x64\x69\x73\x74\0\0\4\2\0\0\0\1\0\4\0\x09" .
+    "\0\0\0\x09\x72\x6f\x77\x2e\x6e\x61\x6d\x65\x73\0\0\0\x0d\0\0\0\2\x80\0\0\0" .
+    "\0\0\0\6\0\0\4\2\0\0\0\1\0\4\0\x09\0\0\0\5\x63\x6c\x61\x73\x73" .
+    "\0\0\0\x10\0\0\0\1\0\4\0\x09\0\0\0\x0a\x64\x61\x74\x61\x2e\x66\x72\x61\x6d" .
+    "\x65\0\0\0\xfe");
+
+is_deeply(Statistics::R::IO::REXPFactory::object_content->($cars_attribute_pairlist)->[0],
+          [ { tag => Statistics::R::REXP::Symbol->new('names'),
+              value => Statistics::R::REXP::Character->new([ 'speed', 'dist' ]) },
+            { tag => Statistics::R::REXP::Symbol->new('row.names'), # compact encoding
+              value => Statistics::R::REXP::Integer->new([ -(1<<31), 6 ]) },
+            { tag => Statistics::R::REXP::Symbol->new('class'),
+              value => Statistics::R::REXP::Character->new([ 'data.frame' ]) },
+          ],
+          'cars dataframe attribute pairlist');

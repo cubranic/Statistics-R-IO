@@ -111,20 +111,6 @@ sub object_data {
 }
 
 
-sub flatten_pairlist {
-    my @value;
-
-    my @elements = @_;
-    while (@elements) {
-        my ($car, $cdr) = @elements;
-        push @value, $car;
-        last unless $cdr and ref $cdr ne 'Statistics::R::REXP::Null';
-        @elements = @{$cdr};
-    }
-    @value
-}
-
-
 sub listsxp {
     my $object_info = shift;
     my $sub_items = 1;          # CAR, CDR will be read separately
@@ -145,7 +131,10 @@ sub listsxp {
                   }),
              object_content),   # CDR
          sub {
-             mreturn [ flatten_pairlist @{shift or return} ]
+             my ($car, $cdr) = @{shift or return};
+             my @elements = ($car);
+             push( @elements, @{$cdr}) if ref $cdr eq ref []; # tail of list
+             mreturn [ @elements ]
          })
 }
 
