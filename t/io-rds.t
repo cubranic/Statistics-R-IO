@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 20;
+use Test::More tests => 21;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -189,3 +189,21 @@ is(readRDS('t/data/mtcars-xdr'),
                       class => ['data.frame'] }),
    'the mtcars data frame');
 
+## serialize head(iris)
+is(readRDS('t/data/iris-xdr'),
+   Statistics::R::REXP::List->new(
+       elements => [
+           Statistics::R::REXP::Double->new([ 5.1, 4.9, 4.7, 4.6, 5.0, 5.4 ]),
+           Statistics::R::REXP::Double->new([ 3.5, 3.0, 3.2, 3.1, 3.6, 3.9 ]),
+           Statistics::R::REXP::Double->new([ 1.4, 1.4, 1.3, 1.5, 1.4, 1.7 ]),
+           Statistics::R::REXP::Double->new([ 0.2, 0.2, 0.2, 0.2, 0.2, 0.4 ]),
+           Statistics::R::REXP::Integer->new(
+               elements => [ 1, 1, 1, 1, 1, 1 ],
+               attributes => { levels => ['setosa', 'versicolor', 'virginica'],
+                               class => ['factor'] } ),
+       ],
+       attributes => {names => ['Sepal.Length', 'Sepal.Width', 'Petal.Length',
+                                'Petal.Width', 'Species'],
+                      'row.names' => [1, 2, 3, 4, 5, 6],
+                      class => ['data.frame'] }),
+   'the iris data frame');
