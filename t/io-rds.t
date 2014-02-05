@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 14;
+use Test::More tests => 17;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -113,3 +113,29 @@ is(readRDS('t/data/foobar-list-xdr'),
            Statistics::R::REXP::Character->new(['foo']) ],
        attributes => {names => ['foo', '', 'bar'] }),
    'generic vector names att - xdr');
+
+
+## matrix
+
+## serialize matrix(-1:4, 2, 3), XDR: true
+is(readRDS('t/data/noatt-mat-xdr'),
+   Statistics::R::REXP::Integer->new(
+       elements => [ -1, 0, 1, 2, 3, 4 ],
+   attributes => { dim => [2, 3] }),
+   'int matrix no atts');
+
+## serialize matrix(-1:4, 2, 3), XDR: false
+is(readRDS('t/data/noatt-mat-noxdr'),
+   Statistics::R::REXP::Integer->new(
+       elements => [ -1, 0, 1, 2, 3, 4 ],
+   attributes => { dim => [2, 3] }),
+   'int matrix no atts - binary');
+
+## serialize matrix(-1:4, 2, 3, dimnames=list(c('a', 'b'))), XDR: true
+is(readRDS('t/data/ab-mat-xdr'),
+   Statistics::R::REXP::Integer->new(
+       elements => [ -1, 0, 1, 2, 3, 4 ],
+   attributes => { dim => [2, 3],
+                   dimnames => [ ['a', 'b'],
+                                 undef ] }),
+   'int matrix rownames');

@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 36;
+use Test::More tests => 39;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -303,6 +303,49 @@ like(exception {
 like(exception {
         unserialize("\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\0\x13\xff\xff\xff\x0")
      }, qr/Negative length/, 'negative generic vector length');
+
+
+## matrix
+
+## serialize matrix(-1:4, 2, 3), XDR: true
+my $noatt_mat_xdr =
+    "\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\2\x0d\0\0\0\6\xff\xff\xff" .
+    "\xff\0\0\0\0\0\0\0\1\0\0\0\2\0\0\0\3\0\0\0\4\0\0\4\2" .
+    "\0\0\0\1\0\4\0\x09\0\0\0\3\x64\x69\x6d\0\0\0\x0d\0\0\0\2\0\0" .
+    "\0\2\0\0\0\3\0\0\0\xfe";
+is(unserialize($noatt_mat_xdr)->[0],
+   Statistics::R::REXP::Integer->new(
+       elements => [ -1, 0, 1, 2, 3, 4 ],
+   attributes => { dim => [2, 3] }),
+   'int matrix no atts');
+
+## serialize matrix(-1:4, 2, 3), XDR: false
+my $noatt_mat_noxdr =
+    "\x42\x0a\2\0\0\0\2\0\3\0\0\3\2\0\x0d\2\0\0\6\0\0\0\xff\xff\xff" .
+    "\xff\0\0\0\0\1\0\0\0\2\0\0\0\3\0\0\0\4\0\0\0\2\4\0\0" .
+    "\1\0\0\0\x09\0\4\0\3\0\0\0\x64\x69\x6d\x0d\0\0\0\2\0\0\0\2\0" .
+    "\0\0\3\0\0\0\xfe\0\0\0";
+is(unserialize($noatt_mat_noxdr)->[0],
+   Statistics::R::REXP::Integer->new(
+       elements => [ -1, 0, 1, 2, 3, 4 ],
+   attributes => { dim => [2, 3] }),
+   'int matrix no atts - binary');
+
+## serialize matrix(-1:4, 2, 3, dimnames=list(c('a', 'b'))), XDR: true
+my $ab_mat_xdr =
+    "\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\2\x0d\0\0\0\6\xff\xff\xff" .
+    "\xff\0\0\0\0\0\0\0\1\0\0\0\2\0\0\0\3\0\0\0\4\0\0\4\2" .
+    "\0\0\0\1\0\4\0\x09\0\0\0\3\x64\x69\x6d\0\0\0\x0d\0\0\0\2\0\0" .
+    "\0\2\0\0\0\3\0\0\4\2\0\0\0\1\0\4\0\x09\0\0\0\x08\x64\x69\x6d" .
+    "\x6e\x61\x6d\x65\x73\0\0\0\x13\0\0\0\2\0\0\0\x10\0\0\0\2\0\4\0\x09" .
+    "\0\0\0\1\x61\0\4\0\x09\0\0\0\1\x62\0\0\0\xfe\0\0\0\xfe";
+is(unserialize($ab_mat_xdr)->[0],
+   Statistics::R::REXP::Integer->new(
+       elements => [ -1, 0, 1, 2, 3, 4 ],
+   attributes => { dim => [2, 3],
+                   dimnames => [ ['a', 'b'],
+                                 undef ] }),
+   'int matrix rownames');
 
 
 ## pairlist
