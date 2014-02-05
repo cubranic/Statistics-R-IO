@@ -151,7 +151,17 @@ sub tagged_pairlist_to_attribute_hash {
             if exists $element->{attribute};
         my $tag = $element->{tag} or next;
         my $value = $element->{value};
-        $attributes{$tag->name} = $value->to_pl;
+        
+        if ($tag->name eq 'row.names' &&
+            $value->type eq 'integer' &&
+            $value->elements->[0] == -(1<<31)) {
+            ## compact encoding when rownames are integers 1..n
+            ## the length n is in the second element
+            my $n = $value->elements->[1];
+            $attributes{'row.names'} = [1..$n];
+        } else {
+            $attributes{$tag->name} = $value->to_pl;
+        }
     }
     %attributes;
 }
