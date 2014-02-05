@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 19;
+use Test::More tests => 20;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -164,3 +164,28 @@ is(readRDS('t/data/cars-noxdr'),
                       'row.names' => [1, 2, 3, 4, 5, 6],
                       class => ['data.frame'] }),
    'the cars data frame - binary');
+
+## serialize head(mtcars)
+is(readRDS('t/data/mtcars-xdr'),
+   Statistics::R::REXP::List->new(
+       elements => [
+           Statistics::R::REXP::Double->new([ 21.0, 21.0, 22.8, 21.4, 18.7, 18.1 ]),
+           Statistics::R::REXP::Double->new([ 6, 6, 4, 6, 8, 6 ]),
+           Statistics::R::REXP::Double->new([ 160, 160, 108, 258, 360, 225 ]),
+           Statistics::R::REXP::Double->new([ 110, 110, 93, 110, 175, 105 ]),
+           Statistics::R::REXP::Double->new([ 3.90, 3.90, 3.85, 3.08, 3.15, 2.76 ]),
+           Statistics::R::REXP::Double->new([ 2.620, 2.875, 2.320, 3.215, 3.440, 3.460 ]),
+           Statistics::R::REXP::Double->new([ 16.46, 17.02, 18.61, 19.44, 17.02, 20.22 ]),
+           Statistics::R::REXP::Double->new([ 0, 0, 1, 1, 0, 1 ]),
+           Statistics::R::REXP::Double->new([ 1, 1, 1, 0, 0, 0 ]),
+           Statistics::R::REXP::Double->new([ 4, 4, 4, 3, 3, 3 ]),
+           Statistics::R::REXP::Double->new([ 4, 4, 1, 1, 2, 1 ]),
+       ],
+       attributes => {names => ['mpg' , 'cyl', 'disp', 'hp', 'drat', 'wt', 'qsec',
+                                'vs', 'am', 'gear', 'carb'],
+                      'row.names' => ['Mazda RX4', 'Mazda RX4 Wag', 'Datsun 710',
+                                      'Hornet 4 Drive', 'Hornet Sportabout',
+                                      'Valiant'],
+                      class => ['data.frame'] }),
+   'the mtcars data frame');
+
