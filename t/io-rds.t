@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 17;
+use Test::More tests => 19;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -139,3 +139,28 @@ is(readRDS('t/data/ab-mat-xdr'),
                    dimnames => [ ['a', 'b'],
                                  undef ] }),
    'int matrix rownames');
+
+
+## data frames
+## serialize head(cars)
+is(readRDS('t/data/cars-xdr'),
+   Statistics::R::REXP::List->new(
+       elements => [
+           Statistics::R::REXP::Double->new([ 4, 4, 7, 7, 8, 9]),
+           Statistics::R::REXP::Double->new([ 2, 10, 4, 22, 16, 10]),
+       ],
+       attributes => {names => ['speed', 'dist'],
+                      'row.names' => [1, 2, 3, 4, 5, 6],
+                      class => ['data.frame'] }),
+   'the cars data frame');
+
+is(readRDS('t/data/cars-noxdr'),
+   Statistics::R::REXP::List->new(
+       elements => [
+           Statistics::R::REXP::Double->new([ 4, 4, 7, 7, 8, 9]),
+           Statistics::R::REXP::Double->new([ 2, 10, 4, 22, 16, 10]),
+       ],
+       attributes => {names => ['speed', 'dist'],
+                      'row.names' => [1, 2, 3, 4, 5, 6],
+                      class => ['data.frame'] }),
+   'the cars data frame - binary');
