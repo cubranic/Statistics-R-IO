@@ -67,6 +67,7 @@ sub unpack_object_info {
                        has_tag => $object_info & 1<<10,
                        object_type => $object_info & 0xFF,
                        levels => $object_info >> 12,
+                       flags => $object_info,
                      };
          })
 }

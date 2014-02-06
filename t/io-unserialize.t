@@ -30,7 +30,8 @@ is_deeply(bind(Statistics::R::IO::REXPFactory::header,
             has_attributes => 0,
             has_tag => 0,
             object_type => 13,
-            levels => 0, },
+            levels => 0,
+            flags => 13},
           'header plus object info - int vector no atts');
 
 is(unserialize($noatt_123_xdr->data)->[0],
@@ -54,7 +55,8 @@ is_deeply(bind(Statistics::R::IO::REXPFactory::header,
             has_attributes => 0,
             has_tag => 0,
             object_type => 13,
-            levels => 0, },
+            levels => 0,
+            flags => 13 },
           'binary header plus object info - int vector no atts');
 
 is(unserialize($noatt_123_bin->data)->[0],
@@ -100,7 +102,8 @@ is_deeply(bind(Statistics::R::IO::REXPFactory::header,
             has_attributes => 0,
             has_tag => 0,
             object_type => 14,
-            levels => 0, },
+            levels => 0,
+            flags => 14 },
           'header plus object info - double vector no atts');
 
 is(unserialize($noatt_123456_xdr->data)->[0],
@@ -121,7 +124,8 @@ is_deeply(bind(Statistics::R::IO::REXPFactory::header,
             has_attributes => 0,
             has_tag => 0,
             object_type => 14,
-            levels => 0, },
+            levels => 0,
+            flags => 14 },
           'binary header plus object info - double vector no atts');
 
 is(unserialize($noatt_123456_bin->data)->[0],
@@ -166,7 +170,8 @@ is_deeply(bind(Statistics::R::IO::REXPFactory::header,
             has_attributes => 0,
             has_tag => 0,
             object_type => 16,
-            levels => 0, },
+            levels => 0,
+            flags => 16 },
           'header plus object info - character vector no atts');
 
 is(unserialize($noatt_abc_xdr->data)->[0],
@@ -256,7 +261,8 @@ is_deeply(bind(Statistics::R::IO::REXPFactory::header,
             has_attributes => 0,
             has_tag => 0,
             object_type => 19,
-            levels => 0, },
+            levels => 0,
+            flags => 19 },
           'header plus object info - generic vector no atts');
 
 is(unserialize($noatt_list_xdr->data)->[0],
@@ -360,7 +366,8 @@ is_deeply(Statistics::R::IO::REXPFactory::unpack_object_info->($names_attribute_
             has_attributes => 0,
             has_tag => 1<<10,
             object_type => 2,
-            levels => 0, },
+            levels => 0,
+            flags => 1026 },
           'object info - names attribute pairlist');
 
 is_deeply(Statistics::R::IO::REXPFactory::object_content->($names_attribute_pairlist)->[0],
@@ -384,7 +391,8 @@ is_deeply(Statistics::R::IO::REXPFactory::unpack_object_info->($matrix_dims_attr
             has_attributes => 0,
             has_tag => 1<<10,
             object_type => 2,
-            levels => 0, },
+            levels => 0,
+            flags => 1026 },
           'object info - matrix dims attribute pairlist');
 
 is_deeply(Statistics::R::IO::REXPFactory::object_content->($matrix_dims_attribute_pairlist)->[0],
