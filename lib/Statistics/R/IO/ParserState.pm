@@ -19,6 +19,11 @@ has position => (
     default => sub { 0 },
 );
 
+has singletons => (
+    is => 'ro',
+    default => sub { [] },
+);
+
 sub at {
     my $self = shift;
     $self->data->[$self->position]
@@ -30,6 +35,21 @@ sub next {
     $copy
 }
 
+sub add_singleton {
+    my ($self, $singleton) = (shift, shift);
+
+    my @new_singletons = @{$self->singletons};
+    push @new_singletons, $singleton;
+    ref($self)->new(data => $self->data,
+                    position => $self->position,
+                    singletons => [ @new_singletons ])
+}
+
+sub get_singleton {
+    my ($self, $singleton_id) = (shift, shift);
+    $self->singletons->[$singleton_id]
+}
+
 sub eof {
     my $self = shift;
     $self->position >= scalar @{$self->data};
@@ -38,7 +58,8 @@ sub eof {
 sub clone {
     my $self = shift;
     ref($self)->new(data => $self->data,
-                    position => $self->position)
+                    position => $self->position,
+                    singletons => $self->singletons)
 }
         
     
