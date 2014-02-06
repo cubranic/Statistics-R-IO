@@ -106,6 +106,9 @@ sub object_data {
     } elsif ($object_info->{object_type} == 0xfe) {
         # encoded Nil
         mreturn(Statistics::R::REXP::Null->new)
+    } elsif ($object_info->{object_type} == 0xff) {
+        # encoded reference to a stored singleton
+        refsxp($object_info)
     } else {
         die "unimplemented SEXPTYPE: " . $object_info->{object_type};
     }
@@ -281,8 +284,16 @@ sub symsxp {
     my $object_info = shift;
     bind(object_content,        # should be followed by a charsxp
          sub {
-             mreturn(Statistics::R::REXP::Symbol->new(shift or return));
+             add_singleton(Statistics::R::REXP::Symbol->new(shift or return));
          })
+}
+
+
+sub refsxp {
+    my $object_info = shift;
+    my $ref_id = $object_info->{flags} >> 8;
+    die 'TODO: only packed reference ids' if $ref_id == 0;
+    get_singleton($ref_id-1)
 }
 
 
