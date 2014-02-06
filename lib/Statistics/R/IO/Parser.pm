@@ -12,7 +12,7 @@ our @EXPORT_OK = qw( endianness any_char char string byte
                      uint8 uint16 uint24 uint32
                      any_int8 any_int16 any_int24 any_int32
                      int8 int16 int24 int32
-                     count with_count seq choose mreturn bind );
+                     count with_count seq choose mreturn add_singleton get_singleton bind );
 
 our %EXPORT_TAGS = ( all => [ @EXPORT_OK ],
                      num => [ qw( any_uint8 any_uint16 any_uint24 any_uint32 any_real32 any_real64 uint8 uint16 uint24 uint32 ) ],
@@ -329,6 +329,23 @@ sub mreturn {
     my $arg = shift;
     sub {
         [ $arg, shift ]
+    }
+}
+
+
+sub add_singleton {
+    my $singleton = shift;
+    sub {
+        [ $singleton, shift->add_singleton($singleton) ]
+    }
+}
+
+
+sub get_singleton {
+    my $ref_id = shift;
+    sub {
+        my $state = shift;
+        [ $state->get_singleton($ref_id), $state ]
     }
 }
 

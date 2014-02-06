@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 92;
+use Test::More tests => 94;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -290,6 +290,20 @@ is($f_oob_choose->($state->next->next->next),
 is_deeply(mreturn('foobar')->($state),
           [ 'foobar', $state ],
           'mreturn');
+
+
+## add_singleton
+is_deeply(add_singleton('baz')->($state),
+          [ 'baz',
+            Statistics::R::IO::ParserState->new(data => 'foobar',
+                                                singletons => [ 'baz' ])],
+          'add_singleton');
+
+is_deeply(get_singleton(0)->(add_singleton('bla')->($state)->[1]),
+          [ 'bla',
+            Statistics::R::IO::ParserState->new(data => 'foobar',
+                                                singletons => [ 'bla' ])],
+          'get_singleton');
 
 
 ## bind combinator
