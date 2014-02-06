@@ -110,7 +110,11 @@ sub object_data {
         # encoded reference to a stored singleton
         refsxp($object_info)
     } else {
-        die "unimplemented SEXPTYPE: " . $object_info->{object_type};
+        sub {
+            my $state = shift;
+            croak "unimplemented SEXPTYPE: " . $object_info->{object_type} .
+                " (at " . $state->position . ")";
+        }
     }
 }
 
