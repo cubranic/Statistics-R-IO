@@ -114,11 +114,7 @@ sub object_data {
         # encoded reference to a stored singleton
         refsxp($object_info)
     } else {
-        sub {
-            my $state = shift;
-            croak "unimplemented SEXPTYPE: " . $object_info->{object_type} .
-                " (at " . $state->position . ")";
-        }
+        error "unimplemented SEXPTYPE: " . $object_info->{object_type}
     }
 }
 
@@ -127,7 +123,7 @@ sub listsxp {
     my $object_info = shift;
     my $sub_items = 1;          # CAR, CDR will be read separately
     if ($object_info->{has_attributes}) {
-        die "attributes on pairlists are not implemented yet";
+        return error("attributes on pairlists are not implemented yet");
     }
     if ($object_info->{has_tag}) {
         $sub_items++;
@@ -221,9 +217,9 @@ sub maybe_long_length {
              if ($len >= 0) {
                  mreturn $len;
              } elsif ($len == -1) {
-                 die 'TODO: Long vectors are not supported';
+                 error 'TODO: Long vectors are not supported';
              } else {
-                 die 'Negative length detected: ' . $len;
+                 error 'Negative length detected: ' . $len;
              }
          })
 }
@@ -281,7 +277,7 @@ sub strsxp {
 
 sub rawsxp {
     my $object_info = shift;
-    die "No attributes are allowed on raw vectors"
+    return error "No attributes are allowed on raw vectors"
         if $object_info->{has_attributes};
 
     bind(with_count(maybe_long_length, \&any_uint8),
@@ -311,9 +307,9 @@ sub charsxp {
                           mreturn join('', @chars);
                       })
              } elsif ($len == -1) {
-                 die 'TODO: NA charsxps';
+                 error 'TODO: NA charsxps';
              } else {
-                 die 'Negative length detected: ' . $len;
+                 error 'Negative length detected: ' . $len;
              }
          })
 }
@@ -331,14 +327,14 @@ sub symsxp {
 sub refsxp {
     my $object_info = shift;
     my $ref_id = $object_info->{flags} >> 8;
-    die 'TODO: only packed reference ids' if $ref_id == 0;
+    return error 'TODO: only packed reference ids' if $ref_id == 0;
     get_singleton($ref_id-1)
 }
 
 
 sub unserialize {
     my $data = shift;
-    die "Unserialize requires a scalar data" if ref $data && ref $data ne ref [];
+    return error "Unserialize requires a scalar data" if ref $data && ref $data ne ref [];
 
     my $result =
         bind(header,
