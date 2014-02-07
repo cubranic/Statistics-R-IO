@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 94;
+use Test::More tests => 95;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -290,6 +290,13 @@ is($f_oob_choose->($state->next->next->next),
 is_deeply(mreturn('foobar')->($state),
           [ 'foobar', $state ],
           'mreturn');
+
+
+## error
+like(exception {
+        error('foobar-ed')->($state->next)
+     }, qr/foobar-ed \(at 1\)/,
+     'error');
 
 
 ## add_singleton
