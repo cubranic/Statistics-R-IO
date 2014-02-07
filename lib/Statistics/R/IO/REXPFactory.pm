@@ -19,6 +19,7 @@ use Statistics::R::REXP::Integer;
 use Statistics::R::REXP::List;
 use Statistics::R::REXP::Logical;
 use Statistics::R::REXP::Raw;
+use Statistics::R::REXP::Language;
 use Statistics::R::REXP::Symbol;
 use Statistics::R::REXP::Null;
 
@@ -100,6 +101,9 @@ sub object_data {
     } elsif ($object_info->{object_type} == 2) {
         # pairlist
         listsxp($object_info)
+    } elsif ($object_info->{object_type} == 6) {
+        # language object
+        langsxp($object_info)
     } elsif ($object_info->{object_type} == 1) {
         # symbol
         symsxp($object_info)
@@ -143,6 +147,37 @@ sub listsxp {
              my @elements = ($car);
              push( @elements, @{$cdr}) if ref $cdr eq ref []; # tail of list
              mreturn [ @elements ]
+         })
+}
+
+
+## Language expressions are pairlists, but with a certain structure:
+## - the first element is the reference (name or another language
+##   expression) to the function call
+## - the rest of the list are the arguments of the call, with optional
+##   tags to name them
+sub langsxp {
+    ## After the pairlist has been parsed by `listsxp`, we want to
+    ## separate the tags from the elements before invoking the Language
+    ## constructor, with the tags becoming the names attribute
+    bind(listsxp(@_),
+         sub {
+             my $list = shift or return;
+             my @elements;
+             my @names;
+             foreach my $element (@$list) {
+                 my $tag = $element->{tag};
+                 my $value = $element->{value};
+                 push @elements, $value;
+                 push @names, $tag ? $tag->name : '';
+             }
+             my %args = (elements => [ @elements ]);
+             ## if no element is tagged, then don't construct the
+             ## 'names' attribute
+             if (grep {exists $_->{tag}} @$list) {
+                 $args{attributes} = { names => [ @names ] };
+             }
+             mreturn(Statistics::R::REXP::Language->new(%args))
          })
 }
 

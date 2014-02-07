@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 41;
+use Test::More tests => 42;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -426,6 +426,34 @@ is_deeply(Statistics::R::IO::REXPFactory::object_content->($cars_attribute_pairl
               value => Statistics::R::REXP::Character->new([ 'data.frame' ]) },
           ],
           'cars dataframe attribute pairlist');
+
+
+## language object
+my $lm_language = Statistics::R::IO::ParserState->new(
+    data => "\0\0\0\6" .
+    "\0\0\0\1\0\4\0\x09\0\0\0\2\x6c\x6d\0\0\4\2\0\0\0" .
+    "\1\0\4\0\x09\0\0\0\7\x66\x6f\x72\x6d\x75\x6c\x61\0\0\0\6\0\0\0\1" .
+    "\0\4\0\x09\0\0\0\1\x7e\0\0\0\2\0\0\0\1\0\4\0\x09\0\0\0" .
+    "\3\x6d\x70\x67\0\0\0\2\0\0\0\1\0\4\0\x09\0\0\0\2\x77\x74\0\0" .
+    "\0\xfe\0\0\4\2\0\0\0\1\0\4\0\x09\0\0\0\4\x64\x61\x74\x61\0\0" .
+    "\0\6\0\0\0\1\0\4\0\x09\0\0\0\4\x68\x65\x61\x64\0\0\0\2\0\0" .
+    "\0\1\0\4\0\x09\0\0\0\6\x6d\x74\x63\x61\x72\x73\0\0\0\xfe\0\0\0\xfe");
+is(Statistics::R::IO::REXPFactory::object_content->($lm_language)->[0],
+   Statistics::R::REXP::Language->new(
+       elements => [
+           Statistics::R::REXP::Symbol->new('lm'),
+           Statistics::R::REXP::Language->new([
+               Statistics::R::REXP::Symbol->new('~'),
+               Statistics::R::REXP::Symbol->new('mpg'),
+               Statistics::R::REXP::Symbol->new('wt'),
+           ]),
+           Statistics::R::REXP::Language->new([
+               Statistics::R::REXP::Symbol->new('head'),
+               Statistics::R::REXP::Symbol->new('mtcars'),
+           ]),
+       ],
+       attributes => {names => ['', 'formula', 'data'] }),
+   'language lm(formula=mpg~wt, head(mtcars))');
 
 
 ## data frames
