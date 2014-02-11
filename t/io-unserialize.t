@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 42;
+use Test::More tests => 43;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -480,3 +480,11 @@ is(unserialize($mtcars_xdr)->[0],
                       'row.names' => [1, 2, 3, 4, 5, 6],
                       class => ['data.frame'] }),
    'the cars data frame');
+
+
+## Environments
+## .GlobalEnv:
+my $globalenv_xdr = "\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\0\xfd";
+is(unserialize($globalenv_xdr)->[0],
+   Statistics::R::REXP::GlobalEnvironment->new,
+   'global environment');

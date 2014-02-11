@@ -22,6 +22,7 @@ use Statistics::R::REXP::Raw;
 use Statistics::R::REXP::Language;
 use Statistics::R::REXP::Symbol;
 use Statistics::R::REXP::Null;
+use Statistics::R::REXP::GlobalEnvironment;
 
 use Carp;
 
@@ -107,6 +108,9 @@ sub object_data {
     } elsif ($object_info->{object_type} == 1) {
         # symbol
         symsxp($object_info)
+    } elsif ($object_info->{object_type} == 0xfd) {
+        # encoded R_GlobalEnv
+        mreturn(Statistics::R::REXP::GlobalEnvironment->new)
     } elsif ($object_info->{object_type} == 0xfe) {
         # encoded Nil
         mreturn(Statistics::R::REXP::Null->new)
