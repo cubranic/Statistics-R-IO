@@ -356,42 +356,43 @@ sub refsxp {
 
 sub envsxp {
     my $object_info = shift;
-    bind(\&any_uint32,
-         sub {
-             my $locked = shift;
-             bind(count(4, object_content),
-                  sub {
-                      my ($enclosure, $frame, $hash, $attributes) = @{$_[0]};
-                      
-                      ## Frame is a tagged pairlist with tag the symbol and CAR the value
-                      my %vars = tagged_pairlist_to_rexp_hash $frame;
+    reserve_singleton(
+        bind(\&any_uint32,
+             sub {
+                 my $locked = shift;
+                 bind(count(4, object_content),
+                      sub {
+                          my ($enclosure, $frame, $hash, $attributes) = @{$_[0]};
+                          
+                          ## Frame is a tagged pairlist with tag the symbol and CAR the value
+                          my %vars = tagged_pairlist_to_rexp_hash $frame;
 
-                      ## Hash table is a Null or a VECSXP with hash chain per element
-                      if ($hash->can('elements')) {
-                          ## It appears that a variable appears either in the frame *or*
-                          ## in the hash table, so we have to merge the two
-                          foreach my $chain (@{$hash->elements}) {
-                              ## Hash chain is a tagged pairlist
-                              my %chain_vars = tagged_pairlist_to_rexp_hash $chain;
-                              
-                              ## Merge the variables from the hash chain
-                              while (my ($name, $value) = each %chain_vars) {
-                                  $vars{$name} = $value unless exists $vars{$name} and
-                                       die "Variable $name is already defined in the environment";
+                          ## Hash table is a Null or a VECSXP with hash chain per element
+                          if ($hash->can('elements')) {
+                              ## It appears that a variable appears either in the frame *or*
+                              ## in the hash table, so we have to merge the two
+                              foreach my $chain (@{$hash->elements}) {
+                                  ## Hash chain is a tagged pairlist
+                                  my %chain_vars = tagged_pairlist_to_rexp_hash $chain;
+                                  
+                                  ## Merge the variables from the hash chain
+                                  while (my ($name, $value) = each %chain_vars) {
+                                      $vars{$name} = $value unless exists $vars{$name} and
+                                          die "Variable $name is already defined in the environment";
+                                  }
                               }
                           }
-                      }
-                      
-                      my %args = (
-                          frame => \%vars,
-                          enclosure => $enclosure,
-                          );
-                      if (ref $attributes eq ref []) {
-                          $args{attributes} = tagged_pairlist_to_attribute_hash $attributes;
-                      }
-                      mreturn(Statistics::R::REXP::Environment->new( %args ));
-                  })
-         })
+                          
+                          my %args = (
+                              frame => \%vars,
+                              enclosure => $enclosure,
+                              );
+                          if (ref $attributes eq ref []) {
+                              $args{attributes} = tagged_pairlist_to_attribute_hash $attributes;
+                          }
+                          mreturn(Statistics::R::REXP::Environment->new( %args ));
+                      })
+             }))
 }
 
 

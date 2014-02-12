@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 44;
+use Test::More tests => 45;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -503,3 +503,29 @@ is(unserialize($env1)->[0],
        },
        enclosure => Statistics::R::REXP::GlobalEnvironment->new),
    'simple environment');
+
+my $env2 = "\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\0\4\0\0\0\0\0\0\0" .
+    "\4\0\0\0\0\0\0\0\xfd\0\0\0\xfe\0\0\0\x13\0\0\0\3\0\0\4\2" .
+    "\0\0\0\1\0\4\0\x09\0\0\0\1\x78\0\0\0\x10\0\0\0\1\0\4\0\x09" .
+    "\0\0\0\3\x66\x6f\x6f\0\0\0\xfe\0\0\4\2\0\0\0\1\0\4\0\x09\0\0" .
+    "\0\1\x79\0\0\0\x10\0\0\0\1\0\4\0\x09\0\0\0\3\x62\x61\x72\0\0\0" .
+    "\xfe\0\0\0\xfe\0\0\0\xfe\0\0\0\xfe\0\0\0\x13\0\0\0\x1d\0\0\0\xfe" .
+    "\0\0\0\xfe\0\0\0\xfe\0\0\0\xfe\0\0\4\2\0\0\3\xff\0\0\0\x0d\0" .
+    "\0\0\1\0\0\0\7\0\0\0\xfe\0\0\0\xfe\0\0\0\xfe\0\0\0\xfe\0\0" .
+    "\0\xfe\0\0\0\xfe\0\0\0\xfe\0\0\0\xfe\0\0\0\xfe\0\0\0\xfe\0\0\0" .
+    "\xfe\0\0\0\xfe\0\0\0\xfe\0\0\0\xfe\0\0\0\xfe\0\0\0\xfe\0\0\0\xfe" .
+    "\0\0\0\xfe\0\0\0\xfe\0\0\0\xfe\0\0\0\xfe\0\0\0\xfe\0\0\0\xfe\0" .
+    "\0\0\xfe\0\0\0\xfe\0\0\0\xfe";
+is(unserialize($env2)->[0],
+   Statistics::R::REXP::Environment->new(
+       frame => {
+           x => Statistics::R::REXP::Integer->new([7]),
+       },
+       enclosure => Statistics::R::REXP::Environment->new(
+           frame => {
+               x => Statistics::R::REXP::Character->new(['foo']),
+               y => Statistics::R::REXP::Character->new(['bar']),
+           },
+           enclosure => Statistics::R::REXP::GlobalEnvironment->new),
+   ),
+   'nested environments');
