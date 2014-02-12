@@ -178,7 +178,9 @@ sub langsxp {
              ## if no element is tagged, then don't construct the
              ## 'names' attribute
              if (grep {exists $_->{tag}} @$list) {
-                 $args{attributes} = { names => [ @names ] };
+                 $args{attributes} = {
+                     names => Statistics::R::REXP::Character->new([ @names ])
+                 };
              }
              mreturn(Statistics::R::REXP::Language->new(%args))
          })
@@ -204,27 +206,18 @@ sub tagged_pairlist_to_rexp_hash {
 ## element's tag, and attribute value in the element itself. Pairlists
 ## that serialize attributes should not have their own attribute.
 sub tagged_pairlist_to_attribute_hash {
-    my $list = shift;
-    my %attributes;
-
-    foreach my $element (@$list) {
-        croak "Serialized attribute has itself an attribute?!"
-            if exists $element->{attribute};
-        my $tag = $element->{tag} or next;
-        my $value = $element->{value};
-        
-        if ($tag->name eq 'row.names' &&
-            $value->type eq 'integer' &&
-            $value->elements->[0] == -(1<<31)) {
-            ## compact encoding when rownames are integers 1..n
-            ## the length n is in the second element
-            my $n = $value->elements->[1];
-            $attributes{'row.names'} = [1..$n];
-        } else {
-            $attributes{$tag->name} = $value->to_pl;
-        }
+    my %rexp_hash = tagged_pairlist_to_rexp_hash @_;
+    
+    my $row_names = $rexp_hash{'row.names'};
+    if ($row_names && $row_names->type eq 'integer' &&
+        $row_names->elements->[0] == -(1<<31)) {
+        ## compact encoding when rownames are integers 1..n
+        ## the length n is in the second element
+        my $n = $row_names->elements->[1];
+        $rexp_hash{'row.names'} = Statistics::R::REXP::Integer->new([1..$n]);
     }
-    %attributes;
+
+    %rexp_hash
 }
 
 

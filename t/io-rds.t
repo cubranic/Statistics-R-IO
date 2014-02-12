@@ -27,7 +27,9 @@ is(readRDS('t/data/noatt-123l-noxdr'),
 is(readRDS('t/data/abc-123l-xdr'),
    Statistics::R::REXP::Integer->new(
        elements => [ 1, 2, 3 ],
-       attributes => { names => ['a', 'b', 'c'] }),
+       attributes => {
+           names => Statistics::R::REXP::Character->new(['a', 'b', 'c'])
+       }),
    'int vector names att - xdr');
 
 
@@ -46,7 +48,9 @@ is(readRDS('t/data/noatt-123456-noxdr'),
 is(readRDS('t/data/foo-123456-xdr'),
    Statistics::R::REXP::Double->new(
        elements => [ 1234.56 ],
-       attributes => { names => ['foo'] }),
+       attributes => {
+           names => Statistics::R::REXP::Character->new(['foo'])
+       }),
    'double vector names att - xdr');
 
 
@@ -64,7 +68,9 @@ is(readRDS('t/data/noatt-abc-noxdr'),
 is(readRDS('t/data/ABC-abc-xdr'),
    Statistics::R::REXP::Character->new(
        elements => [ 'a', 'b', 'c' ],
-       attributes => { names => ['A', 'B', 'C'] }),
+       attributes => {
+           names => Statistics::R::REXP::Character->new(['A', 'B', 'C'])
+       }),
    'character vector names att - xdr');
 
 
@@ -111,7 +117,9 @@ is(readRDS('t/data/foobar-list-xdr'),
                Statistics::R::REXP::Character->new(['b']),
                Statistics::R::REXP::Double->new([11]) ]),
            Statistics::R::REXP::Character->new(['foo']) ],
-       attributes => {names => ['foo', '', 'bar'] }),
+       attributes => {
+           names => Statistics::R::REXP::Character->new(['foo', '', 'bar'])
+       }),
    'generic vector names att - xdr');
 
 
@@ -121,23 +129,31 @@ is(readRDS('t/data/foobar-list-xdr'),
 is(readRDS('t/data/noatt-mat-xdr'),
    Statistics::R::REXP::Integer->new(
        elements => [ -1, 0, 1, 2, 3, 4 ],
-   attributes => { dim => [2, 3] }),
+       attributes => {
+           dim => Statistics::R::REXP::Integer->new([2, 3]),
+       }),
    'int matrix no atts');
 
 ## serialize matrix(-1:4, 2, 3), XDR: false
 is(readRDS('t/data/noatt-mat-noxdr'),
    Statistics::R::REXP::Integer->new(
        elements => [ -1, 0, 1, 2, 3, 4 ],
-   attributes => { dim => [2, 3] }),
+       attributes => {
+           dim => Statistics::R::REXP::Integer->new([2, 3]),
+       }),
    'int matrix no atts - binary');
 
 ## serialize matrix(-1:4, 2, 3, dimnames=list(c('a', 'b'))), XDR: true
 is(readRDS('t/data/ab-mat-xdr'),
    Statistics::R::REXP::Integer->new(
        elements => [ -1, 0, 1, 2, 3, 4 ],
-   attributes => { dim => [2, 3],
-                   dimnames => [ ['a', 'b'],
-                                 undef ] }),
+       attributes => {
+           dim => Statistics::R::REXP::Integer->new([2, 3]),
+           dimnames => Statistics::R::REXP::List->new([
+               Statistics::R::REXP::Character->new(['a', 'b']),
+               Statistics::R::REXP::Null->new
+           ]),
+       }),
    'int matrix rownames');
 
 
@@ -149,9 +165,13 @@ is(readRDS('t/data/cars-xdr'),
            Statistics::R::REXP::Double->new([ 4, 4, 7, 7, 8, 9]),
            Statistics::R::REXP::Double->new([ 2, 10, 4, 22, 16, 10]),
        ],
-       attributes => {names => ['speed', 'dist'],
-                      'row.names' => [1, 2, 3, 4, 5, 6],
-                      class => ['data.frame'] }),
+       attributes => {
+           names => Statistics::R::REXP::Character->new(['speed', 'dist']),
+           class => Statistics::R::REXP::Character->new(['data.frame']),
+           'row.names' => Statistics::R::REXP::Integer->new([
+               1, 2, 3, 4, 5, 6
+           ]),
+       }),
    'the cars data frame');
 
 is(readRDS('t/data/cars-noxdr'),
@@ -160,9 +180,13 @@ is(readRDS('t/data/cars-noxdr'),
            Statistics::R::REXP::Double->new([ 4, 4, 7, 7, 8, 9]),
            Statistics::R::REXP::Double->new([ 2, 10, 4, 22, 16, 10]),
        ],
-       attributes => {names => ['speed', 'dist'],
-                      'row.names' => [1, 2, 3, 4, 5, 6],
-                      class => ['data.frame'] }),
+       attributes => {
+           names => Statistics::R::REXP::Character->new(['speed', 'dist']),
+           class => Statistics::R::REXP::Character->new(['data.frame']),
+           'row.names' => Statistics::R::REXP::Integer->new([
+               1, 2, 3, 4, 5, 6
+           ]),
+       }),
    'the cars data frame - binary');
 
 ## serialize head(mtcars)
@@ -181,12 +205,16 @@ is(readRDS('t/data/mtcars-xdr'),
            Statistics::R::REXP::Double->new([ 4, 4, 4, 3, 3, 3 ]),
            Statistics::R::REXP::Double->new([ 4, 4, 1, 1, 2, 1 ]),
        ],
-       attributes => {names => ['mpg' , 'cyl', 'disp', 'hp', 'drat', 'wt', 'qsec',
-                                'vs', 'am', 'gear', 'carb'],
-                      'row.names' => ['Mazda RX4', 'Mazda RX4 Wag', 'Datsun 710',
-                                      'Hornet 4 Drive', 'Hornet Sportabout',
-                                      'Valiant'],
-                      class => ['data.frame'] }),
+       attributes => {
+           names => Statistics::R::REXP::Character->new([
+               'mpg' , 'cyl', 'disp', 'hp', 'drat', 'wt', 'qsec',
+               'vs', 'am', 'gear', 'carb']),
+           class => Statistics::R::REXP::Character->new(['data.frame']),
+           'row.names' => Statistics::R::REXP::Character->new([
+               'Mazda RX4', 'Mazda RX4 Wag', 'Datsun 710',
+               'Hornet 4 Drive', 'Hornet Sportabout', 'Valiant'
+           ]),
+       }),
    'the mtcars data frame');
 
 ## serialize head(iris)
@@ -199,11 +227,19 @@ is(readRDS('t/data/iris-xdr'),
            Statistics::R::REXP::Double->new([ 0.2, 0.2, 0.2, 0.2, 0.2, 0.4 ]),
            Statistics::R::REXP::Integer->new(
                elements => [ 1, 1, 1, 1, 1, 1 ],
-               attributes => { levels => ['setosa', 'versicolor', 'virginica'],
-                               class => ['factor'] } ),
+               attributes => {
+                   levels => Statistics::R::REXP::Character->new([
+                       'setosa', 'versicolor', 'virginica']),
+                   class => Statistics::R::REXP::Character->new(['factor'])
+               } ),
        ],
-       attributes => {names => ['Sepal.Length', 'Sepal.Width', 'Petal.Length',
-                                'Petal.Width', 'Species'],
-                      'row.names' => [1, 2, 3, 4, 5, 6],
-                      class => ['data.frame'] }),
+       attributes => {
+           names => Statistics::R::REXP::Character->new([
+               'Sepal.Length', 'Sepal.Width', 'Petal.Length',
+               'Petal.Width', 'Species']),
+           class => Statistics::R::REXP::Character->new(['data.frame']),
+           'row.names' => Statistics::R::REXP::Integer->new([
+               1, 2, 3, 4, 5, 6
+           ]),
+       }),
    'the iris data frame');

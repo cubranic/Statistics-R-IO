@@ -73,7 +73,9 @@ my $abc_123l_xdr = "\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\2\x0d\0\0\0\3\0\0\0" .
 is(unserialize($abc_123l_xdr)->[0],
    Statistics::R::REXP::Integer->new(
        elements => [ 1, 2, 3 ],
-       attributes => { names => ['a', 'b', 'c'] }),
+       attributes => {
+           names => Statistics::R::REXP::Character->new(['a', 'b', 'c'])
+       }),
    'int vector names att - xdr');
 
 
@@ -141,7 +143,9 @@ my $foo_123456_xdr = "\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\2\x0e\0\0\0\1\x40\x93
 is(unserialize($foo_123456_xdr)->[0],
    Statistics::R::REXP::Double->new(
        elements => [ 1234.56 ],
-       attributes => { names => ['foo'] }),
+       attributes => {
+           names => Statistics::R::REXP::Character->new(['foo'])
+       }),
    'double vector names att - xdr');
 
 
@@ -189,7 +193,9 @@ my $ABC_abc_xdr = "\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\2\x10\0\0\0\3\0\4\0" .
 is(unserialize($ABC_abc_xdr)->[0],
    Statistics::R::REXP::Character->new(
        elements => [ 'a', 'b', 'c' ],
-       attributes => { names => ['A', 'B', 'C'] }),
+       attributes => {
+           names => Statistics::R::REXP::Character->new(['A', 'B', 'C'])
+       }),
    'character vector names att - xdr');
 
 
@@ -296,7 +302,9 @@ is(unserialize($foobar_list_xdr)->[0],
                Statistics::R::REXP::Character->new(['b']),
                Statistics::R::REXP::Double->new([11]) ]),
            Statistics::R::REXP::Character->new(['foo']) ],
-       attributes => {names => ['foo', '', 'bar'] }),
+       attributes => {
+           names => Statistics::R::REXP::Character->new(['foo', '', 'bar'])
+       }),
    'generic vector names att - xdr');
 
 
@@ -322,7 +330,9 @@ my $noatt_mat_xdr =
 is(unserialize($noatt_mat_xdr)->[0],
    Statistics::R::REXP::Integer->new(
        elements => [ -1, 0, 1, 2, 3, 4 ],
-   attributes => { dim => [2, 3] }),
+       attributes => {
+           dim => Statistics::R::REXP::Integer->new([2, 3])
+       }),
    'int matrix no atts');
 
 ## serialize matrix(-1:4, 2, 3), XDR: false
@@ -334,7 +344,9 @@ my $noatt_mat_noxdr =
 is(unserialize($noatt_mat_noxdr)->[0],
    Statistics::R::REXP::Integer->new(
        elements => [ -1, 0, 1, 2, 3, 4 ],
-   attributes => { dim => [2, 3] }),
+       attributes => {
+           dim => Statistics::R::REXP::Integer->new([2, 3])
+       }),
    'int matrix no atts - binary');
 
 ## serialize matrix(-1:4, 2, 3, dimnames=list(c('a', 'b'))), XDR: true
@@ -348,9 +360,13 @@ my $ab_mat_xdr =
 is(unserialize($ab_mat_xdr)->[0],
    Statistics::R::REXP::Integer->new(
        elements => [ -1, 0, 1, 2, 3, 4 ],
-   attributes => { dim => [2, 3],
-                   dimnames => [ ['a', 'b'],
-                                 undef ] }),
+       attributes => {
+           dim => Statistics::R::REXP::Integer->new([2, 3]),
+           dimnames => Statistics::R::REXP::List->new([
+               Statistics::R::REXP::Character->new(['a', 'b']),
+               Statistics::R::REXP::Null->new
+           ]),
+       }),
    'int matrix rownames');
 
 
@@ -452,7 +468,9 @@ is(Statistics::R::IO::REXPFactory::object_content->($lm_language)->[0],
                Statistics::R::REXP::Symbol->new('mtcars'),
            ]),
        ],
-       attributes => {names => ['', 'formula', 'data'] }),
+       attributes => {
+           names => Statistics::R::REXP::Character->new(['', 'formula', 'data'])
+       }),
    'language lm(formula=mpg~wt, head(mtcars))');
 
 
@@ -476,9 +494,10 @@ is(unserialize($mtcars_xdr)->[0],
            Statistics::R::REXP::Double->new([ 4, 4, 7, 7, 8, 9]),
            Statistics::R::REXP::Double->new([ 2, 10, 4, 22, 16, 10]),
        ],
-       attributes => {names => ['speed', 'dist'],
-                      'row.names' => [1, 2, 3, 4, 5, 6],
-                      class => ['data.frame'] }),
+       attributes => {
+           names => Statistics::R::REXP::Character->new(['speed', 'dist']),
+           'row.names' => Statistics::R::REXP::Integer->new([1, 2, 3, 4, 5, 6]),
+           class => Statistics::R::REXP::Character->new(['data.frame']) }),
    'the cars data frame');
 
 
