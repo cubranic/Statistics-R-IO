@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 95;
+use Test::More tests => 96;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -305,6 +305,17 @@ is_deeply(add_singleton('baz')->($state),
             Statistics::R::IO::ParserState->new(data => 'foobar',
                                                 singletons => [ 'baz' ])],
           'add_singleton');
+
+## reserve_singleton will preallocate a singleton that get the value
+## 'baz' at the end
+is_deeply(reserve_singleton(bind(add_singleton('foo'),
+                                 sub {
+                                     mreturn('baz')
+                                 }))->($state),
+          [ 'baz',
+            Statistics::R::IO::ParserState->new(data => 'foobar',
+                                                singletons => [ 'baz', 'foo' ])],
+          'reserve_singleton');
 
 is_deeply(get_singleton(0)->(add_singleton('bla')->($state)->[1]),
           [ 'bla',

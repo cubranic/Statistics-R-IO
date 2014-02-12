@@ -12,7 +12,7 @@ our @EXPORT_OK = qw( endianness any_char char string byte
                      uint8 uint16 uint24 uint32
                      any_int8 any_int16 any_int24 any_int32
                      int8 int16 int24 int32
-                     count with_count seq choose mreturn error add_singleton get_singleton bind );
+                     count with_count seq choose mreturn error add_singleton get_singleton reserve_singleton bind );
 
 our %EXPORT_TAGS = ( all => [ @EXPORT_OK ],
                      num => [ qw( any_uint8 any_uint16 any_uint24 any_uint32 any_real32 any_real64 uint8 uint16 uint24 uint32 ) ],
@@ -357,6 +357,31 @@ sub get_singleton {
         my $state = shift;
         [ $state->get_singleton($ref_id), $state ]
     }
+}
+
+
+## Preallocates a space for a singleton before running a given parser,
+## and then assigns the parser's value to the singleton.
+sub reserve_singleton {
+
+    my $p = shift;
+    &bind(
+        seq(
+            sub {
+                my $state = shift;
+                my $ref_id = scalar(@{$state->singletons});
+                my $new_state = $state->add_singleton(undef);
+                [ $ref_id, $new_state ]
+            },
+            $p),
+        sub {
+            my ($ref_id, $value) = @{shift()};
+            sub {
+                my $state = shift;
+                $state->singletons->[$ref_id] = $value;
+                [ $value, $state ]
+            }
+        })
 }
 
 
