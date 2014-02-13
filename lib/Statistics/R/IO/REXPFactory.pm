@@ -130,7 +130,7 @@ sub listsxp {
     my $object_info = shift;
     my $sub_items = 1;          # CAR, CDR will be read separately
     if ($object_info->{has_attributes}) {
-        return error("attributes on pairlists are not implemented yet");
+        $sub_items++;
     }
     if ($object_info->{has_tag}) {
         $sub_items++;
@@ -168,20 +168,30 @@ sub langsxp {
              my $list = shift or return;
              my @elements;
              my @names;
+             my %attributes;
              foreach my $element (@$list) {
                  my $tag = $element->{tag};
                  my $value = $element->{value};
                  push @elements, $value;
                  push @names, $tag ? $tag->name : '';
+
+                 if (exists $element->{attributes}) {
+                     my %attribute_hash = tagged_pairlist_to_attribute_hash($element->{attributes});
+                     while(my ($key, $value) = each %attribute_hash) {
+                         die "Duplicate attribute $key" if
+                             exists $attributes{$key};
+                         $attributes{$key} = $value;
+                     }
+                 }
              }
              my %args = (elements => [ @elements ]);
              ## if no element is tagged, then don't construct the
              ## 'names' attribute
              if (grep {exists $_->{tag}} @$list) {
-                 $args{attributes} = {
-                     names => Statistics::R::REXP::Character->new([ @names ])
-                 };
+                 $attributes{names} = Statistics::R::REXP::Character->new([ @names ]);
              }
+             $args{attributes} = \%attributes if %attributes;
+
              mreturn(Statistics::R::REXP::Language->new(%args))
          })
 }

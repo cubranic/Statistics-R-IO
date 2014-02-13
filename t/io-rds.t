@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 21;
+use Test::More tests => 22;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -243,3 +243,225 @@ is(readRDS('t/data/iris-xdr'),
            ]),
        }),
    'the iris data frame');
+
+## serialize lm(mpg ~ wt, data = head(mtcars))
+is(readRDS('t/data/mtcars-lm-mpgwt-xdr'),
+   Statistics::R::REXP::List->new(
+       elements => [
+           # coefficients
+           Statistics::R::REXP::Double->new(
+               elements => [ 30.3002034730204, -3.27948805566774 ],
+               attributes => {
+                   names => Statistics::R::REXP::Character->new(['(Intercept)', 'wt'])
+               }),
+           # residuals
+           Statistics::R::REXP::Double->new(
+               elements => [ -0.707944767170941, 0.128324687024322, 0.108208816128727,
+                             1.64335062595135, -0.318764561523408, -0.853174800410051 ],
+               attributes => {
+                   names => Statistics::R::REXP::Character->new([
+                       "Mazda RX4", "Mazda RX4 Wag",
+                       "Datsun 710", "Hornet 4 Drive",
+                       "Hornet Sportabout", "Valiant" ])
+               }),
+           # effects
+           Statistics::R::REXP::Double->new(
+               elements => [ -50.2145397270552, -3.39713386075597, 0.13375416348722,
+                             1.95527848390874, 0.0651588996571721, -0.462851730054076 ],
+               attributes => {
+                   names => Statistics::R::REXP::Character->new([
+                       '(Intercept)', 'wt', '',
+                       '', '', '' ])
+               }),
+           # rank
+           Statistics::R::REXP::Integer->new([2]),
+           # fitted.values
+           Statistics::R::REXP::Double->new(
+               elements => [ 21.7079447671709, 20.8716753129757, 22.6917911838713,
+                             19.7566493740486, 19.0187645615234, 18.9531748004101  ],
+               attributes => {
+                   names => Statistics::R::REXP::Character->new([
+                       "Mazda RX4", "Mazda RX4 Wag",
+                       "Datsun 710", "Hornet 4 Drive",
+                       "Hornet Sportabout", "Valiant" ])
+               }),
+           # assign
+           Statistics::R::REXP::Integer->new([0, 1]),
+           # qr
+           Statistics::R::REXP::List->new(
+               elements => [
+                   # qr
+                   Statistics::R::REXP::Double->new(
+                       elements => [ -2.44948974278318, 0.408248290463863,
+                                     0.408248290463863, 0.408248290463863,
+                                     0.408248290463863, 0.408248290463863,
+                                     -7.31989184801706, 1.03587322261623,
+                                     0.542107126002057, -0.321898217952644,
+                                     -0.539106265315558, -0.558413647303373 ],
+                       attributes => {
+                           dim => Statistics::R::REXP::Integer->new([ 6, 2 ]),
+                           dimnames => Statistics::R::REXP::List->new([
+                               Statistics::R::REXP::Character->new([
+                                   "Mazda RX4", "Mazda RX4 Wag",
+                                   "Datsun 710", "Hornet 4 Drive",
+                                   "Hornet Sportabout", "Valiant" ]),
+                               Statistics::R::REXP::Character->new([
+                                   '(Intercept)', 'wt' ])
+                               ]),
+                           assign => Statistics::R::REXP::Integer->new([
+                               0, 1
+                           ]),
+                       }),
+                   # qraux
+                   Statistics::R::REXP::Double->new(
+                       [ 1.40824829046386, 1.0063272758402 ]),
+                   # pivot
+                   Statistics::R::REXP::Integer->new([1, 2]),
+                   # tol
+                   Statistics::R::REXP::Double->new([1E-7]),
+                   # rank
+                   Statistics::R::REXP::Integer->new([2]),
+               ],
+               attributes => {
+                   names => Statistics::R::REXP::Character->new([
+                       "qr", "qraux", "pivot",
+                       "tol", "rank" ]),
+                   class => Statistics::R::REXP::Character->new(['qr'])
+               }),
+           # df.residual
+           Statistics::R::REXP::Integer->new([4]),
+           # xlevels
+           Statistics::R::REXP::List->new(
+               elements => [],
+               attributes => {
+                   names => Statistics::R::REXP::Character->new([])
+               }),
+           # call
+           Statistics::R::REXP::Language->new(
+               elements => [
+                   Statistics::R::REXP::Symbol->new('lm'),
+                   Statistics::R::REXP::Language->new(
+                       elements => [
+                           Statistics::R::REXP::Symbol->new('~'),
+                           Statistics::R::REXP::Symbol->new('mpg'),
+                           Statistics::R::REXP::Symbol->new('wt'),
+                       ]),
+                   Statistics::R::REXP::Language->new(
+                       elements => [
+                           Statistics::R::REXP::Symbol->new('head'),
+                           Statistics::R::REXP::Symbol->new('mtcars'),
+                       ]),
+               ],
+               attributes => {
+                   names => Statistics::R::REXP::Character->new([
+                       '', 'formula', 'data' ])
+               }),
+           # terms
+           Statistics::R::REXP::Language->new(
+               elements => [
+                   Statistics::R::REXP::Symbol->new('~'),
+                   Statistics::R::REXP::Symbol->new('mpg'),
+                   Statistics::R::REXP::Symbol->new('wt'),
+               ],
+               attributes => {
+                   variables => Statistics::R::REXP::Language->new(
+                       elements => [
+                           Statistics::R::REXP::Symbol->new('list'),
+                           Statistics::R::REXP::Symbol->new('mpg'),
+                           Statistics::R::REXP::Symbol->new('wt'),
+                       ]),
+                   factors => Statistics::R::REXP::Integer->new(
+                       elements => [ 0, 1 ],
+                       attributes => {
+                           dim => Statistics::R::REXP::Integer->new([ 2, 1 ]),
+                           dimnames => Statistics::R::REXP::List->new([
+                               Statistics::R::REXP::Character->new([
+                                   'mpg', 'wt' ]),
+                               Statistics::R::REXP::Character->new([ 'wt' ]),
+                           ]),
+                       }),
+                   'term.labels' => Statistics::R::REXP::Character->new(['wt']),
+                   order => Statistics::R::REXP::Integer->new([1]),
+                   intercept => Statistics::R::REXP::Integer->new([1]),
+                   response => Statistics::R::REXP::Integer->new([1]),
+                   class => Statistics::R::REXP::Character->new([
+                       'terms', 'formula'
+                   ]),
+                   '.Environment' => Statistics::R::REXP::GlobalEnvironment->new,
+                   predvars => Statistics::R::REXP::Language->new(
+                       elements => [
+                           Statistics::R::REXP::Symbol->new('list'),
+                           Statistics::R::REXP::Symbol->new('mpg'),
+                           Statistics::R::REXP::Symbol->new('wt'),
+                       ]),
+                   dataClasses => Statistics::R::REXP::Character->new(
+                       elements => ['numeric', 'numeric'],
+                       attributes => {
+                           names => Statistics::R::REXP::Character->new(['mpg', 'wt'])
+                       }),
+               }),
+           # model
+           Statistics::R::REXP::List->new(
+               elements => [
+                   Statistics::R::REXP::Double->new([ 21.0, 21.0, 22.8, 21.4, 18.7, 18.1 ]),
+                   Statistics::R::REXP::Double->new([ 2.62, 2.875, 2.32, 3.215, 3.44, 3.46 ]),
+               ],
+               attributes => {
+                   names => Statistics::R::REXP::Character->new(['mpg', 'wt']),
+                   'row.names' => Statistics::R::REXP::Character->new([
+                       'Mazda RX4', 'Mazda RX4 Wag', 'Datsun 710',
+                       'Hornet 4 Drive', 'Hornet Sportabout', 'Valiant']),
+                   class => Statistics::R::REXP::Character->new(['data.frame']),
+                   terms => Statistics::R::REXP::Language->new(
+                       elements => [
+                           Statistics::R::REXP::Symbol->new('~'),
+                           Statistics::R::REXP::Symbol->new('mpg'),
+                           Statistics::R::REXP::Symbol->new('wt'),
+                       ],
+                       attributes => {
+                           variables => Statistics::R::REXP::Language->new(
+                               elements => [
+                                   Statistics::R::REXP::Symbol->new('list'),
+                                   Statistics::R::REXP::Symbol->new('mpg'),
+                                   Statistics::R::REXP::Symbol->new('wt'),
+                               ]),
+                           factors => Statistics::R::REXP::Integer->new(
+                               elements => [ 0, 1 ],
+                               attributes => {
+                                   dim => Statistics::R::REXP::Integer->new([ 2, 1 ]),
+                                   dimnames => Statistics::R::REXP::List->new([
+                                       Statistics::R::REXP::Character->new([
+                                           'mpg', 'wt' ]),
+                                       Statistics::R::REXP::Character->new([ 'wt' ]),
+                                   ]),
+                               }),
+                           'term.labels' => Statistics::R::REXP::Character->new(['wt']),
+                           order => Statistics::R::REXP::Integer->new([1]),
+                           intercept => Statistics::R::REXP::Integer->new([1]),
+                           response => Statistics::R::REXP::Integer->new([1]),
+                           class => Statistics::R::REXP::Character->new([
+                               'terms', 'formula'
+                           ]),
+                           '.Environment' => Statistics::R::REXP::GlobalEnvironment->new,
+                           predvars => Statistics::R::REXP::Language->new(
+                               elements => [
+                                   Statistics::R::REXP::Symbol->new('list'),
+                                   Statistics::R::REXP::Symbol->new('mpg'),
+                                   Statistics::R::REXP::Symbol->new('wt'),
+                               ]),
+                           dataClasses => Statistics::R::REXP::Character->new(
+                               elements => ['numeric', 'numeric'],
+                               attributes => {
+                                   names => Statistics::R::REXP::Character->new(['mpg', 'wt'])
+                               }),
+                       }),
+               }),
+       ],
+       attributes => {
+           names => Statistics::R::REXP::Character->new([
+               'coefficients', 'residuals', 'effects', 'rank',
+               'fitted.values', 'assign', 'qr', 'df.residual',
+               'xlevels', 'call', 'terms', 'model',
+           ]),
+           class => Statistics::R::REXP::Character->new(['lm']) }),
+   'lm mpg~wt, head(mtcars)');

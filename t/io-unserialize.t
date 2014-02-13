@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 45;
+use Test::More tests => 46;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -472,6 +472,85 @@ is(Statistics::R::IO::REXPFactory::object_content->($lm_language)->[0],
            names => Statistics::R::REXP::Character->new(['', 'formula', 'data'])
        }),
    'language lm(formula=mpg~wt, head(mtcars))');
+
+
+## lm(mpg~wt, head(mtcars)$terms has an interesting structure:
+## a language with multiple classes, and plenty of attributes
+my $lm_terms_language = Statistics::R::IO::ParserState->new(
+    data => ("\0\0\3\6" .
+    "\0\0\4\2\0\0\0\1\0\4\0\x09\0\0\0\x09\x76\x61\x72\x69\x61\x62\x6c\x65\x73" .
+    "\0\0\0\6\0\0\0\1\0\4\0\x09\0\0\0\4\x6c\x69\x73\x74\0\0\0\2\0" .
+    "\0\0\1\0\4\0\x09\0\0\0\3\x6d\x70\x67\0\0\0\2\0\0\0\1\0\4\0" .
+    "\x09\0\0\0\2\x77\x74\0\0\0\xfe\0\0\4\2\0\0\0\1\0\4\0\x09\0\0" .
+    "\0\7\x66\x61\x63\x74\x6f\x72\x73\0\0\2\x0d\0\0\0\2\0\0\0\0\0\0\0\1" .
+    "\0\0\4\2\0\0\0\1\0\4\0\x09\0\0\0\3\x64\x69\x6d\0\0\0\x0d\0\0" .
+    "\0\2\0\0\0\2\0\0\0\1\0\0\4\2\0\0\0\1\0\4\0\x09\0\0\0" .
+    "\x08\x64\x69\x6d\x6e\x61\x6d\x65\x73\0\0\0\x13\0\0\0\2\0\0\0\x10\0\0\0\2" .
+    "\0\4\0\x09\0\0\0\3\x6d\x70\x67\0\4\0\x09\0\0\0\2\x77\x74\0\0\0\x10" .
+    "\0\0\0\1\0\4\0\x09\0\0\0\2\x77\x74\0\0\0\xfe\0\0\4\2\0\0\0" .
+    "\1\0\4\0\x09\0\0\0\x0b\x74\x65\x72\x6d\x2e\x6c\x61\x62\x65\x6c\x73\0\0\0\x10\0" .
+    "\0\0\1\0\4\0\x09\0\0\0\2\x77\x74\0\0\4\2\0\0\0\1\0\4\0\x09" .
+    "\0\0\0\5\x6f\x72\x64\x65\x72\0\0\0\x0d\0\0\0\1\0\0\0\1\0\0\4\2" .
+    "\0\0\0\1\0\4\0\x09\0\0\0\x09\x69\x6e\x74\x65\x72\x63\x65\x70\x74\0\0\0\x0d" .
+    "\0\0\0\1\0\0\0\1\0\0\4\2\0\0\0\1\0\4\0\x09\0\0\0\x08\x72" .
+    "\x65\x73\x70\x6f\x6e\x73\x65\0\0\0\x0d\0\0\0\1\0\0\0\1\0\0\4\2\0\0" .
+    "\0\1\0\4\0\x09\0\0\0\5\x63\x6c\x61\x73\x73\0\0\0\x10\0\0\0\2\0\4" .
+    "\0\x09\0\0\0\5\x74\x65\x72\x6d\x73\0\4\0\x09\0\0\0\7\x66\x6f\x72\x6d\x75\x6c" .
+    "\x61\0\0\4\2\0\0\0\1\0\4\0\x09\0\0\0\x0c\x2e\x45\x6e\x76\x69\x72\x6f\x6e" .
+    "\x6d\x65\x6e\x74\0\0\0\xfd\0\0\4\2\0\0\0\1\0\4\0\x09\0\0\0\x08\x70" .
+    "\x72\x65\x64\x76\x61\x72\x73\0\0\0\6\0\0\2\xff\0\0\0\2\0\0\3\xff\0\0" .
+    "\0\2\0\0\4\xff\0\0\0\xfe\0\0\4\2\0\0\0\1\0\4\0\x09\0\0\0" .
+    "\x0b\x64\x61\x74\x61\x43\x6c\x61\x73\x73\x65\x73\0\0\2\x10\0\0\0\2\0\4\0\x09\0" .
+    "\0\0\7\x6e\x75\x6d\x65\x72\x69\x63\0\4\0\x09\0\0\0\7\x6e\x75\x6d\x65\x72\x69\x63" .
+    "\0\0\4\2\0\0\0\1\0\4\0\x09\0\0\0\5\x6e\x61\x6d\x65\x73\0\0\0\x10" .
+    "\0\0\0\2\0\4\0\x09\0\0\0\3\x6d\x70\x67\0\4\0\x09\0\0\0\2\x77\x74" .
+    "\0\0\0\xfe\0\0\0\xfe\0\0\0\1\0\4\0\x09\0\0\0\1\x7e\0\0\0\2" .
+    "\0\0\3\xff\0\0\0\2\0\0\4\xff\0\0\0\xfe"));
+is(Statistics::R::IO::REXPFactory::object_content->($lm_terms_language)->[0],
+   Statistics::R::REXP::Language->new(
+       elements => [
+           Statistics::R::REXP::Symbol->new('~'),
+           Statistics::R::REXP::Symbol->new('mpg'),
+           Statistics::R::REXP::Symbol->new('wt'),
+       ],
+       attributes => {
+           variables => Statistics::R::REXP::Language->new(
+               elements => [
+                   Statistics::R::REXP::Symbol->new('list'),
+                   Statistics::R::REXP::Symbol->new('mpg'),
+                   Statistics::R::REXP::Symbol->new('wt'),
+               ]),
+           factors => Statistics::R::REXP::Integer->new(
+               elements => [ 0, 1 ],
+               attributes => {
+                   dim => Statistics::R::REXP::Integer->new([ 2, 1 ]),
+                   dimnames => Statistics::R::REXP::List->new([
+                       Statistics::R::REXP::Character->new([
+                           'mpg', 'wt' ]),
+                       Statistics::R::REXP::Character->new([ 'wt' ]),
+                   ]),
+               }),
+           'term.labels' => Statistics::R::REXP::Character->new(['wt']),
+           order => Statistics::R::REXP::Integer->new([1]),
+           intercept => Statistics::R::REXP::Integer->new([1]),
+           response => Statistics::R::REXP::Integer->new([1]),
+           class => Statistics::R::REXP::Character->new([
+               'terms', 'formula'
+           ]),
+           '.Environment' => Statistics::R::REXP::GlobalEnvironment->new,
+           predvars => Statistics::R::REXP::Language->new(
+               elements => [
+                   Statistics::R::REXP::Symbol->new('list'),
+                   Statistics::R::REXP::Symbol->new('mpg'),
+                   Statistics::R::REXP::Symbol->new('wt'),
+               ]),
+           dataClasses => Statistics::R::REXP::Character->new(
+               elements => ['numeric', 'numeric'],
+               attributes => {
+                   names => Statistics::R::REXP::Character->new(['mpg', 'wt'])
+               }),
+       }),
+   'terms of lm(formula=mpg~wt, head(mtcars))');
 
 
 ## data frames
