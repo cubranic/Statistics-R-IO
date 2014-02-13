@@ -15,7 +15,7 @@ has data => (
 );
 
 has position => (
-    is => 'rwp',
+    is => 'ro',
     default => sub { 0 },
 );
 
@@ -30,9 +30,11 @@ sub at {
 }
 
 sub next {
-    my $copy = shift->clone;
-    $copy->_set_position($copy->position+1);
-    $copy
+    my $self = shift;
+    
+    ref($self)->new(data => $self->data,
+                    position => $self->position+1,
+                    singletons => [ @{$self->singletons} ])
 }
 
 sub add_singleton {
@@ -55,12 +57,5 @@ sub eof {
     $self->position >= scalar @{$self->data};
 }
 
-sub clone {
-    my $self = shift;
-    ref($self)->new(data => $self->data,
-                    position => $self->position,
-                    singletons => $self->singletons)
-}
-        
     
 1;
