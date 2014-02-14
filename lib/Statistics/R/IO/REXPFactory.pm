@@ -8,11 +8,12 @@ use warnings FATAL => 'all';
 use Exporter 'import';
 
 our @EXPORT = qw( );
-our @EXPORT_OK = qw( unserialize readRDS );
+our @EXPORT_OK = qw( unserialize );
 
 our %EXPORT_TAGS = ( all => [ @EXPORT_OK ], );
 
 use Statistics::R::IO::Parser qw( :all );
+use Statistics::R::IO::ParserState;
 use Statistics::R::REXP::Character;
 use Statistics::R::REXP::Double;
 use Statistics::R::REXP::Integer;
@@ -415,17 +416,6 @@ sub unserialize {
     }
     
     $result;
-}
-
-
-sub readRDS {
-    open (my $f, shift) or croak $!;
-    my $data;
-    sysread($f, $data, 1<<30);
-    my ($value, $state) = @{unserialize($data)};
-    croak 'Could not parse RDS file' unless $state;
-    croak 'Unread data remaining in the RDS file' unless $state->eof;
-    $value
 }
 
 

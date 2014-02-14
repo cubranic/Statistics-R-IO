@@ -4,6 +4,16 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
+use Exporter 'import';
+
+our @EXPORT = qw( );
+our @EXPORT_OK = qw( readRDS );
+
+our %EXPORT_TAGS = ( all => [ @EXPORT_OK ], );
+
+use Statistics::R::IO::REXPFactory;
+use Carp;
+
 =head1 NAME
 
 Statistics::R::IO - The great new Statistics::R::IO!
@@ -34,6 +44,21 @@ A list of functions that can be exported.  You can delete this section
 if you don't export anything, such as for a purely object-oriented module.
 
 =head1 SUBROUTINES/METHODS
+
+=head2 readRDS
+
+=cut
+
+sub readRDS {
+    open (my $f, shift) or croak $!;
+    my $data;
+    sysread($f, $data, 1<<30);
+    my ($value, $state) = @{Statistics::R::IO::REXPFactory::unserialize($data)};
+    croak 'Could not parse RDS file' unless $state;
+    croak 'Unread data remaining in the RDS file' unless $state->eof;
+    $value
+}
+
 
 =head2 function1
 

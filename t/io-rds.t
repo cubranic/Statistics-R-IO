@@ -7,8 +7,7 @@ use Test::More tests => 22;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
-use Statistics::R::IO::ParserState;
-use Statistics::R::IO::REXPFactory qw( readRDS );
+use Statistics::R::IO qw( readRDS );
 
 
 ## integer vectors
