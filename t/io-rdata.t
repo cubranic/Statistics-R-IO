@@ -3,12 +3,24 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 41;
+use Test::More tests => 82;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
 use Statistics::R::IO qw( readRData );
 
+sub check_rdata {
+    my ($file, $expected, $message) = @_;
+
+    my %actual = readRData($file);
+    
+    is(keys %actual,
+       keys %{$expected}, "$message keys");
+    while (my ($key, $value) = each %{$expected}) {
+        is($actual{$key}, $expected->{$key},
+           "$message $key");
+    }
+}
 
 ## Atomic vectors
 my %expected_vecs = (
@@ -43,13 +55,8 @@ my %expected_vecs = (
        Statistics::R::REXP::Raw->new([ 1, 2, 3, 255, 0 ]),
     );
 
-my %vecs = readRData('t/data/vecs_uncompressed.RData');
-is(keys %vecs, keys %expected_vecs,
-   'vecs keys');
-while (my ($key, $value) = each %expected_vecs) {
-    is($vecs{$key}, $expected_vecs{$key},
-       "Vector $key");
-}
+check_rdata('t/data/vecs_uncompressed.RData', \%expected_vecs, 'Vectors');
+check_rdata('t/data/vecs.RData', \%expected_vecs, 'Vectors compressed');
 
 
 ## Matrices
@@ -71,13 +78,11 @@ my %expected_mats = (
                 ]),
             }),
     );
-my %mats = readRData('t/data/mats_uncompressed.RData');
-is(keys %mats, keys %expected_mats,
-   'mats keys');
-while (my ($key, $value) = each %expected_mats) {
-    is($mats{$key}, $expected_mats{$key},
-       "Matrix $key");
-}
+
+check_rdata('t/data/mats_uncompressed.RData',
+            \%expected_mats, 'Matrices');
+check_rdata('t/data/mats.RData',
+            \%expected_mats, 'Matrices compressed');
 
 
 ## Lists
@@ -103,13 +108,10 @@ my %expected_lists = (
                 names => Statistics::R::REXP::Character->new(['foo', '', 'bar'])
             }),
          );
-my %lists = readRData('t/data/lists_uncompressed.RData');
-is(keys %lists, keys %expected_lists,
-   'lists keys');
-while (my ($key, $value) = each %expected_lists) {
-    is($lists{$key}, $expected_lists{$key},
-       "List $key");
-}
+check_rdata('t/data/lists_uncompressed.RData',
+            \%expected_lists, 'Lists');
+check_rdata('t/data/lists.RData',
+            \%expected_lists, 'Lists compressed');
 
 
 ## Data frames
@@ -177,13 +179,10 @@ my %expected_frames = (
                 ]),
             }),
     );
-my %frames = readRData('t/data/frames_uncompressed.RData');
-is(keys %frames, keys %expected_frames,
-   'frames keys');
-while (my ($key, $value) = each %expected_frames) {
-    is($frames{$key}, $expected_frames{$key},
-       "Data frame $key");
-}
+check_rdata('t/data/frames_uncompressed.RData',
+            \%expected_frames, 'Frames');
+check_rdata('t/data/frames.RData',
+            \%expected_frames, 'Frames compressed');
 
 
 ## Environments
@@ -208,13 +207,10 @@ my %expected_env = (
                 enclosure => Statistics::R::REXP::GlobalEnvironment->new),
         ),
     );
-my %env = readRData('t/data/env_uncompressed.RData');
-is(keys %env, keys %expected_env,
-   'env keys');
-while (my ($key, $value) = each %expected_env) {
-    is($env{$key}, $expected_env{$key},
-       "Environment $key");
-}
+check_rdata('t/data/env_uncompressed.RData',
+            \%expected_env, 'Environment');
+check_rdata('t/data/env.RData',
+            \%expected_env, 'Environment compressed');
 
 
 ## Model objects
@@ -439,46 +435,21 @@ my %expected_models = (
                 ]),
                 class => Statistics::R::REXP::Character->new(['lm']) }),
     );
-my %models = readRData('t/data/lm_uncompressed.RData');
-is(keys %models, keys %expected_models,
-   'models keys');
-while (my ($key, $value) = each %expected_models) {
-    is($models{$key}, $expected_models{$key},
-       "Model $key");
-}
+check_rdata('t/data/lm_uncompressed.RData',
+            \%expected_models, 'Models');
+check_rdata('t/data/lm.RData',
+            \%expected_models, 'Models compressed');
 
 
-## All combined in a single RData file
-my %all = readRData('t/data/all_uncompressed.RData');
-is(keys %all,
-   keys(%expected_vecs) +
-   keys(%expected_mats) +
-   keys(%expected_lists) +
-   keys(%expected_frames) +
-   keys(%expected_env) +
-   keys(%expected_models),
-   'all keys');
-while (my ($key, $value) = each %expected_vecs) {
-    is($all{$key}, $expected_vecs{$key},
-       "All vector $key");
-}
-while (my ($key, $value) = each %expected_mats) {
-    is($all{$key}, $expected_mats{$key},
-       "All matrix $key");
-}
-while (my ($key, $value) = each %expected_lists) {
-    is($all{$key}, $expected_lists{$key},
-       "All list $key");
-}
-while (my ($key, $value) = each %expected_frames) {
-    is($all{$key}, $expected_frames{$key},
-       "All data frame $key");
-}
-while (my ($key, $value) = each %expected_env) {
-    is($all{$key}, $expected_env{$key},
-       "All environment $key");
-}
-while (my ($key, $value) = each %expected_models) {
-    is($all{$key}, $expected_models{$key},
-       "All model $key");
-}
+my %expected_all = (
+    %expected_vecs,
+    %expected_mats,
+    %expected_lists,
+    %expected_frames,
+    %expected_env,
+    %expected_models,
+);
+check_rdata('t/data/all_uncompressed.RData',
+            \%expected_all, 'all');
+check_rdata('t/data/all.RData',
+            \%expected_all, 'all compressed');

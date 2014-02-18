@@ -12,6 +12,7 @@ our @EXPORT_OK = qw( readRDS readRData );
 our %EXPORT_TAGS = ( all => [ @EXPORT_OK ], );
 
 use Statistics::R::IO::REXPFactory;
+use IO::Uncompress::Gunzip ();
 use Carp;
 
 =head1 NAME
@@ -64,8 +65,16 @@ sub readRData {
     open (my $f, shift) or croak $!;
     my $data;
     sysread($f, $data, 1<<30);
-    croak 'File does not start with the RData magic number'
-        unless substr($data, 0, 5) eq "RDX2\n";
+    if (substr($data, 0, 2) eq "\x1f\x8b") {
+        ## compressed file
+        sysseek($f, 0, 0);
+        IO::Uncompress::Gunzip::gunzip $f, \$data;
+    }
+    if (substr($data, 0, 5) ne "RDX2\n") {
+        croak 'File does not start with the RData magic number: ' .
+            unpack('H*', substr($data, 0, 5));
+    }
+
     my ($value, $state) = @{Statistics::R::IO::REXPFactory::unserialize(substr($data, 5))};
     croak 'Could not parse RData file' unless $state;
     croak 'Unread data remaining in the RData file' unless $state->eof;
