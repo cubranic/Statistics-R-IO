@@ -78,10 +78,16 @@ sub readRData {
     my $data;
     sysread($f, $data, 1<<30);
     if (substr($data, 0, 2) eq "\x1f\x8b") {
-        ## compressed file
+        ## gzip-compressed file
         sysseek($f, 0, 0);
         IO::Uncompress::Gunzip::gunzip $f, \$data;
     }
+    elsif (substr($data, 0, 3) eq 'BZh') {
+        ## bzip2-compressed file
+        sysseek($f, 0, 0);
+        IO::Uncompress::Bunzip2::bunzip2 $f, \$data;
+    }
+    
     if (substr($data, 0, 5) ne "RDX2\n") {
         croak 'File does not start with the RData magic number: ' .
             unpack('H*', substr($data, 0, 5));

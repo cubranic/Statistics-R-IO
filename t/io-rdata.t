@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 82;
+use Test::More tests => 123;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -20,6 +20,17 @@ sub check_rdata {
         is($actual{$key}, $expected->{$key},
            "$message $key");
     }
+}
+
+sub check_rdata_variants {
+    my ($file, $expected, $message) = @_;
+
+    check_rdata($file . '.RData',
+                $expected, $message . ' - default');
+    check_rdata($file . '_uncompressed.RData',
+                $expected, $message . ' - uncompressed');
+    check_rdata($file . '_bzip.RData',
+                $expected, $message . ' - bzip');
 }
 
 ## Atomic vectors
@@ -55,8 +66,8 @@ my %expected_vecs = (
        Statistics::R::REXP::Raw->new([ 1, 2, 3, 255, 0 ]),
     );
 
-check_rdata('t/data/vecs_uncompressed.RData', \%expected_vecs, 'Vectors');
-check_rdata('t/data/vecs.RData', \%expected_vecs, 'Vectors compressed');
+check_rdata_variants('t/data/vecs',
+                     \%expected_vecs, 'Vectors');
 
 
 ## Matrices
@@ -79,10 +90,8 @@ my %expected_mats = (
             }),
     );
 
-check_rdata('t/data/mats_uncompressed.RData',
-            \%expected_mats, 'Matrices');
-check_rdata('t/data/mats.RData',
-            \%expected_mats, 'Matrices compressed');
+check_rdata_variants('t/data/mats',
+                     \%expected_mats, 'Matrices');
 
 
 ## Lists
@@ -108,10 +117,8 @@ my %expected_lists = (
                 names => Statistics::R::REXP::Character->new(['foo', '', 'bar'])
             }),
          );
-check_rdata('t/data/lists_uncompressed.RData',
+check_rdata_variants('t/data/lists',
             \%expected_lists, 'Lists');
-check_rdata('t/data/lists.RData',
-            \%expected_lists, 'Lists compressed');
 
 
 ## Data frames
@@ -179,10 +186,8 @@ my %expected_frames = (
                 ]),
             }),
     );
-check_rdata('t/data/frames_uncompressed.RData',
+check_rdata_variants('t/data/frames',
             \%expected_frames, 'Frames');
-check_rdata('t/data/frames.RData',
-            \%expected_frames, 'Frames compressed');
 
 
 ## Environments
@@ -207,10 +212,8 @@ my %expected_env = (
                 enclosure => Statistics::R::REXP::GlobalEnvironment->new),
         ),
     );
-check_rdata('t/data/env_uncompressed.RData',
+check_rdata_variants('t/data/env',
             \%expected_env, 'Environment');
-check_rdata('t/data/env.RData',
-            \%expected_env, 'Environment compressed');
 
 
 ## Model objects
@@ -435,10 +438,8 @@ my %expected_models = (
                 ]),
                 class => Statistics::R::REXP::Character->new(['lm']) }),
     );
-check_rdata('t/data/lm_uncompressed.RData',
+check_rdata_variants('t/data/lm',
             \%expected_models, 'Models');
-check_rdata('t/data/lm.RData',
-            \%expected_models, 'Models compressed');
 
 
 my %expected_all = (
@@ -449,7 +450,5 @@ my %expected_all = (
     %expected_env,
     %expected_models,
 );
-check_rdata('t/data/all_uncompressed.RData',
+check_rdata_variants('t/data/all',
             \%expected_all, 'all');
-check_rdata('t/data/all.RData',
-            \%expected_all, 'all compressed');
