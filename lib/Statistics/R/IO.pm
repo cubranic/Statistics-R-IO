@@ -65,6 +65,9 @@ sub readRDS {
         sysseek($f, 0, 0);
         IO::Uncompress::Bunzip2::bunzip2 $f, \$data;
     }
+    elsif (substr($data, 0, 6) eq "\xfd7zXZ\0") {
+        croak "xz-compressed RDS files are not supported";
+    }
     
     my ($value, $state) = @{Statistics::R::IO::REXPFactory::unserialize($data)};
     croak 'Could not parse RDS file' unless $state;

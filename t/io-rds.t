@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 54;
+use Test::More tests => 69;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -26,6 +26,10 @@ sub check_rds_variants {
 
     $actual = readRDS($file . '-xdr_bzip.rds');
     is($actual, $expected, $message . ' - bzip compressed xdr');
+    
+    like(exception {
+             readRDS($file . '-xdr_xz.rds')
+         }, qr/xz-compressed RDS/, $message . ' - xz');
 }
 
 
