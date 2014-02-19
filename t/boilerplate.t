@@ -50,8 +50,6 @@ TODO: {
     "placeholder date/time"       => qr(Date/time)
   );
 
-  module_boilerplate_ok('lib/Statistics/R/IO.pm');
-
-
 }
 
+module_boilerplate_ok('lib/Statistics/R/IO.pm');
