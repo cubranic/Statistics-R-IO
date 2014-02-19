@@ -54,6 +54,12 @@ sub readRDS {
     open (my $f, shift) or croak $!;
     my $data;
     sysread($f, $data, 1<<30);
+    if (substr($data, 0, 2) eq "\x1f\x8b") {
+        ## compressed file
+        sysseek($f, 0, 0);
+        IO::Uncompress::Gunzip::gunzip $f, \$data;
+    }
+    
     my ($value, $state) = @{Statistics::R::IO::REXPFactory::unserialize($data)};
     croak 'Could not parse RDS file' unless $state;
     croak 'Unread data remaining in the RDS file' unless $state->eof;
