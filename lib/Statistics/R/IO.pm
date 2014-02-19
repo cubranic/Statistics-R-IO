@@ -87,6 +87,9 @@ sub readRData {
         sysseek($f, 0, 0);
         IO::Uncompress::Bunzip2::bunzip2 $f, \$data;
     }
+    elsif (substr($data, 0, 6) eq "\xfd7zXZ\0") {
+        croak "xz-compressed RData files are not supported";
+    }
     
     if (substr($data, 0, 5) ne "RDX2\n") {
         croak 'File does not start with the RData magic number: ' .

@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 123;
+use Test::More tests => 130;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -31,6 +31,9 @@ sub check_rdata_variants {
                 $expected, $message . ' - uncompressed');
     check_rdata($file . '_bzip.RData',
                 $expected, $message . ' - bzip');
+    like(exception {
+             readRData($file . '_xz.RData')
+         }, qr/xz-compressed RData/, $message . ' - xz');
 }
 
 ## Atomic vectors
