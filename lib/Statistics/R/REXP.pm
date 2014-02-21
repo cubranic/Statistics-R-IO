@@ -67,3 +67,102 @@ sub is_null {
 }
 
 1; # End of Statistics::R::REXP
+
+__END__
+
+
+=head1 NAME
+
+Statistics::R::REXP - Perl interface to serialized R data
+
+
+=head1 VERSION
+
+This documentation refers to version 0.01 of the module.
+
+
+=head1 SYNOPSIS
+
+    use Statistics::R::REXP;
+    
+    # we usually get REXPs from an RDS file:
+    my $rexp = Statistics::R::IO::readRDS('file.rds');
+    
+    # REXPs are stringifiable
+    say $rexp;
+    
+    # REXPs can be converted to the closest native Perl data type
+    print $rexp->to_pl;
+
+
+=head1 DESCRIPTION
+
+An object of this class represents a native R object. This class
+cannot be directly instantiated (it's a L<Moo::Role>), because it is
+intended as a base abstract class with concrete subclasses to
+represent specific object types.
+
+An R object has a value and an optional set of named attributes, which
+themselves are R objects. Because the meaning of 'value' depends on
+the actual object type (for example, a vector vs. a C<NULL>, in R
+terminology), C<REXP> does not provide a generic value accessor
+method, although individual subclasses will typically have one.
+
+
+=head1 METHODS
+
+=over
+
+=item attributes
+
+Returns a hash reference to the object's attributes.
+
+=item to_pl
+
+Returns I<Perl> representation of the object's value. This is an
+abstract method; see concrete subclasses for the value returned by
+specific object types, as well as the way to access the I<R> (-ish)
+value of the object, if such makes sense.
+
+=item is_null
+
+Returns TRUE if the object is an R C<NULL> object. In C<REXP>'s class
+hierarchy, this is the case only for C<Statistics::REXP::Null>.
+
+=back
+
+
+=head1 OVERLOADS
+
+C<REXP> overloads the stringification, C<eq> and C<ne> methods;
+subclasses further specialize for their types if necesssary.
+
+
+=head1 BUGS AND LIMITATIONS
+
+Classes in the C<REXP> hierarchy are intended to be immutable. Please
+do not try to change their value or attributes.
+
+More C<is_*> accessors should be added.
+
+There are no known bugs in this module. Please see
+L<Statistics::R::IO> for bug reporting.
+
+
+=head1 SUPPORT
+
+See L<Statistics::R::IO> for support and contact information.
+
+
+=head1 AUTHOR
+
+Davor Cubranic, C<< <cubranic at stat.ubc.ca> >>
+
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright 2014 University of British Columbia.
+
+See L<Statistics::R::IO> for the license.
+
+=cut

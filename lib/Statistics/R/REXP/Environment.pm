@@ -83,3 +83,107 @@ sub to_pl {
 
 
 1; # End of Statistics::R::REXP::Environment
+
+=head1 NAME
+
+Statistics::R::REXP::Environment - an R environment
+
+
+=head1 VERSION
+
+This documentation refers to version 0.01 of the module.
+
+
+=head1 SYNOPSIS
+
+    use Statistics::R::REXP::Environment
+    
+    my $env = Statistics::R::REXP::Environment->new({
+        x => Statistics::R::REXP::Character->new(['foo', 'bar']),
+        b => Statistics::R::REXP::Double->new([1, 2, 3]),
+    });
+    print $env->elements;
+
+
+=head1 DESCRIPTION
+
+An object of this class represents an R environment (C<ENVSXP>).
+Environments in R consist of a I<frame>, a set of symbol-value pairs,
+and an I<enclosure>, a pointer to an enclosing (also called "parent")
+environment. Environments form a tree structure, with a special
+I<emptyenv> environment at the root, which has no parent.
+
+These objects represent calls (such as model formulae), with first
+element a reference to the function being called, and the remainder
+the actual arguments of the call. Names of arguments, if given, are
+recorded in the 'names' attribute (itself as
+L<Statistics::R::REXP::Character> vector), with unnamed arguments
+having name C<''>. If no arguments were named, the environment objects
+will not have a defined 'names' attribute.
+
+You shouldn't create instances of this class, it exists mainly to
+handle deserialization of C<ENVSXP>s by the C<IO> classes.
+
+
+=head1 METHODS
+
+C<Statistics::R::REXP:Environment> inherits from
+L<Statistics::R::REXP::Vector>, with the added restriction that its
+first element has to be a L<Statistics::R::REXP::Symbol> or another
+C<Environment> instance. Trying to create a Environment instance that
+doesn't follow this restriction will raise an exception.
+
+=head2 ACCESSORS
+
+=over
+
+=item frame
+
+Returns a reference to the hash of symbol-value pairs representing the
+environment's frame, i.e., the variable with bound values in the
+environment.
+
+=item enclosure
+
+Returns a reference to the parent Environment, if it is defined.
+
+=item name
+
+Environments can be named, although this is not normally settable from
+R code. Typically, only the system environments (such as namespaces),
+and environments created by C<attach>-ing an object, have a name.
+
+=item to_pl
+
+Environments do not have a native Perl representation and trying to
+call this access will raise an exception.
+
+=back
+
+
+=head1 BUGS AND LIMITATIONS
+
+Classes in the C<REXP> hierarchy are intended to be immutable. Please
+do not try to change their value or attributes.
+
+There are no known bugs in this module. Please see
+L<Statistics::R::IO> for bug reporting.
+
+
+=head1 SUPPORT
+
+See L<Statistics::R::IO> for support and contact information.
+
+
+=head1 AUTHOR
+
+Davor Cubranic, C<< <cubranic at stat.ubc.ca> >>
+
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright 2014 University of British Columbia.
+
+See L<Statistics::R::IO> for the license.
+
+=cut

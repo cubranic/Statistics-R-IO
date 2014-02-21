@@ -84,3 +84,78 @@ sub to_pl {
 }
 
 1; # End of Statistics::R::REXP::Vector
+
+=head1 NAME
+
+Statistics::R::REXP::Vector - an R vector
+
+
+=head1 VERSION
+
+This documentation refers to version 0.01 of the module.
+
+
+=head1 SYNOPSIS
+
+    use Statistics::R::REXP::Vector;
+    
+    # $vec is an instance of Vector
+    $vec->does('Statistics::R::REXP::Vector');
+    print $vec->elements;
+
+
+=head1 DESCRIPTION
+
+An object of this class represents an R vector. This class
+cannot be directly instantiated (it's a L<Moo::Role>), because it is
+intended as a base abstract class with concrete subclasses to
+represent specific types of vectors, such as numeric or list.
+
+
+=head1 METHODS
+
+C<Statistics::R::REXP::Vector> inherits from L<Statistics::R::REXP>.
+
+=head2 ACCESSORS
+
+=over
+
+=item elements
+
+Returns an array reference to the vector's elements.
+
+=item to_pl
+
+Perl value of the symbol is an array reference to the Perl values of
+its C<elements>. (That is, it's equivalent to C<map {$_->to_pl},
+$vec->elements>.
+
+=back
+
+
+=head1 BUGS AND LIMITATIONS
+
+Classes in the C<REXP> hierarchy are intended to be immutable. Please
+do not try to change their value or attributes.
+
+There are no known bugs in this module. Please see
+L<Statistics::R::IO> for bug reporting.
+
+
+=head1 SUPPORT
+
+See L<Statistics::R::IO> for support and contact information.
+
+
+=head1 AUTHOR
+
+Davor Cubranic, C<< <cubranic at stat.ubc.ca> >>
+
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright 2014 University of British Columbia.
+
+See L<Statistics::R::IO> for the license.
+
+=cut

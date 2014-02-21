@@ -67,3 +67,72 @@ sub to_pl {
 }
 
 1; # End of Statistics::R::REXP::Symbol
+
+=head1 NAME
+
+Statistics::R::REXP::Symbol - an R symbol
+
+
+=head1 VERSION
+
+This documentation refers to version 0.01 of the module.
+
+
+=head1 SYNOPSIS
+
+    use Statistics::R::REXP::Symbol;
+    
+    my $sym = Statistics::R::REXP::Symbol->new('some name');
+    print $sym->name;
+
+
+=head1 DESCRIPTION
+
+An object of this class represents an R symbol/name object (C<SYMSXP>).
+
+
+=head1 METHODS
+
+C<Statistics::R::REXP::Symbol> inherits from L<Statistics::R::REXP>.
+
+=head2 ACCESSORS
+
+=over
+
+=item name
+
+String value of the symbol.
+
+=item to_pl
+
+Perl value of the symbol is just its C<name>.
+
+=back
+
+
+=head1 BUGS AND LIMITATIONS
+
+Classes in the C<REXP> hierarchy are intended to be immutable. Please
+do not try to change their value or attributes.
+
+There are no known bugs in this module. Please see
+L<Statistics::R::IO> for bug reporting.
+
+
+=head1 SUPPORT
+
+See L<Statistics::R::IO> for support and contact information.
+
+
+=head1 AUTHOR
+
+Davor Cubranic, C<< <cubranic at stat.ubc.ca> >>
+
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright 2014 University of British Columbia.
+
+See L<Statistics::R::IO> for the license.
+
+=cut
