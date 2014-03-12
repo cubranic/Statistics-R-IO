@@ -399,3 +399,299 @@ sub with_count {
 
 
 1;
+
+__END__
+
+
+=head1 NAME
+
+Statistics::R::IO::Parser - Functions for parsing R data files
+
+
+=head1 VERSION
+
+This documentation refers to version 0.01 of the module.
+
+
+=head1 SYNOPSIS
+
+    use Statistics::R::IO::ParserState;
+    use Statistics::R::IO::Parser;
+    
+    my $state = Statistics::R::IO::ParserState->new(
+        data => 'file.rds'
+    );
+    say $state->at
+    say $state->next->at;
+
+
+=head1 DESCRIPTION
+
+You shouldn't create instances of this class, it exists mainly to
+handle deserialization of R data files by the C<IO> classes.
+
+
+=head1 FUNCTIONS
+
+This library is inspired by monadic parser frameworks from the
+Haskell world, like L<Packrat|http://bford.info/packrat/> or
+L<Parsec|http://hackage.haskell.org/package/parsec>. What this means
+is that I<parsers> are constructed by combining simpler parsers.
+
+The library offers a selection of basic parsers and combinators.
+Each of these is a function (think of it as a factory) that returns
+another function (the actual parser) which receives the current
+parsing state (L<Statistics::R::IO::ParserState>) as the argument
+and returns a two-element array reference (called for brevity "a
+pair" in the following text) with the result of the parser in the
+first element and the new parser state in the second element. If the
+I<parser> fails, say if the current state is "a" where a number is
+expected, it returns C<undef> to signal failure.
+
+The descriptions of individual functions below use a shorthand
+because the above mechanism is implied. Thus, when C<any_char> is
+described as "parses any character", it really means that calling
+C<any_char> will return a function that when called with the current
+state will return "a pair of the character...", etc.
+
+=head2 CHARACTER PARSERS
+
+=over
+
+=item any_char
+
+Parses any character, returning a pair of the character at the current
+State's position and the new state, advanced by one from the starting
+state. If the state is at the end (C<$state->eof> is true), returns
+undef to signal failure.
+
+=item char $c
+
+Parses the given character C<$c>, returning a pair of the character at
+the current State's position if it is equal to C<$c> and the new
+state, advanced by one from the starting state. If the state is at the
+end (C<$state->eof> is true) or the character at the current position
+is not C<$c>, returns undef to signal failure.
+
+=item string $s
+
+Parses the given string C<$s>, returning a pair of the sequence of
+characters starting at the current State's position if it is equal to
+C<$s> and the new state, advanced by C<length($s)> from the starting
+state. If the state is at the end (C<$state->eof> is true) or the
+string starting at the current position is not C<$s>, returns undef to
+signal failure.
+
+=back
+
+
+=head2 NUMBER PARSERS
+
+=over
+
+=item endianness [$end]
+
+When the C<$end> argument is given, this functions sets the byte
+order used by parsers in the module to be little- (when C<$end> is
+"E<lt>") or big-endian (C<$end> is "E<gt>"). This function changes
+the B<module's> state and remains in effect until the next change.
+
+When called with no arguments, C<endianness> returns the current
+byte order in effect. The starting byte order is big-endian.
+
+
+=item any_uint8, any_uint16, any_uint24, any_uint32
+
+Parses an 8-, 16-, 24-, and 32-bit I<unsigned> integer, returning a
+pair of the integer starting at the current State's position and the
+new state, advanced by 1, 2, 3, or 4 bytes from the starting state,
+depending on the parser. The integer value is determined by the
+current value of C<endianness>. If there are not enough elements left
+in the data from the current position, returns undef to signal
+failure.
+
+=item uint8 $n, uint16 $n, uint24 $n, uint32 $n
+
+Parses the specified 8-, 16-, 24-, and 32-bit I<unsigned> integer
+C<$n>, returning a pair of the integer at the current State's
+position if it is equal C<$n> and the new state. The new state is
+advanced by 1, 2, 3, or 4 bytes from the starting state, depending
+on the parser. The integer value is determined by the current value
+of C<endianness>. If there are not enough elements left in the data
+from the current position or the current position is not C<$n>,
+returns undef to signal failure.
+
+=item any_int8, any_int16, any_int24, any_int32
+
+Parses an 8-, 16-, 24-, and 32-bit I<signed> integer, returning a pair
+of the integer starting at the current State's position and the new
+state, advanced by 1, 2, 3, or 4 bytes from the starting state,
+depending on the parser. The integer value is determined by the
+current value of C<endianness>. If there are not enough elements left
+in the data from the current position, returns undef to signal
+failure.
+
+=item int8 $n, int16 $n, int24 $n, int32 $n
+
+Parses the specified 8-, 16-, 24-, and 32-bit I<signed> integer
+C<$n>, returning a pair of the integer at the current State's
+position if it is equal C<$n> and the new state. The new state is
+advanced by 1, 2, 3, or 4 bytes from the starting state, depending
+on the parser. The integer value is determined by the current value
+of C<endianness>. If there are not enough elements left in the data
+from the current position or the current position is not C<$n>,
+returns undef to signal failure.
+
+=item any_real32, any_real64
+
+Parses an 32- or 64-bit real number, returning a pair of the number
+starting at the current State's position and the new state, advanced
+by 4 or 8 bytes from the starting state, depending on the parser. The
+real value is determined by the current value of C<endianness>. If
+there are not enough elements left in the data from the current
+position, returns undef to signal failure.
+
+
+=back
+
+
+=head2 SEQUENCING
+
+=over
+
+=item seq $p1, ...
+
+This combinator applies parsers C<$p1>, ... in sequence, using the
+returned parse state of C<$p1> as the input parse state to C<$p2>,
+etc.  Returns a pair of the concatenation of all the parsers'
+results and the parsing state returned by the final parser. If any
+of the parsers returns undef, C<seq> will return it immediately
+without attempting to apply any further parsers.
+
+
+=item count $n, $p
+
+This combinator applies the parser C<$p> exactly C<$n> times in
+sequence, threading the parse state through each call.  Returns a
+pair of the concatenation of all the parsers' results and the
+parsing state returned by the final application. If any application
+of C<$p> returns undef, C<count> will return it immediately without
+attempting any more applications.
+
+=item with_count [$num_p = any_uint32], $p
+
+This combinator first applies parser C<$num_p> to get the number of
+times that C<$p> should be applied in sequence. If only one argument
+is given, C<any_uint32> is used as the default value of C<$num_p>.
+(So C<with_count> works by getting a number I<$n> by applying
+C<$num_p> and then calling C<count $n, $p>.) Returns a pair of the
+concatenation of all the parsers' results and the parsing state
+returned by the final application. If the initial application of
+C<$num_p> or any application of C<$p> returns undef, C<with_count>
+will return it immediately without attempting any more applications.
+
+
+=item choose $p1, ...
+
+This combinator applies parsers C<$p1>, ... in sequence, until one
+of them succeeds, when it immediately returns the parser's result.
+If all of the parsers fail, C<choose> fails and returns undef
+
+=back
+
+
+=head2 COMBINATORS
+
+=over
+
+=item bind $p1, $f
+
+This combinator applies parser C<$p1> and, if it succeeds, calls
+function C<$f> using the first element of C<$p1>'s result as the
+argument. The call to C<$f> needs to return a parser, which C<bind>
+applies to the parsing state after C<$p1>'s application.
+
+The C<bind> combinator is an essential building block for most
+combinators described so far. For instance, C<with_count> can be
+written as:
+
+    bind($num_p,
+         sub {
+             my $n = shift;
+             count $n, $p;
+         })
+
+
+=item mreturn $value
+
+Returns a parser that when applied returns C<$value> without
+changing the parsing state.
+
+
+=item error $message
+
+Returns a parser that when applied croaks with the C<$message> and
+the current parsing state.
+
+=back
+
+
+=head2 SINGLETONS
+
+These functions are an interface to L<ParseState>'s
+singleton-related functions, L<ParseState/add_singleton> and
+L<ParseState/get_singleton>. They exist because certain types of
+objects in R data files, for instance environments, have to exist as
+unique instances, and any subsequent objects that include them refer
+to them by a "reference id".
+
+=over
+
+=item add_singleton $singleton
+
+Adds the C<$singleton> to the current parsing state.  Returns a pair
+of C<$singleton> and the new parsing state.
+
+
+=item get_singleton $ref_id
+
+Retrieves from the current parse state the singleton identified by
+C<$ref_id>, returning a pair of the singleton and the (unchanged)
+state.
+
+
+=item reserve_singleton $p
+
+Preallocates a space for a singleton before running a given parser,
+and then assigns the parser's value to the singleton. Returns a pair
+of the singleton and the new parse state.
+
+=back
+
+
+=head1 BUGS AND LIMITATIONS
+
+Instances of this class are intended to be immutable. Please do not
+try to change their value or attributes.
+
+There are no known bugs in this module. Please see
+L<Statistics::R::IO> for bug reporting.
+
+
+=head1 SUPPORT
+
+See L<Statistics::R::IO> for support and contact information.
+
+
+=head1 AUTHOR
+
+Davor Cubranic, C<< <cubranic at stat.ubc.ca> >>
+
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright 2014 University of British Columbia.
+
+See L<Statistics::R::IO> for the license.
+
+=cut
