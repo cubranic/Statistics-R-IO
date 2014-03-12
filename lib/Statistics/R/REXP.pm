@@ -59,6 +59,12 @@ sub is_null {
     return 0;
 }
 
+
+sub is_vector {
+    return 0;
+}
+
+
 1; # End of Statistics::R::REXP
 
 __END__
@@ -119,8 +125,15 @@ value of the object, if such makes sense.
 
 =item is_null
 
-Returns TRUE if the object is an R C<NULL> object. In C<REXP>'s class
-hierarchy, this is the case only for C<Statistics::REXP::Null>.
+Returns TRUE if the object is an R C<NULL> object. In C<REXP>'s
+class hierarchy, this is the case only for C<Statistics::REXP::Null>.
+
+
+=item is_vector
+
+Returns TRUE if the object is an R vector object. In C<REXP>'s class
+hierarchy, this is the case only for C<Statistics::REXP::Vector> and
+its descendants.
 
 =back
 

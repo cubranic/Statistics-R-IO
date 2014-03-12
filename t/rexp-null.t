@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 9;
+use Test::More tests => 10;
 use Test::Fatal;
 
 use Statistics::R::REXP::Null;
@@ -17,6 +17,7 @@ is($null, $null_2, 'null equality');
 isnt($null, 'null', 'null inequality');
 
 ok($null->is_null, 'is null');
+ok(! $null->is_vector, 'is not vector');
 
 is($null .'', 'NULL', 'null text representation');
 

@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 17;
+use Test::More tests => 18;
 use Test::Fatal;
 
 use Statistics::R::REXP::Environment;
@@ -38,6 +38,7 @@ my $env_foo = Statistics::R::REXP::Environment->new(enclosure => $env);
 isnt($env, $env_foo, 'environment inequality');
 
 ok(! $env->is_null, 'is not null');
+ok(! $env->is_vector, 'is not vector');
 
 is($env .'',
    'environment 0x' . sprintf('%x', refaddr $env),

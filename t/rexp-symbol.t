@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 19;
+use Test::More tests => 20;
 use Test::Fatal;
 
 use Statistics::R::REXP::Symbol;
@@ -37,6 +37,7 @@ isnt($sym, $sym_foo, 'symbol inequality');
 is($sym->name, 'sym', 'symbol name');
 
 ok(! $sym->is_null, 'is not null');
+ok(! $sym->is_vector, 'is not vector');
 
 is($sym .'', 'symbol `sym`', 'symbol text representation');
 

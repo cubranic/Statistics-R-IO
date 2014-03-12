@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 10;
+use Test::More tests => 11;
 use Test::Fatal;
 
 use Statistics::R::REXP::GlobalEnvironment;
@@ -24,7 +24,8 @@ like(exception {
          Statistics::R::REXP::GlobalEnvironment->new(attributes => { foo => 'bar', x => 42 })
      }, qr/Global environment has implicit attributes/, 'setting global env attributes');
 
-ok(!$env->is_null, 'is null');
+ok(!$env->is_null, 'is not null');
+ok(!$env->is_vector, 'is not vector');
 
 is($env .'',
    'environment R_GlobalEnvironment', 'text representation');
