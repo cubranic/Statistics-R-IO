@@ -15,14 +15,8 @@ sub is_null {
     return 1;
 }
 
-use overload 'eq' => \&eq,
-    'ne' => sub {! equal_class(@_);},
+use overload
     '""' => sub { 'NULL' };
-
-sub eq {
-    return equal_class(@_);
-}
-
 
 sub to_pl {
     undef

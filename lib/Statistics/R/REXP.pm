@@ -55,13 +55,6 @@ sub _compare_deeply {
 }
 
 
-sub equal_class {
-    my ($self, $obj) = (shift, shift);
-
-    return (ref($self) eq ref($obj));
-}
-
-
 sub is_null {
     return 0;
 }
