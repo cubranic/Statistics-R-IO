@@ -8,9 +8,9 @@ use Moo::Role;
 
 with 'Statistics::R::REXP';
 
-requires qw(to_s _type);
+requires qw(_to_s _type);
 
-use overload '""' => sub { shift->to_s; };
+use overload '""' => sub { shift->_to_s; };
 
 has type => (
     is => 'ro',
@@ -64,7 +64,7 @@ around _eq => sub {
 };
 
 
-sub to_s {
+sub _to_s {
     my $self = shift;
     sub stringify { map { defined $_ ? $_ : 'undef'} @_ };
     $self->_type . '(' . join(', ', stringify(@{$self->elements})) . ')';

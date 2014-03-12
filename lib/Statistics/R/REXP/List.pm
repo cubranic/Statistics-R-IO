@@ -7,7 +7,7 @@ use namespace::clean;
 
 with 'Statistics::R::REXP::Vector';
 
-sub to_s {
+sub _to_s {
     my $self = shift;
     
     sub unfold {
