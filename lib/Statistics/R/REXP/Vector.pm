@@ -66,8 +66,8 @@ around _eq => sub {
 
 sub _to_s {
     my $self = shift;
-    sub stringify { map { defined $_ ? $_ : 'undef'} @_ };
-    $self->_type . '(' . join(', ', stringify(@{$self->elements})) . ')';
+    my $stringify = sub { map { defined $_ ? $_ : 'undef'} @_ };
+    $self->_type . '(' . join(', ', &$stringify(@{$self->elements})) . ')';
 }
 
 

@@ -2,6 +2,8 @@ package Statistics::R::REXP::List;
 
 use 5.012;
 
+use Scalar::Util qw(weaken);
+
 use Moo;
 use namespace::clean;
 
@@ -10,12 +12,14 @@ with 'Statistics::R::REXP::Vector';
 sub _to_s {
     my $self = shift;
     
-    sub unfold {
+    my ($u, $unfold);
+    $u = $unfold = sub {
         join(', ', map { ref $_ eq ref [] ?
-                             '[' . unfold(@{$_}) . ']' :
+                             '[' . &$unfold(@{$_}) . ']' :
                              (defined $_? $_ : 'undef') } @_);
-    }
-    $self->_type . '(' . unfold(@{$self->elements}) . ')';
+    };
+    weaken $unfold;
+    $self->_type . '(' . &$unfold(@{$self->elements}) . ')';
 }
 
 sub _type { 'list'; }
