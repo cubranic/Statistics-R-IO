@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 96;
+use Test::More tests => 92;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -51,22 +51,6 @@ is($foo_string->($state->next->next->next->next->next->next),
    undef, 'string at eof');
 like(exception { string(['foo']) },
      qr/Must be a scalar argument/, "bad 'string' argument");
-
-
-## byte parser
-my $f_byte = byte(ord('f'));
-
-is_deeply($f_byte->($state),
-          [ord('f'),
-           Statistics::R::IO::ParserState->new(data => 'foobar',
-                                               position => 1)],
-          'byte');
-is($f_byte->($state->next),
-   undef, 'byte doesn\'t match');
-is($f_byte->($state->next->next->next->next->next->next),
-   undef, 'byte at eof');
-like(exception { byte('f') },
-     qr/Argument must be a number 0-255/, "bad 'byte' argument");
 
 
 ## count combinator
