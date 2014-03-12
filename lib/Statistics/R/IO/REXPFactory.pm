@@ -420,3 +420,154 @@ sub unserialize {
 
 
 1;
+
+__END__
+
+=head1 NAME
+
+Statistics::R::IO::REXPFactory - Functions for parsing R data files
+
+
+=head1 VERSION
+
+This documentation refers to version 0.01 of the module.
+
+
+=head1 SYNOPSIS
+
+    use Statistics::R::IO::REXPFactory qw( unserialize );
+
+    # Assume $data was created by reading, say, an RDS file
+    my ($rexp, $state) = @{unserialize($data)}
+        or die "couldn't parse";
+    
+    # If we're reading an RDS file, there should be no data left
+    # unparsed
+    die 'Unread data remaining in the RDS file' unless $state->eof;
+
+    # the result of the unserialization is a REXP
+    say $rexp;
+
+    # REXPs can be converted to the closest native Perl data type
+    print $rexp->to_pl;
+
+=head1 DESCRIPTION
+
+This module implements the actual reading of serialized R objects
+and their conversion to a L<Statistics::R::REXP>. You are not
+expected to use it directly, as it's normally wrapped by
+L<Statistics::R::IO/readRDS> and L<Statistics::R::IO/readRData>.
+
+=head1 SUBROUTINES
+
+=over
+
+=item unserialize $data
+
+Constructs a L<Statistics::R::REXP> object from its serialization in
+C<$data>. Returns a pair of the object and the
+L<Statistics::R::IO::ParserState> at the end of serialization.
+
+
+=item intsxp, langsxp, lglsxp, listsxp, rawsxp, realsxp, refsxp,
+strsxp, symsxp, vecsxp, envsxp, charsxp
+
+Parsers for the corresponding R SEXP-types.
+
+
+=item object_content
+
+Parses object info and its data by sequencing L</unpack_object_info>
+and L</object_data>.
+
+
+=item unpack_object_info
+
+Parser for serialized object info structure. Returns a hash with
+keys "is_object", "has_attributes", "has_tag", "object_type", and
+"levels", each corresponding to the field in R serialization
+described in
+L<http://cran.r-project.org/doc/manuals/r-release/R-ints.html#Serialization-Formats>.
+An additional key "flags" contains the full 32-bit value as stored
+in the file.
+
+
+=item object_data $obj_info
+
+Parser for a serialized R object, using the object type stored in
+C<$obj_info> hash's "object_type" key to use the correct parser for
+the particular type.
+
+
+=item vector_and_attributes $object_info, $element_parser, $rexp_class
+
+Convenience parser for vectors, which are serialized first with a
+SEXP for the vector elements, followed by attributes stored as a
+tagged pairlist. Attributes are stored only if C<$object_info>
+indicates their presence, while vector elements are parsed using
+C<$element_parser>. Finally, the parsed attributes and elements are
+used as arguments to the constructor of the C<$rexp_class>, which
+should be a subclass of L<Statistics::R::REXP::Vector>.
+
+
+=item header
+
+Parser for header of R serialization: the serialization format (XDR,
+binary, etc.), the version number of the serialization (currently
+2), and two 32-bit integers indicating the version of R which wrote
+the file followed by the minimal version of R needed to read the
+format.
+
+=item xdr, bin
+
+Parsers for RDS header indicating files in XDR or native-binary
+format.
+
+=item maybe_long_length
+
+Parser for vector length, allowing for the encoding of 64-bit long
+vectors introduced in R 3.0.
+
+=item tagged_pairlist_to_rexp_hash
+
+Converts a pairlist to a REXP hash whose keys are the pairlist's
+element tags and values the pairlist elements themselves.
+
+=item tagged_pairlist_to_attribute_hash
+
+Converts object attributes, which are serialized as a pairlist with
+attribute name in the element's tag, to a hash that can be used as
+the C<attributes> argument to L<Statistics::R::REXP> constructors.
+
+Some attributes are serialized using a compact encoding (for
+instance, when a table's row names are just integers 1:nrows), and
+this function will decode them to a complete REXP.
+
+
+=back
+
+
+=head1 BUGS AND LIMITATIONS
+
+There are no known bugs in this module. Please see
+L<Statistics::R::IO> for bug reporting.
+
+
+=head1 SUPPORT
+
+See L<Statistics::R::IO> for support and contact information.
+
+
+=head1 AUTHOR
+
+Davor Cubranic, C<< <cubranic at stat.ubc.ca> >>
+
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright 2014 University of British Columbia.
+
+See L<Statistics::R::IO> for the license.
+
+=cut
+
