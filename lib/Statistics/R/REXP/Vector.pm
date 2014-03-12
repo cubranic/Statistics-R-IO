@@ -71,6 +71,13 @@ sub _to_s {
 }
 
 
+## Turns any references (nested lists) into a plain-old flat list.
+## Lists can nest to an arbitrary level, but having references to
+## anything other than arrays is not supported.
+sub _flatten {
+    map { ref $_ ? _flatten(@{$_}) : $_ } @_
+}
+
 sub is_vector {
     return 1;
 }

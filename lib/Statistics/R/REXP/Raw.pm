@@ -12,10 +12,9 @@ with 'Statistics::R::REXP::Vector';
 has '+elements' => (
     coerce => sub {
         my $x = shift;
-        sub flatten { map { ref $_ ? flatten(@{$_}) : $_ } @_; }
         [ map { looks_like_number $_ && ($_ >= 0) && ($_ <= 255) ?
                     int($_) : die "Elements of raw vectors must be 0-255" }
-              flatten(@{$x}) ] if ref $x eq ref []
+              _flatten(@{$x}) ] if ref $x eq ref []
     },
 );
 

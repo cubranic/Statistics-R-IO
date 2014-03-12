@@ -10,8 +10,7 @@ with 'Statistics::R::REXP::Vector';
 has '+elements' => (
     coerce => sub {
         my $x = shift;
-        sub flatten { map { ref $_ ? flatten(@{$_}) : $_ } @_; }
-        [ map { defined $_ ? ($_ ? 1 : 0) : undef } flatten(@{$x}) ] if ref $x eq ref []
+        [ map { defined $_ ? ($_ ? 1 : 0) : undef } _flatten(@{$x}) ] if ref $x eq ref []
     },
 );
 
