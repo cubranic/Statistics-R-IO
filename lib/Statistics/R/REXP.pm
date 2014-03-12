@@ -25,24 +25,24 @@ sub _eq {
     my $a = $self->attributes;
     my $b = $obj->attributes;
 
-    compare_deeply($a, $b)
+    _compare_deeply($a, $b)
 }
 
 
-sub compare_deeply {
+sub _compare_deeply {
     my ($a, $b) = @_ or die 'Need two arguments';
     if (defined($a) and defined($b)) {
         return 0 unless ref $a eq ref $b;
         if (ref $a eq ref []) {
             return undef unless scalar(@$a) == scalar(@$b);
             for (my $i = 0; $i < scalar(@{$a}); $i++) {
-                return undef unless compare_deeply($a->[$i], $b->[$i]);
+                return undef unless _compare_deeply($a->[$i], $b->[$i]);
             }
         } elsif (ref $a eq ref {}) {
             return undef unless scalar(keys %$a) == scalar(keys %$b);
             foreach my $name (keys %$a) {
                 return undef unless exists $b->{$name} &&
-                    compare_deeply($a->{$name}, $b->{$name});
+                    _compare_deeply($a->{$name}, $b->{$name});
             }
         } else {
             return undef unless $a eq $b;

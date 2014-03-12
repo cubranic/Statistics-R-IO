@@ -60,7 +60,7 @@ around _eq => sub {
 
     my ($self, $obj) = (shift, shift);
 
-    compare_deeply($self->elements, $obj->elements)
+    _compare_deeply($self->elements, $obj->elements)
 };
 
 

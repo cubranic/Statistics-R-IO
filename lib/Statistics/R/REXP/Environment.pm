@@ -64,8 +64,8 @@ around _eq => sub {
     my $orig = shift;
     return unless $orig->(@_);
     my ($self, $obj) = (shift, shift);
-    compare_deeply($self->frame, $obj->frame) &&
-        compare_deeply($self->enclosure, $obj->enclosure)
+    _compare_deeply($self->frame, $obj->frame) &&
+        _compare_deeply($self->enclosure, $obj->enclosure)
 };
 
 
