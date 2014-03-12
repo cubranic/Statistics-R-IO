@@ -14,8 +14,12 @@ my $builder = Module::Build->new(
     },
     build_requires => {
         'Test::More' => 0,
+        'Test::Fatal' => 0,
     },
     requires => {
+        'Carp' => 0,
+        'Moo' => 0,
+        'namespace::clean' => 0,
         #'ABC'              => 1.6,
         #'Foo::Bar::Module' => 5.0401,
     },
