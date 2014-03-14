@@ -151,3 +151,6 @@ t/rexp-raw.t
 t/rexp-symbol.t
 t/rexp-vector.t
 t/rexp.t
+Makefile.PL
+META.yml
+META.json
