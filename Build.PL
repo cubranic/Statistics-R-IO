@@ -17,6 +17,7 @@ my $builder = Module::Build->new(
         'Test::Fatal' => 0,
     },
     requires => {
+        'perl' => 5.012,
         'Carp' => 0,
         'Moo' => 0,
         'namespace::clean' => 0,
