@@ -11,6 +11,7 @@ my $builder = Module::Build->new(
     release_status      => 'stable',
     configure_requires => {
         'Module::Build' => 0,
+        'Software::License' => 0,
     },
     build_requires => {
         'Test::More' => 0,
