@@ -34,6 +34,7 @@
 \bBUILD.COM$
 \bbuild.com$
 ^MANIFEST\.SKIP
+\B\.travis.yml$
 
 # Avoid archives of this distribution
 \bStatistics-R-IO-[\d\.\_]+
