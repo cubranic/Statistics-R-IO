@@ -1,5 +1,8 @@
 Revision history for Statistics-R-IO
 
-0.01    Date/time
-        First version, released on an unsuspecting world.
+0.02    20 March 2014
+        Fix failure on Perl 5.12 caused by using a 5.14 feature.
+
+0.01    18 March 2014
+        Initial release.
 

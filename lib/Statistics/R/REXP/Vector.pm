@@ -99,7 +99,7 @@ Statistics::R::REXP::Vector - an R vector
 
 =head1 VERSION
 
-This documentation refers to version 0.01 of the module.
+This documentation refers to version 0.02 of the module.
 
 
 =head1 SYNOPSIS
