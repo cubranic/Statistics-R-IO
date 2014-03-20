@@ -1,6 +1,7 @@
 Build.PL
 Changes
 lib/Statistics/R/IO.pm
+lib/Statistics/R/IO/RData.pm
 lib/Statistics/R/IO/Parser.pm
 lib/Statistics/R/IO/ParserState.pm
 lib/Statistics/R/IO/REXPFactory.pm
@@ -130,6 +131,7 @@ t/data/vecs_ascii.RData
 t/data/vecs_bzip.RData
 t/data/vecs_uncompressed.RData
 t/data/vecs_xz.RData
+t/io-oo-rdata.t
 t/io-parser.t
 t/io-parserstate.t
 t/io-rdata.t
