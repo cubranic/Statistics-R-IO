@@ -263,10 +263,10 @@ sub vector_and_attributes {
 
     bind(seq(@parsers),
          sub {
-             return unless $_[0];
-             my %args = (elements => (shift($_[0]) || []));
+             my @args = @{shift or return};
+             my %args = (elements => (shift(@args) || []));
              if ($object_info->{has_attributes}) {
-                 $args{attributes} = { tagged_pairlist_to_attribute_hash(shift $_[0]) };
+                 $args{attributes} = { tagged_pairlist_to_attribute_hash(shift @args) };
              }
              mreturn($rexp_class->new(%args))
          })
