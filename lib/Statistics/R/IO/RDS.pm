@@ -77,7 +77,7 @@ sub read {
 
 sub close {
     my $self = shift;
-    $self->fh->close;
+    $self->fh->close
 }
 
 
@@ -85,7 +85,7 @@ sub DEMOLISH {
     my $self = shift;
     ## TODO: should only close if given a filename (OR autoclose, if I
     ## choose to implement it)
-    $self->close;
+    $self->close if $self->fh
 }
 
 
