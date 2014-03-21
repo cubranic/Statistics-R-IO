@@ -6,8 +6,9 @@ use warnings FATAL => 'all';
 use Test::More tests => 11;
 use Test::Fatal;
 
-use Statistics::R::IO::Parser qw(:all);
 use Statistics::R::IO::RData;
+use Statistics::R::IO::REXPFactory;
+
 
 sub check_rdata {
     my ($file, $expected, $message) = @_;
@@ -56,7 +57,7 @@ sub check_rdata_variants {
                     $expected, $message . ' - bzip');
         like(exception {
                  Statistics::R::IO::RData->new($file . '_xz.RData')->read
-             }, qr/xz-compressed RData/, $message . ' - xz');
+             }, qr/xz-compressed R files are not supported/, $message . ' - xz');
     }
 }
 
@@ -495,4 +496,4 @@ like(exception {
      }, qr/Single parameters to new/, 'new with array ref');
 like(exception {
     Statistics::R::IO::RData->new(fh => [])
-     }, qr/RData 'fh' must be a file handle/, 'bad fh');
+     }, qr/'fh' must be a file handle/, 'bad fh');

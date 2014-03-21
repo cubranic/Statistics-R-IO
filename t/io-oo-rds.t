@@ -6,8 +6,8 @@ use warnings FATAL => 'all';
 use Test::More tests => 19;
 use Test::Fatal;
 
-use Statistics::R::IO::Parser qw(:all);
 use Statistics::R::IO::RDS;
+use Statistics::R::IO::REXPFactory;
 
 
 ## integer vectors
@@ -53,7 +53,7 @@ sub check_rds_variants {
         
         like(exception {
             Statistics::R::IO::RDS->new($file . '-xdr_xz.rds')->read
-             }, qr/xz-compressed RDS/, $message . ' - xz');
+             }, qr/xz-compressed R files are not supported/, $message . ' - xz');
     }
 }
 
@@ -474,4 +474,4 @@ like(exception {
      }, qr/Single parameters to new/, 'new with array ref');
 like(exception {
     Statistics::R::IO::RDS->new(fh => [])
-     }, qr/RDS 'fh' must be a file handle/, 'bad fh');
+     }, qr/'fh' must be a file handle/, 'bad fh');

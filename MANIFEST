@@ -1,6 +1,7 @@
 Build.PL
 Changes
 lib/Statistics/R/IO.pm
+lib/Statistics/R/IO/Base.pm
 lib/Statistics/R/IO/RData.pm
 lib/Statistics/R/IO/RDS.pm
 lib/Statistics/R/IO/Parser.pm
