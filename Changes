@@ -1,5 +1,8 @@
 Revision history for Statistics-R-IO
 
+0.03    21 March 2014
+        Provide an object-oriented API to RDS and RData files
+
 0.02    20 March 2014
         Fix failure on Perl 5.12 caused by using a 5.14 feature.
 

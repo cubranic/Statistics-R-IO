@@ -16,7 +16,7 @@ use IO::Uncompress::Gunzip ();
 use IO::Uncompress::Bunzip2 ();
 use Carp;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 
 sub readRDS {
@@ -85,7 +85,7 @@ Statistics::R::IO - Perl interface to serialized R data
 
 =head1 VERSION
 
-This documentation refers to version 0.02 of the module.
+This documentation refers to version 0.03 of the module.
 
 
 =head1 SYNOPSIS

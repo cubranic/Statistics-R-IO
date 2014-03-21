@@ -75,7 +75,7 @@ Statistics::R::REXP::Symbol - an R symbol
 
 =head1 VERSION
 
-This documentation refers to version 0.02 of the module.
+This documentation refers to version 0.03 of the module.
 
 
 =head1 SYNOPSIS
