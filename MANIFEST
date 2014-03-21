@@ -21,8 +21,6 @@ lib/Statistics/R/REXP/Symbol.pm
 lib/Statistics/R/REXP/Vector.pm
 MANIFEST			This list of files
 README
-t/00-load.t
-t/boilerplate.t
 t/data/ab-mat-xdr
 t/data/ab-mat-xdr.rds
 t/data/ab-mat-xdr_bzip.rds
