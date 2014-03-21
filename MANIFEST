@@ -139,9 +139,6 @@ t/io-parserstate.t
 t/io-rdata.t
 t/io-rds.t
 t/io-unserialize.t
-t/manifest.t
-t/pod-coverage.t
-t/pod.t
 t/rexp-character.t
 t/rexp-double.t
 t/rexp-environment.t
@@ -155,6 +152,9 @@ t/rexp-raw.t
 t/rexp-symbol.t
 t/rexp-vector.t
 t/rexp.t
+xt/manifest.t
+xt/pod-coverage.t
+xt/pod.t
 Makefile.PL
 META.yml
 META.json
