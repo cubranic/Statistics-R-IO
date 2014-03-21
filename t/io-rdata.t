@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 130;
+use Test::More tests => 7;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -12,28 +12,36 @@ use Statistics::R::IO qw( readRData );
 sub check_rdata {
     my ($file, $expected, $message) = @_;
 
-    my %actual = readRData($file);
-    
-    is(keys %actual,
-       keys %{$expected}, "$message keys");
-    while (my ($key, $value) = each %{$expected}) {
-        is($actual{$key}, $expected->{$key},
-           "$message $key");
+    subtest 'rdata ' . $message => sub {
+        plan tests => keys(%{$expected}) + 1;
+        
+        my %actual = readRData($file);
+        
+        is(keys %actual,
+           keys %{$expected}, "$message keys");
+        while (my ($key, $value) = each %{$expected}) {
+            is($actual{$key}, $expected->{$key},
+               "$message $key");
+        }
     }
 }
 
 sub check_rdata_variants {
     my ($file, $expected, $message) = @_;
 
-    check_rdata($file . '.RData',
-                $expected, $message . ' - default');
-    check_rdata($file . '_uncompressed.RData',
-                $expected, $message . ' - uncompressed');
-    check_rdata($file . '_bzip.RData',
-                $expected, $message . ' - bzip');
-    like(exception {
-             readRData($file . '_xz.RData')
-         }, qr/xz-compressed RData/, $message . ' - xz');
+    subtest 'variants ' . $message => sub {
+        plan tests => 4;
+        
+        check_rdata($file . '.RData',
+                    $expected, $message . ' - default');
+        check_rdata($file . '_uncompressed.RData',
+                    $expected, $message . ' - uncompressed');
+        check_rdata($file . '_bzip.RData',
+                    $expected, $message . ' - bzip');
+        like(exception {
+            readRData($file . '_xz.RData')
+             }, qr/xz-compressed RData/, $message . ' - xz');
+    }
 }
 
 ## Atomic vectors

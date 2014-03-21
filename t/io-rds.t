@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 69;
+use Test::More tests => 15;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -15,21 +15,25 @@ use Statistics::R::IO qw( readRDS );
 sub check_rds_variants {
     my ($file, $expected, $message) = @_;
 
-    my $actual = readRDS($file . '-xdr');
-    is($actual, $expected, $message . ' - xdr');
+    subtest 'rds ' . $message => sub {
+        plan tests => (-f "$file-noxdr" ? 5 : 4);
+        
+        my $actual = readRDS($file . '-xdr');
+        is($actual, $expected, $message . ' - xdr');
 
-    is(readRDS($file . '-noxdr'),
-       $expected, $message . ' - binary') if (-f "$file-noxdr");
+        is(readRDS($file . '-noxdr'),
+           $expected, $message . ' - binary') if (-f "$file-noxdr");
 
-    $actual = readRDS($file . '-xdr.rds');
-    is($actual, $expected, $message . ' - compressed xdr');
+        $actual = readRDS($file . '-xdr.rds');
+        is($actual, $expected, $message . ' - compressed xdr');
 
-    $actual = readRDS($file . '-xdr_bzip.rds');
-    is($actual, $expected, $message . ' - bzip compressed xdr');
-    
-    like(exception {
-             readRDS($file . '-xdr_xz.rds')
-         }, qr/xz-compressed RDS/, $message . ' - xz');
+        $actual = readRDS($file . '-xdr_bzip.rds');
+        is($actual, $expected, $message . ' - bzip compressed xdr');
+        
+        like(exception {
+            readRDS($file . '-xdr_xz.rds')
+             }, qr/xz-compressed RDS/, $message . ' - xz');
+    }
 }
 
 
