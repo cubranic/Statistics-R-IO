@@ -40,6 +40,7 @@ my $builder = $class->new(
     build_requires => {
         'Test::More' => 0,
         'Test::Fatal' => 0,
+        'Test::MockObject' => 0,
     },
     requires => {
         'perl' => 5.012,
