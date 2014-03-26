@@ -14,6 +14,7 @@ our %EXPORT_TAGS = ( all => [ @EXPORT_OK ], );
 use Statistics::R::IO::REXPFactory;
 use IO::Uncompress::Gunzip ();
 use IO::Uncompress::Bunzip2 ();
+use IO::Socket::INET ();
 use Carp;
 
 our $VERSION = '0.03';
@@ -75,8 +76,22 @@ sub readRData {
 
 
 sub evalRserve {
-    ## TODO: establish connection if $fh is not an IO::Handle
-    my ($rexp, $fh) = (shift, shift);
+    my ($rexp, $server) = (shift, shift);
+
+    my $fh;
+    if (UNIVERSAL::isa($server, 'IO::Handle')) {
+        $fh = $server;
+    }
+    else {
+        $server //= 'localhost';
+        my $port = shift || 6311;
+        $fh = IO::Socket::INET->new(PeerAddr => $server,
+                                    PeerPort => $port) or
+                                        croak $!;
+        $fh->sysread(my $response, 32);
+        croak "Unrecognized server ID" unless
+            substr($response, 0, 12) eq 'Rsrv0103QAP1';
+    }
 
     ## simulate the request parameter as constructed by:
     ## > serialize(quote(parse(text="{$rexp}")[[1]]), NULL)
@@ -109,6 +124,10 @@ sub evalRserve {
     }
     
     $fh->sysread(my $data, $length);
+
+    ## Close the handle only if it was created in this function
+    close $fh unless $server eq $fh;
+    
     my ($value, $state) = @{Statistics::R::IO::REXPFactory::unserialize($data)};
     croak 'Could not parse Rserve value' unless $state;
     croak 'Unread data remaining in the Rserve response' unless $state->eof;

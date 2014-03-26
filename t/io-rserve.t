@@ -5,7 +5,7 @@ use warnings FATAL => 'all';
 
 use Test::More tests => 16;
 use Test::Fatal;
-use Test::MockObject;
+use Test::MockObject::Extends;
 
 use Statistics::R::IO::Parser qw(:all);
 use Statistics::R::IO qw( evalRserve );
@@ -19,7 +19,7 @@ sub mock_rserve_response {
     my $response = pack("VVA*", 0x10001, length($data), "\0"x8) .
         $data;
 
-    my $mock = Test::MockObject->new;
+    my $mock = Test::MockObject::Extends->new('IO::Socket');
     $mock->mock('syswrite',
                 sub {
                     my ($self, $data) = (shift, shift);
@@ -482,7 +482,7 @@ parse_rserve_eval('t/data/mtcars-lm-mpgwt',
 
 
 ## Server error
-my $error_mock = Test::MockObject->new;
+my $error_mock = Test::MockObject::Extends->new('IO::Socket');
 $error_mock->mock('syswrite',
                   sub {
                       my ($self, $data) = (shift, shift);
