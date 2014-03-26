@@ -161,6 +161,8 @@ This documentation refers to version 0.03 of the module.
         print $var_name, $value;
     }
 
+    my $pi = Statistics::R::IO::evalRserve('pi');
+    print $pi->to_pl;
 
 =head1 DESCRIPTION
 
@@ -192,6 +194,11 @@ on startup.)
 
 =back
 
+As of version 0.04, the module can also evaluate R code on a remote
+host that runs the L<Rserve|http://www.rforge.net/Rserve/> binary R
+server. This allows Perl programs to access all facilities of R
+without the need to have a local install of R or link to an R library.
+
 See L</SUBROUTINES> for invocation and usage information on individual
 subroutines, and the L<R Internals
 manual|http://cran.r-project.org/doc/manuals/R-ints.html> for the
@@ -200,8 +207,8 @@ specification of the file formats.
 
 =head1 EXPORT
 
-Nothing by default. Optionally, subroutines C<readRDS> and
-C<readRData>, or C<:all> for both.
+Nothing by default. Optionally, subroutines C<readRDS>, C<readRData>,
+and C<evalRserve>, or C<:all> for all three.
 
 
 =head1 SUBROUTINES
@@ -218,6 +225,26 @@ a L<Statistics::R::REXP> object.
 Reads a file in RData format whose filename is given by EXPR and
 returns a hash whose keys are the names of objects stored in the file
 with corresponding values as L<Statistics::R::REXP> instances.
+
+=item evalRserve REXPR [ HOSTNAME [, PORT] | HANDLE]
+
+Evaluates an R expression, given as text string in REXPR, on an
+L<Rserve|http://www.rforge.net/Rserve/> server and returns its result
+as a L<Statistics::R::REXP> object.
+
+The server location can be specified either by its host name and
+(optionally) port or by a connected instance of L<IO::Handle>. The
+caller passing the HANDLE is responsible for reading (and checking)
+the server ID that is returned in the first 32-byte response when the
+connection was established. This allows opening the connection once
+and reusing it in multiple calls to 'evalRserve'.
+
+If only REXPR is given, the function assumes that the server runs on
+the localhost. If PORT is not specified, it defaults to the standard
+Rserve port, 6311.
+
+The function will close the connection to the Rserve host if it has
+opened it itself, but not if the connection was passed as a HANDLE.
 
 =back
 
