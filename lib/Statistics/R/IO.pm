@@ -17,8 +17,6 @@ use IO::Uncompress::Bunzip2 ();
 use IO::Socket::INET ();
 use Carp;
 
-our $VERSION = '0.04';
-
 
 sub readRDS {
     open (my $f, shift) or croak $!;
