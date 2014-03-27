@@ -6,9 +6,13 @@ use warnings FATAL => 'all';
 use IO::Socket::INET ();
 
 use Test::More;
-if (IO::Socket::INET->new(PeerAddr => 'localhost',
-                          PeerPort => 6311)) {
+my $rserve = IO::Socket::INET->new(PeerAddr => 'localhost',
+                                   PeerPort => 6311);
+if ($rserve) {
     plan tests => 15;
+    $rserve->sysread(my $response, 32);
+    die "Unrecognized server ID" unless
+        substr($response, 0, 12) eq 'Rsrv0103QAP1';
 }
 else {
     plan skip_all => "Cannot connect to Rserve server at localhost:6311";
@@ -18,15 +22,28 @@ use Test::Fatal;
 use Statistics::R::IO::Rserve;
 use Statistics::R::IO::REXPFactory;
 
+sub check_rserve_eval_variants {
+    my ($rexp, $expected, $message) = @_;
+
+    subtest 'rserve eval ' . $message => sub {
+        is(Statistics::R::IO::Rserve->new->eval($rexp),
+           $expected, $message . ' no arg constructor');
+        is(Statistics::R::IO::Rserve->new('localhost')->eval($rexp),
+           $expected, $message . ' localhost arg');
+        is(Statistics::R::IO::Rserve->new($rserve)->eval($rexp),
+           $expected, $message . ' handle arg');
+    }
+}
+
 
 ## integer vectors
 ## serialize 1:3, XDR: true
-is(Statistics::R::IO::Rserve->new('localhost')->eval('1:3'),
+check_rserve_eval_variants('1:3',
    Statistics::R::REXP::Integer->new([ 1, 2, 3 ]),
    'int vector no atts');
 
 ## serialize a=1L, b=2L, c=3L, XDR: true
-is(Statistics::R::IO::Rserve->new('localhost')->eval('c(a=1L, b=2L, c=3L)'),
+check_rserve_eval_variants('c(a=1L, b=2L, c=3L)',
    Statistics::R::REXP::Integer->new(
        elements => [ 1, 2, 3 ],
        attributes => {
@@ -37,12 +54,12 @@ is(Statistics::R::IO::Rserve->new('localhost')->eval('c(a=1L, b=2L, c=3L)'),
 
 ## double vectors
 ## serialize 1234.56, XDR: true
-is(Statistics::R::IO::Rserve->new('localhost')->eval('1234.56'),
+check_rserve_eval_variants('1234.56',
    Statistics::R::REXP::Double->new([ 1234.56 ]),
    'double vector no atts');
 
 ## serialize foo=1234.56, XDR: true
-is(Statistics::R::IO::Rserve->new('localhost')->eval('c(foo=1234.56)'),
+check_rserve_eval_variants('c(foo=1234.56)',
    Statistics::R::REXP::Double->new(
        elements => [ 1234.56 ],
        attributes => {
@@ -53,12 +70,12 @@ is(Statistics::R::IO::Rserve->new('localhost')->eval('c(foo=1234.56)'),
 
 ## character vectors
 ## serialize letters[1:3], XDR: true
-is(Statistics::R::IO::Rserve->new('localhost')->eval('letters[1:3]'),
+check_rserve_eval_variants('letters[1:3]',
    Statistics::R::REXP::Character->new([ 'a', 'b', 'c' ]),
    'character vector no atts');
 
 ## serialize A='a', B='b', C='c', XDR: true
-is(Statistics::R::IO::Rserve->new('localhost')->eval('c(A="a", B="b", C="c")'),
+check_rserve_eval_variants('c(A="a", B="b", C="c")',
    Statistics::R::REXP::Character->new(
        elements => [ 'a', 'b', 'c' ],
        attributes => {
@@ -69,14 +86,14 @@ is(Statistics::R::IO::Rserve->new('localhost')->eval('c(A="a", B="b", C="c")'),
 
 ## raw vectors
 ## serialize as.raw(c(1:3, 255, 0), XDR: true
-is(Statistics::R::IO::Rserve->new('localhost')->eval('as.raw(c(1,2,3,255, 0))'),
+check_rserve_eval_variants('as.raw(c(1,2,3,255, 0))',
    Statistics::R::REXP::Raw->new([ 1, 2, 3, 255, 0 ]),
    'raw vector');
 
 
 ## list (i.e., generic vector)
 ## serialize list(1:3, list('a', 'b', 11), 'foo'), XDR: true
-is(Statistics::R::IO::Rserve->new('localhost')->eval("list(1:3, list('a', 'b', 11), 'foo')"),
+check_rserve_eval_variants("list(1:3, list('a', 'b', 11), 'foo')",
    Statistics::R::REXP::List->new([
        Statistics::R::REXP::Integer->new([ 1, 2, 3]),
        Statistics::R::REXP::List->new([
@@ -87,7 +104,7 @@ is(Statistics::R::IO::Rserve->new('localhost')->eval("list(1:3, list('a', 'b', 1
    'generic vector no atts');
 
 ## serialize list(foo=1:3, list('a', 'b', 11), bar='foo'), XDR: true
-is(Statistics::R::IO::Rserve->new('localhost')->eval("list(foo=1:3, list('a', 'b', 11), bar='foo')"),
+check_rserve_eval_variants("list(foo=1:3, list('a', 'b', 11), bar='foo')",
    Statistics::R::REXP::List->new(
        elements => [
            Statistics::R::REXP::Integer->new([ 1, 2, 3]),
@@ -105,7 +122,7 @@ is(Statistics::R::IO::Rserve->new('localhost')->eval("list(foo=1:3, list('a', 'b
 ## matrix
 
 ## serialize matrix(-1:4, 2, 3), XDR: true
-is(Statistics::R::IO::Rserve->new('localhost')->eval('matrix(-1:4, 2, 3)'),
+check_rserve_eval_variants('matrix(-1:4, 2, 3)',
    Statistics::R::REXP::Integer->new(
        elements => [ -1, 0, 1, 2, 3, 4 ],
        attributes => {
@@ -114,7 +131,7 @@ is(Statistics::R::IO::Rserve->new('localhost')->eval('matrix(-1:4, 2, 3)'),
    'int matrix no atts');
 
 ## serialize matrix(-1:4, 2, 3, dimnames=list(c('a', 'b'))), XDR: true
-is(Statistics::R::IO::Rserve->new('localhost')->eval("matrix(-1:4, 2, 3, dimnames=list(c('a', 'b')))"),
+check_rserve_eval_variants("matrix(-1:4, 2, 3, dimnames=list(c('a', 'b')))",
    Statistics::R::REXP::Integer->new(
        elements => [ -1, 0, 1, 2, 3, 4 ],
        attributes => {
@@ -129,7 +146,7 @@ is(Statistics::R::IO::Rserve->new('localhost')->eval("matrix(-1:4, 2, 3, dimname
 
 ## data frames
 ## serialize head(cars)
-is(Statistics::R::IO::Rserve->new('localhost')->eval('head(cars)'),
+check_rserve_eval_variants('head(cars)',
    Statistics::R::REXP::List->new(
        elements => [
            Statistics::R::REXP::Double->new([ 4, 4, 7, 7, 8, 9]),
@@ -145,7 +162,7 @@ is(Statistics::R::IO::Rserve->new('localhost')->eval('head(cars)'),
    'the cars data frame');
 
 ## serialize head(mtcars)
-is(Statistics::R::IO::Rserve->new('localhost')->eval('head(mtcars)'),
+check_rserve_eval_variants('head(mtcars)',
    Statistics::R::REXP::List->new(
        elements => [
            Statistics::R::REXP::Double->new([ 21.0, 21.0, 22.8, 21.4, 18.7, 18.1 ]),
@@ -173,7 +190,7 @@ is(Statistics::R::IO::Rserve->new('localhost')->eval('head(mtcars)'),
    'the mtcars data frame');
 
 ## serialize head(iris)
-is(Statistics::R::IO::Rserve->new('localhost')->eval('head(iris)'),
+check_rserve_eval_variants('head(iris)',
    Statistics::R::REXP::List->new(
        elements => [
            Statistics::R::REXP::Double->new([ 5.1, 4.9, 4.7, 4.6, 5.0, 5.4 ]),
@@ -200,7 +217,7 @@ is(Statistics::R::IO::Rserve->new('localhost')->eval('head(iris)'),
    'the iris data frame');
 
 ## serialize lm(mpg ~ wt, data = head(mtcars))
-is(Statistics::R::IO::Rserve->new('localhost')->eval('lm(mpg ~ wt, data = head(mtcars))'),
+check_rserve_eval_variants('lm(mpg ~ wt, data = head(mtcars))',
    Statistics::R::REXP::List->new(
        elements => [
            # coefficients
