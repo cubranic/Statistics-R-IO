@@ -158,7 +158,7 @@ Statistics::R::IO::RDS - Supply object methods for Rserve communication
 
 =head1 VERSION
 
-This documentation refers to version 0.03 of the module.
+This documentation refers to version 0.04 of the module.
 
 
 =head1 SYNOPSIS
