@@ -8,7 +8,7 @@ use IO::Handle;
 
 use IO::Uncompress::Gunzip ();
 use IO::Uncompress::Bunzip2 ();
-
+use Scalar::Util qw(blessed);
 use Carp;
 
 use Moo::Role;
@@ -19,9 +19,10 @@ has fh => (
     is => 'ro',
     required => 1,
     isa => sub {
+        my $obj = shift;
         die "'fh' must be a file handle"
-            unless UNIVERSAL::isa($_[0], 'IO::Handle') ||
-            UNIVERSAL::isa($_[0], 'GLOB')
+            unless (blessed($obj) && $obj->isa('IO::Handle')) ||
+            UNIVERSAL::isa($obj, 'GLOB')
     }
 );
 

@@ -19,7 +19,7 @@ sub mock_rserve_response {
     my $response = pack("VVA*", 0x10001, length($data), "\0"x8) .
         $data;
 
-    my $mock = Test::MockObject::Extends->new('IO::Handle');
+    my $mock = Test::MockObject::Extends->new('IO::Socket');
     $mock->mock('syswrite',
                 sub {
                     my ($self, $data) = (shift, shift);

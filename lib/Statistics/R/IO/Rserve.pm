@@ -7,7 +7,7 @@ use Moo;
 
 use Statistics::R::IO::REXPFactory;
 use IO::Socket::INET ();
-use Scalar::Util qw(looks_like_number);
+use Scalar::Util qw(blessed looks_like_number);
 use Carp;
 
 use namespace::clean;
@@ -26,8 +26,9 @@ has fh => (
         $fh
     },
     isa => sub {
+        my $obj = shift;
         die "'fh' must be a file handle"
-            unless UNIVERSAL::isa($_[0], 'IO::Handle')
+            unless blessed($obj) && $obj->isa('IO::Handle')
     }
 );
 
