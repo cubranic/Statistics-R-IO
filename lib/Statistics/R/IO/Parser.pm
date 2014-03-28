@@ -1,4 +1,5 @@
 package Statistics::R::IO::Parser;
+# ABSTRACT: Functions for parsing R data files
 
 use 5.012;
 use strict;
@@ -403,16 +404,6 @@ sub with_count {
 __END__
 
 
-=head1 NAME
-
-Statistics::R::IO::Parser - Functions for parsing R data files
-
-
-=head1 VERSION
-
-This documentation refers to version 0.04 of the module.
-
-
 =head1 SYNOPSIS
 
     use Statistics::R::IO::ParserState;
@@ -681,17 +672,5 @@ L<Statistics::R::IO> for bug reporting.
 =head1 SUPPORT
 
 See L<Statistics::R::IO> for support and contact information.
-
-
-=head1 AUTHOR
-
-Davor Cubranic, C<< <cubranic at stat.ubc.ca> >>
-
-
-=head1 LICENSE AND COPYRIGHT
-
-Copyright 2014 University of British Columbia.
-
-See L<Statistics::R::IO> for the license.
 
 =cut

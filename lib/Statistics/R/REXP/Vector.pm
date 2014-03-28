@@ -1,4 +1,5 @@
 package Statistics::R::REXP::Vector;
+# ABSTRACT: an R vector
 
 use 5.012;
 
@@ -92,14 +93,7 @@ sub to_pl {
 
 1; # End of Statistics::R::REXP::Vector
 
-=head1 NAME
-
-Statistics::R::REXP::Vector - an R vector
-
-
-=head1 VERSION
-
-This documentation refers to version 0.04 of the module.
+__END__
 
 
 =head1 SYNOPSIS
@@ -152,17 +146,5 @@ L<Statistics::R::IO> for bug reporting.
 =head1 SUPPORT
 
 See L<Statistics::R::IO> for support and contact information.
-
-
-=head1 AUTHOR
-
-Davor Cubranic, C<< <cubranic at stat.ubc.ca> >>
-
-
-=head1 LICENSE AND COPYRIGHT
-
-Copyright 2014 University of British Columbia.
-
-See L<Statistics::R::IO> for the license.
 
 =cut

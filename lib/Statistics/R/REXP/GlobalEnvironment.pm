@@ -1,4 +1,5 @@
 package Statistics::R::REXP::GlobalEnvironment;
+# ABSTRACT: the global R environment (C<.GlobalEnv>)
 
 use 5.012;
 
@@ -25,14 +26,7 @@ around name => sub {
 
 1; # End of Statistics::R::REXP::GlobalEnvironment
 
-=head1 NAME
-
-Statistics::R::REXP::GlobalEnvironment - the global R environment (C<.GlobalEnv>)
-
-
-=head1 VERSION
-
-This documentation refers to version 0.04 of the module.
+__END__
 
 
 =head1 SYNOPSIS
@@ -88,17 +82,5 @@ L<Statistics::R::IO> for bug reporting.
 =head1 SUPPORT
 
 See L<Statistics::R::IO> for support and contact information.
-
-
-=head1 AUTHOR
-
-Davor Cubranic, C<< <cubranic at stat.ubc.ca> >>
-
-
-=head1 LICENSE AND COPYRIGHT
-
-Copyright 2014 University of British Columbia.
-
-See L<Statistics::R::IO> for the license.
 
 =cut

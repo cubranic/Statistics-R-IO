@@ -1,4 +1,5 @@
 package Statistics::R::IO::Rserve;
+# ABSTRACT: Supply object methods for Rserve communication
 
 use 5.012;
 
@@ -151,16 +152,6 @@ sub DEMOLISH {
 __END__
 
 
-=head1 NAME
-
-Statistics::R::IO::RDS - Supply object methods for Rserve communication
-
-
-=head1 VERSION
-
-This documentation refers to version 0.04 of the module.
-
-
 =head1 SYNOPSIS
 
     use Statistics::R::IO::Rserve;
@@ -274,17 +265,5 @@ L<Statistics::R::IO> for bug reporting.
 =head1 SUPPORT
 
 See L<Statistics::R::IO> for support and contact information.
-
-
-=head1 AUTHOR
-
-Davor Cubranic, C<< <cubranic at stat.ubc.ca> >>
-
-
-=head1 LICENSE AND COPYRIGHT
-
-Copyright 2014 University of British Columbia.
-
-See L<Statistics::R::IO> for the license.
 
 =cut

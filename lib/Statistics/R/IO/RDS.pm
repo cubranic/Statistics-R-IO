@@ -1,4 +1,5 @@
 package Statistics::R::IO::RDS;
+# ABSTRACT: Supply object methods for RDS files
 
 use 5.012;
 
@@ -27,16 +28,6 @@ sub read {
 1;
 
 __END__
-
-
-=head1 NAME
-
-Statistics::R::IO::RDS - Supply object methods for RDS files
-
-
-=head1 VERSION
-
-This documentation refers to version 0.04 of the module.
 
 
 =head1 SYNOPSIS
@@ -87,17 +78,5 @@ L<Statistics::R::IO> for bug reporting.
 =head1 SUPPORT
 
 See L<Statistics::R::IO> for support and contact information.
-
-
-=head1 AUTHOR
-
-Davor Cubranic, C<< <cubranic at stat.ubc.ca> >>
-
-
-=head1 LICENSE AND COPYRIGHT
-
-Copyright 2014 University of British Columbia.
-
-See L<Statistics::R::IO> for the license.
 
 =cut

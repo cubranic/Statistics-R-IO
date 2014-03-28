@@ -1,4 +1,5 @@
 package Statistics::R::IO;
+# ABSTRACT: Perl interface to serialized R data
 
 use 5.012;
 use strict;
@@ -137,16 +138,6 @@ sub evalRserve {
 __END__
 
 
-=head1 NAME
-
-Statistics::R::IO - Perl interface to serialized R data
-
-
-=head1 VERSION
-
-This documentation refers to version 0.04 of the module.
-
-
 =head1 SYNOPSIS
 
     use Statistics::R::IO;
@@ -209,22 +200,18 @@ Nothing by default. Optionally, subroutines C<readRDS>, C<readRData>,
 and C<evalRserve>, or C<:all> for all three.
 
 
-=head1 SUBROUTINES
-
-=over 4
-
-=item readRDS EXPR
+=func readRDS EXPR
 
 Reads a file in RDS format whose filename is given by EXPR and returns
 a L<Statistics::R::REXP> object.
 
-=item readRData EXPR
+=func readRData EXPR
 
 Reads a file in RData format whose filename is given by EXPR and
 returns a hash whose keys are the names of objects stored in the file
 with corresponding values as L<Statistics::R::REXP> instances.
 
-=item evalRserve REXPR [ HOSTNAME [, PORT] | HANDLE]
+=func evalRserve REXPR [ HOSTNAME [, PORT] | HANDLE]
 
 Evaluates an R expression, given as text string in REXPR, on an
 L<Rserve|http://www.rforge.net/Rserve/> server and returns its result
@@ -243,9 +230,6 @@ Rserve port, 6311.
 
 The function will close the connection to the Rserve host if it has
 opened it itself, but not if the connection was passed as a HANDLE.
-
-=back
-
 
 =head1 DEPENDENCIES
 
@@ -348,29 +332,5 @@ L<http://cpanratings.perl.org/d/Statistics-R-IO>
 L<http://search.cpan.org/dist/Statistics-R-IO/>
 
 =back
-
-
-=head1 AUTHOR
-
-Davor Cubranic, C<< <cubranic at stat.ubc.ca> >>
-
-
-=head1 LICENSE AND COPYRIGHT
-
-Copyright 2014 University of British Columbia.
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see L<http://www.gnu.org/licenses/>.
-
 
 =cut
