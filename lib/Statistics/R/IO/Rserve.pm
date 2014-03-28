@@ -112,11 +112,29 @@ sub eval {
     ## request is:
     ## - command (0xf5, CMD_serEval,
     ##       means raw serialized data without data header)
+    my $data = $self->_send_command(0xf5, $parameter);
+    
+    my ($value, $state) = @{Statistics::R::IO::REXPFactory::unserialize($data)};
+    croak 'Could not parse Rserve value' unless $state;
+    croak 'Unread data remaining in the Rserve response' unless $state->eof;
+    $value
+}
+
+
+## Sends a request to Rserve and receives the response, checking for
+## any errors.
+## 
+## Returns the data portion of the server response
+sub _send_command {
+    my ($self, $command, $parameters) = (shift, shift, shift || '');
+    
+    ## request is (byte order is low-endian):
+    ## - command (4 bytes)
     ## - length of the message (low 32 bits)
-    ## - offset of the data part
+    ## - offset of the data part (normally 0)
     ## - high 32 bits of the length of the message (0 if < 4GB)
-    $self->fh->syswrite(pack('V4', 245, length($parameter), 0, 0) .
-                        $parameter);
+    $self->fh->syswrite(pack('V4', $command, length($parameters), 0, 0) .
+                        $parameters);
     
     $self->fh->sysread(my $response, 16);
     ## Of the next four long-ints:
@@ -129,10 +147,8 @@ sub eval {
     }
     
     $self->fh->sysread(my $data, $length);
-    my ($value, $state) = @{Statistics::R::IO::REXPFactory::unserialize($data)};
-    croak 'Could not parse Rserve value' unless $state;
-    croak 'Unread data remaining in the Rserve response' unless $state->eof;
-    $value
+    
+    $data
 }
 
 
