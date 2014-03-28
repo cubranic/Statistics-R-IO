@@ -200,18 +200,22 @@ Nothing by default. Optionally, subroutines C<readRDS>, C<readRData>,
 and C<evalRserve>, or C<:all> for all three.
 
 
-=func readRDS EXPR
+=head1 SUBROUTINES
+
+=over 4
+
+=item readRDS EXPR
 
 Reads a file in RDS format whose filename is given by EXPR and returns
 a L<Statistics::R::REXP> object.
 
-=func readRData EXPR
+=item readRData EXPR
 
 Reads a file in RData format whose filename is given by EXPR and
 returns a hash whose keys are the names of objects stored in the file
 with corresponding values as L<Statistics::R::REXP> instances.
 
-=func evalRserve REXPR [ HOSTNAME [, PORT] | HANDLE]
+=item evalRserve REXPR [ HOSTNAME [, PORT] | HANDLE]
 
 Evaluates an R expression, given as text string in REXPR, on an
 L<Rserve|http://www.rforge.net/Rserve/> server and returns its result
@@ -230,6 +234,9 @@ Rserve port, 6311.
 
 The function will close the connection to the Rserve host if it has
 opened it itself, but not if the connection was passed as a HANDLE.
+
+=back
+
 
 =head1 DEPENDENCIES
 
