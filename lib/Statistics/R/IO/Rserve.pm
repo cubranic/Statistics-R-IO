@@ -252,6 +252,8 @@ constructor, but not if it was passed in as a pre-opened handle.
 
 =back
 
+=for Pod::Coverage BUILDARGS DEMOLISH
+
 
 =head1 BUGS AND LIMITATIONS
 

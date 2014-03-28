@@ -168,6 +168,8 @@ when the object is destroyed.
 
 =back
 
+=for Pod::Coverage BUILDARGS DEMOLISH
+
 
 =head1 BUGS AND LIMITATIONS
 

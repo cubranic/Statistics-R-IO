@@ -154,6 +154,8 @@ call this access will raise an exception.
 
 =back
 
+=for Pod::Coverage BUILDARGS
+
 
 =head1 BUGS AND LIMITATIONS
 

@@ -103,6 +103,8 @@ Perl value of the symbol is just its C<name>.
 
 =back
 
+=for Pod::Coverage BUILDARGS
+
 
 =head1 BUGS AND LIMITATIONS
 

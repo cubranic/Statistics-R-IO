@@ -133,6 +133,8 @@ $vec->elements>.
 
 =back
 
+=for Pod::Coverage BUILDARGS is_vector
+
 
 =head1 BUGS AND LIMITATIONS
 

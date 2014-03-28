@@ -64,6 +64,8 @@ returns C<undef>.
 
 =back
 
+=for Pod::Coverage is_null
+
 
 =head1 BUGS AND LIMITATIONS
 
