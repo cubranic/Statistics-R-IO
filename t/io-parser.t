@@ -274,7 +274,7 @@ subtest 'monad' => sub {
 
 
 subtest 'combinators' => sub {
-    plan tests => 12;
+    plan tests => 14;
     
     ## seq
     my $f_oob_seq = seq(char('f'),
@@ -286,6 +286,18 @@ subtest 'combinators' => sub {
               'seq');
     is($f_oob_seq->($state->next),
        undef, 'seq fails');
+
+
+    ## many_till
+    my $many_o_till_b = many_till(char('o'),
+                                  char('b'));
+    is_deeply($many_o_till_b->($state->next),
+              [['o', 'o'],
+               Statistics::R::IO::ParserState->new(data => 'foobar',
+                                                   position => 3)],
+              'many_till');
+    is($many_o_till_b->($state),
+       undef, 'many_till fails');
 
 
     ## choose

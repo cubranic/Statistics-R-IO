@@ -13,12 +13,12 @@ our @EXPORT_OK = qw( endianness any_char char string
                      uint8 uint16 uint24 uint32
                      any_int8 any_int16 any_int24 any_int32
                      int8 int16 int24 int32
-                     count with_count seq choose mreturn error add_singleton get_singleton reserve_singleton bind );
+                     count with_count many_till seq choose mreturn error add_singleton get_singleton reserve_singleton bind );
 
 our %EXPORT_TAGS = ( all => [ @EXPORT_OK ],
                      num => [ qw( any_uint8 any_uint16 any_uint24 any_uint32 any_real32 any_real64 uint8 uint16 uint24 uint32 ) ],
                      char => [ qw( any_char char string ) ],
-                     combinator => [ qw( count with_count seq choose mreturn bind ) ] );
+                     combinator => [ qw( count with_count many_till seq choose mreturn bind ) ] );
 
 
 use Scalar::Util qw(looks_like_number);
@@ -297,6 +297,26 @@ sub seq {
 }
 
 
+sub many_till {
+    my ($p, $end) = (shift, shift);
+    die "'bind' expects two arguments" unless $p && $end;
+    
+    sub {
+        my $state = shift or return;
+        my @value;
+
+        until ($end->($state)) {
+            my $result = $p->($state) or return;
+            
+            push @value, shift @$result;
+            $state = shift @$result;
+        }
+        
+        return [ [ @value ], $state ]
+    }
+}
+
+
 sub choose {
     my @parsers = @_;
     
@@ -558,6 +578,19 @@ etc.  Returns a pair of the concatenation of all the parsers'
 results and the parsing state returned by the final parser. If any
 of the parsers returns undef, C<seq> will return it immediately
 without attempting to apply any further parsers.
+
+
+=item many_till $p, $end
+
+This combinator applies a parser C<$p> until parser C<$end> succeeds.
+It does this by alternating applications of C<$end> and C<$p>; once
+C<$end> succeeds, the function returns the concatenation of results of
+preceding applications of C<$p>. (Thus, if C<$end> succeeds
+immediately, the 'result' is an empty list.) Otherwise, C<$p> is
+applied and must succeed, and the procedure repeats. Returns a pair of
+the concatenation of all the C<$p>'s results and the parsing state
+returned by the final parser. If any applications of C<$p> returns
+undef, C<many_till> will return it immediately.
 
 
 =item count $n, $p
