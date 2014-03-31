@@ -424,8 +424,6 @@ sub unserialize {
 
 __END__
 
-=head1 NAME
-
 =head1 SYNOPSIS
 
     use Statistics::R::IO::REXPFactory qw( unserialize );
