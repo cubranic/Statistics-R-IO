@@ -255,12 +255,22 @@ sub logsxp {
 
 sub rawsxp {
     my $object_info = shift;
-    
-    if ($object_info->{length}) {
-        bind(with_count(\&any_uint32, \&any_uint8),
+
+    my $dt_length = $object_info->{length},;
+    if ($dt_length) {
+        bind(\&any_uint32,
              sub {
-                 my @elements = @{shift or return};
-                 mreturn(Statistics::R::REXP::Raw->new([ @elements ]));
+                 my $true_length = shift // return;
+                 my $padding_length = $dt_length - $true_length - 4;
+
+                 bind(seq(count($true_length,
+                                \&any_uint8),
+                          count($padding_length,
+                               \&any_uint8)),
+                      sub {
+                          my ($elements, $padding) = @{shift or return};
+                          mreturn(Statistics::R::REXP::Raw->new($elements));
+                      })
              })
     } else {
         mreturn(Statistics::R::REXP::Raw->new);
