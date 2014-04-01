@@ -444,7 +444,7 @@ sub decode {
             unless $state->eof;
     }
     
-    $result->[0];
+    $result;
 }
 
 

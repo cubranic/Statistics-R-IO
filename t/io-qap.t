@@ -19,8 +19,13 @@ sub check_qap {
     my $data;
     sysread($f, $data, 1<<30);
 
-    my $actual = decode($data);
-    is($actual, $expected, $message) or diag explain $actual
+    subtest 'qap - ' . $message => sub {
+        plan tests => 2;
+        
+        my ($actual, $state) = @{ decode($data) };
+        is($actual, $expected, $message) or diag explain $actual;
+        ok($state->eof, $message . ' - parse complete')
+    }
 }
 
 
