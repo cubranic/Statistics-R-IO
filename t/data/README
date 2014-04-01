@@ -139,6 +139,12 @@ Data frame:
 - iris-xdr: serialize(head(iris), f, ascii=F, xdr=T)
 
 
+Language:
+
+- lang-lm-mpgwt-xdr: serialize(lm(mpg ~ wt, data = head(mtcars))$call,
+  f, ascii=F, xdr=T)
+
+
 More complex:
 
 - mtcars-lm-mpgwt-xdr: serialize(lm(mpg ~ wt, data = head(mtcars)), f,

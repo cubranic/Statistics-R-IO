@@ -41,6 +41,7 @@ tests <- list(
     `cars`='head(cars)',
     `mtcars`='head(mtcars)',
     `iris`='head(iris)',
+    `lang-lm-mpgwt`='lm(mpg ~ wt, data = head(mtcars))$call',
     `mtcars-lm-mpgwt`='lm(mpg ~ wt, data = head(mtcars))')
 
 for (i in seq_along(tests)) {

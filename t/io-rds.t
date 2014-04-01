@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 15;
+use Test::More tests => 16;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -215,6 +215,31 @@ check_rds_variants('t/data/iris',
            ]),
        }),
    'the iris data frame');
+
+
+## Call lm(mpg ~ wt, data = head(mtcars))
+check_rds_variants('t/data/lang-lm-mpgwt',
+                   Statistics::R::REXP::Language->new(
+                       elements => [
+                           Statistics::R::REXP::Symbol->new('lm'),
+                           Statistics::R::REXP::Language->new(
+                               elements => [
+                                   Statistics::R::REXP::Symbol->new('~'),
+                                   Statistics::R::REXP::Symbol->new('mpg'),
+                                   Statistics::R::REXP::Symbol->new('wt'),
+                               ]),
+                           Statistics::R::REXP::Language->new(
+                               elements => [
+                                   Statistics::R::REXP::Symbol->new('head'),
+                                   Statistics::R::REXP::Symbol->new('mtcars'),
+                               ]),
+                       ],
+                       attributes => {
+                           names => Statistics::R::REXP::Character->new([
+                               '', 'formula', 'data' ])
+                       }),
+                   'language lm(mpg~wt, head(mtcars))');
+
 
 ## serialize lm(mpg ~ wt, data = head(mtcars))
 check_rds_variants('t/data/mtcars-lm-mpgwt',
