@@ -13,6 +13,7 @@ our @EXPORT_OK = qw( readRDS readRData evalRserve );
 our %EXPORT_TAGS = ( all => [ @EXPORT_OK ], );
 
 use Statistics::R::IO::REXPFactory;
+use Statistics::R::IO::Rserve;
 use IO::Uncompress::Gunzip ();
 use IO::Uncompress::Bunzip2 ();
 use IO::Socket::INET ();
@@ -77,60 +78,9 @@ sub readRData {
 sub evalRserve {
     my ($rexp, $server) = (shift, shift);
 
-    my $fh;
-    if (UNIVERSAL::isa($server, 'IO::Handle')) {
-        $fh = $server;
-    }
-    else {
-        $server //= 'localhost';
-        my $port = shift || 6311;
-        $fh = IO::Socket::INET->new(PeerAddr => $server,
-                                    PeerPort => $port) or
-                                        croak $!;
-        $fh->sysread(my $response, 32);
-        croak "Unrecognized server ID" unless
-            substr($response, 0, 12) eq 'Rsrv0103QAP1';
-    }
+    my $rserve = Statistics::R::IO::Rserve->new($server // {});
 
-    ## simulate the request parameter as constructed by:
-    ## > serialize(quote(parse(text="{$rexp}")[[1]]), NULL)
-    my $parameter =
-        "\x58\x0a\0\0\0\2\0\3\0\3\0\2\3\0\0\0\0\6\0\0\0\1\0\4\0" .
-        "\x09\0\0\0\2\x5b\x5b\0\0\0\2\0\0\0\6\0\0\0\1\0\4\0\x09\0\0" .
-        "\0\5\x70\x61\x72\x73\x65\0\0\4\2\0\0\0\1\0\4\0\x09\0\0\0\4\x74\x65" .
-        "\x78\x74\0\0\0\x10\0\0\0\1\0\4\0\x09" .
-        pack('N', length($rexp)+2) .
-        "\x7b" . $rexp . "\x7d" .
-        "\0\0\0\xfe\0\0\0\2\0\0\0\x0e\0\0\0\1\x3f\xf0\0\0\0\0\0\0" .
-        "\0\0\0\xfe";
-    ## request is:
-    ## - command (0xf5, CMD_serEval,
-    ##       means raw serialized data without data header)
-    ## - length of the message (low 32 bits)
-    ## - offset of the data part
-    ## - high 32 bits of the length of the message (0 if < 4GB)
-    $fh->syswrite(pack('V4', 245, length($parameter), 0, 0) .
-                  $parameter);
-    
-    $fh->sysread(my $response, 16);
-    ## Of the next four long-ints:
-    ## - the first one is status and should be 65537 (bytes \1, \0, \1, \0)
-    ## - the second one is length
-    ## - the third and fourth are ??
-    my ($status, $length) = unpack VV => substr($response, 0, 8);
-    unless ($status == 65537) {
-        croak 'Server returned an error: ' . $status;
-    }
-    
-    $fh->sysread(my $data, $length);
-
-    ## Close the handle only if it was created in this function
-    close $fh unless $server eq $fh;
-    
-    my ($value, $state) = @{Statistics::R::IO::REXPFactory::unserialize($data)};
-    croak 'Could not parse Rserve value' unless $state;
-    croak 'Unread data remaining in the Rserve response' unless $state->eof;
-    $value
+    $rserve->eval($rexp)
 }
 
 1; # End of Statistics::R::IO

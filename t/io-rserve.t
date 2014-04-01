@@ -42,7 +42,7 @@ sub mock_rserve_response {
 sub parse_rserve_eval {
     my ($file, $expected, $message) = @_;
 
-    my $filename = $file . '-xdr';
+    my $filename = $file . '.qap';
     
     subtest 'mock ' . $message => sub {
         plan tests => 9;
@@ -60,7 +60,7 @@ sub parse_rserve_eval {
         my ($command, $length, $offset, $length_hi) =
             unpack('V4', $args->[1]);
         is($command,
-           0xf5, 'request CMD_serEval');
+           0x03, 'request CMD_eval');
         is($length+16,
            length($args->[1]), 'request length');
         is($offset,
@@ -401,7 +401,7 @@ parse_rserve_eval('t/data/mtcars-lm-mpgwt',
                    class => Statistics::R::REXP::Character->new([
                        'terms', 'formula'
                    ]),
-                   '.Environment' => Statistics::R::REXP::GlobalEnvironment->new,
+                   '.Environment' => Statistics::R::REXP::Unknown->new(sexptype => 4),
                    predvars => Statistics::R::REXP::Language->new(
                        elements => [
                            Statistics::R::REXP::Symbol->new('list'),
@@ -456,7 +456,7 @@ parse_rserve_eval('t/data/mtcars-lm-mpgwt',
                            class => Statistics::R::REXP::Character->new([
                                'terms', 'formula'
                            ]),
-                           '.Environment' => Statistics::R::REXP::GlobalEnvironment->new,
+                           '.Environment' => Statistics::R::REXP::Unknown->new(sexptype => 4),
                            predvars => Statistics::R::REXP::Language->new(
                                elements => [
                                    Statistics::R::REXP::Symbol->new('list'),
