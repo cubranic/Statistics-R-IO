@@ -359,7 +359,7 @@ check_rserve_eval_variants('lm(mpg ~ wt, data = head(mtcars))',
                    class => Statistics::R::REXP::Character->new([
                        'terms', 'formula'
                    ]),
-                   '.Environment' => Statistics::R::REXP::GlobalEnvironment->new,
+                   '.Environment' => Statistics::R::REXP::Unknown->new(sexptype => 4),
                    predvars => Statistics::R::REXP::Language->new(
                        elements => [
                            Statistics::R::REXP::Symbol->new('list'),
@@ -414,7 +414,7 @@ check_rserve_eval_variants('lm(mpg ~ wt, data = head(mtcars))',
                            class => Statistics::R::REXP::Character->new([
                                'terms', 'formula'
                            ]),
-                           '.Environment' => Statistics::R::REXP::GlobalEnvironment->new,
+                           '.Environment' => Statistics::R::REXP::Unknown->new(sexptype => 4),
                            predvars => Statistics::R::REXP::Language->new(
                                elements => [
                                    Statistics::R::REXP::Symbol->new('list'),

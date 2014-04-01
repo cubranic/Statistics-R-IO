@@ -6,6 +6,7 @@ use 5.012;
 use Moo;
 
 use Statistics::R::IO::REXPFactory;
+use Statistics::R::IO::QapEncoding;
 use IO::Socket::INET ();
 use Scalar::Util qw(blessed looks_like_number);
 use Carp;
@@ -96,6 +97,24 @@ sub BUILDARGS {
 
 
 sub eval {
+    my ($self, $expr) = (shift, shift);
+
+    # Encode $expr as DT_STRING
+    my $parameter = pack('VZ*',
+                         ((length($expr)+1) << 8) + 4,
+                         $expr);
+
+    ## CMD_eval is 0x03
+    my $data = $self->_send_command(0x03, $parameter);
+
+    my ($value, $state) = @{Statistics::R::IO::QapEncoding::decode($data)};
+    croak 'Could not parse Rserve value' unless $state;
+    croak 'Unread data remaining in the Rserve response' unless $state->eof;
+    $value
+}
+
+
+sub ser_eval {
     my ($self, $rexp) = (shift, shift);
     
     ## simulate the request parameter as constructed by:
@@ -260,6 +279,16 @@ the Rserve server.
 Evaluates an R expression, given as text string in REXPR, on an
 L<Rserve|http://www.rforge.net/Rserve/> server and returns its result
 as a L<Statistics::R::REXP> object.
+
+=item ser_eval EXPR
+
+Evaluates an R expression, given as text string in REXPR, on an
+L<Rserve|http://www.rforge.net/Rserve/> server and returns its result
+as a L<Statistics::R::REXP> object. This method uses the CMD_serEval
+Rserve command (code 0xf5), which is designated as "internal/special"
+and "should not be used by clients". Consequently, it is not
+recommended to use this method in a production environment, but only
+to help debug cases where C<eval> isn't working as desired.
 
 =item close
 
