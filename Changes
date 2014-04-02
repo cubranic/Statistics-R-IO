@@ -1,5 +1,9 @@
 Revision history for Statistics-R-IO
 
+0.05    2 April 2014
+        - Provide an object-oriented API to Rserve client
+        - Implement the Rserve QAP1 protocol for data serialization
+
 0.04    27 March 2014
         Implement a basic Rserve client
 
