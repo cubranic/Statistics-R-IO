@@ -451,3 +451,128 @@ sub decode {
 1;
 
 __END__
+
+
+=head1 SYNOPSIS
+
+    use Statistics::R::IO::QapEncoding qw( decode );
+
+    # Assume $data comes from an Rserve response body
+    my ($rexp, $state) = @{ decode($data) }
+        or die "couldn't parse";
+    
+    # If we're reading a QAP response, there should be no data left
+    # unparsed
+    die 'Unread data remaining' unless $state->eof;
+
+    # the result of the unserialization is a REXP
+    say $rexp;
+
+    # REXPs can be converted to the closest native Perl data type
+    print $rexp->to_pl;
+
+=head1 DESCRIPTION
+
+This module implements the actual reading of serialized R objects encoded with Rserve's QAP protocol
+and their conversion to a L<Statistics::R::REXP>. You are not
+expected to use it directly, as it's normally wrapped by
+L<Statistics::R::IO/evalRserve> and L<Statistics::R::IO::Rserve/eval>.
+
+=head1 SUBROUTINES
+
+=over
+
+=item decode $data
+
+Constructs a L<Statistics::R::REXP> object from its serialization in
+C<$data>. Returns a pair of the object and the
+L<Statistics::R::IO::ParserState> at the end of serialization.
+
+
+=item decode_sexp, decode_int
+
+Parsers for Rserve's C<DT_SEXP> and C<DT_INT> data types,
+respectively.
+
+
+=item dt_sexp_data
+
+Parses the body of an RServe C<DT_SEXP> object by parsing its header
+(C<XT_> type and length) and content (done by sequencing
+L</unpack_sexp_info> and L</sexp_data>.
+
+
+=item unpack_sexp_info
+
+Parser for the header (consisting of the C<XT_*> type, flags, and
+object length) of a serialized SEXP. Returns a hash with keys
+"object_type", "has_attributes", and "length", each corresponding to
+the field in R serialization described in L<QAP1 protocol
+description|http://www.rforge.net/Rserve/dev.html>.
+
+=item sexp_data $obj_info
+
+Parser for a QAP-serialized R object, using the object type stored in
+C<$obj_info> hash's "object_type" key to use the correct parser for
+the particular type.
+
+
+=item intsxp, langsxp, logsxp, listsxp, rawsxp, dblsxp,
+strsxp, symsxp, vecsxp
+
+Parsers for the corresponding R SEXP-types.
+
+
+=item nosxp
+
+Parser for the Rserve's C<XT_UNKNOWN> type, encoding an R SEXP-type
+that does not have a corresponding representation in QAP.
+
+
+=item maybe_attributes $object_info
+
+Convenience parser for SEXP attributes, which are serialized as a
+tagged pairlist C<XT_LIST_TAG> followed by a SEXP for the object
+value. Attributes are stored only if C<$object_info> indicates their
+presence. Returns a pair of C<$object_info> and a hash reference to
+the attributes, as returned by L</tagged_pairlist_to_attribute_hash>.
+
+
+=item tagged_pairlist
+
+Parses a pairlist (optionally tagged) and returns an array where each
+element is a hash containing keys C<value> (the REXP of the pairlist
+element) and, optionally, C<tag>.
+
+
+=item tagged_pairlist_to_rexp_hash
+
+Converts a pairlist to a REXP hash whose keys are the pairlist's
+element tags and values the pairlist elements themselves.
+
+
+=item tagged_pairlist_to_attribute_hash
+
+Converts object attributes, which are serialized as a pairlist with
+attribute name in the element's tag, to a hash that can be used as
+the C<attributes> argument to L<Statistics::R::REXP> constructors.
+
+Some attributes are serialized using a compact encoding (for
+instance, when a table's row names are just integers 1:nrows), and
+this function will decode them to a complete REXP.
+
+
+=back
+
+
+=head1 BUGS AND LIMITATIONS
+
+There are no known bugs in this module. Please see
+L<Statistics::R::IO> for bug reporting.
+
+
+=head1 SUPPORT
+
+See L<Statistics::R::IO> for support and contact information.
+
+=cut
