@@ -9,6 +9,10 @@ use Test::Fatal;
 use Statistics::R::IO::Parser qw(:all);
 use Statistics::R::IO qw( readRData );
 
+use lib 't/lib';
+use ShortDoubleVector;
+
+
 sub check_rdata {
     my ($file, $expected, $message) = @_;
 
@@ -20,7 +24,9 @@ sub check_rdata {
         is(keys %actual,
            keys %{$expected}, "$message keys");
         while (my ($key, $value) = each %{$expected}) {
-            is($actual{$key}, $expected->{$key},
+            ## NOTE: I'm switching the order of comparisons to ensure
+            ## ShortDoubleVector's 'eq' overload is used
+            is($expected->{$key}, $actual{$key},
                "$message $key");
         }
     }
@@ -56,9 +62,9 @@ my %expected_vecs = (
            }),
     
     noatt_num =>
-       Statistics::R::REXP::Double->new([ 1234.56 ]),
+       ShortDoubleVector->new([ 1234.56 ]),
     foo_num =>
-       Statistics::R::REXP::Double->new(
+       ShortDoubleVector->new(
            elements => [ 1234.56 ],
            attributes => {
                names => Statistics::R::REXP::Character->new(['foo'])
@@ -113,7 +119,7 @@ my %expected_lists = (
             Statistics::R::REXP::List->new([
                 Statistics::R::REXP::Character->new(['a']),
                 Statistics::R::REXP::Character->new(['b']),
-                Statistics::R::REXP::Double->new([11]) ]),
+                ShortDoubleVector->new([11]) ]),
             Statistics::R::REXP::Character->new(['foo']) ]),
          foobar_list =>
         Statistics::R::REXP::List->new(
@@ -122,7 +128,7 @@ my %expected_lists = (
                 Statistics::R::REXP::List->new([
                     Statistics::R::REXP::Character->new(['a']),
                     Statistics::R::REXP::Character->new(['b']),
-                    Statistics::R::REXP::Double->new([11]) ]),
+                    ShortDoubleVector->new([11]) ]),
                 Statistics::R::REXP::Character->new(['foo']) ],
             attributes => {
                 names => Statistics::R::REXP::Character->new(['foo', '', 'bar'])
@@ -137,8 +143,8 @@ my %expected_frames = (
     my_cars =>
         Statistics::R::REXP::List->new(
             elements => [
-                Statistics::R::REXP::Double->new([ 4, 4, 7, 7, 8, 9]),
-                Statistics::R::REXP::Double->new([ 2, 10, 4, 22, 16, 10]),
+                ShortDoubleVector->new([ 4, 4, 7, 7, 8, 9]),
+                ShortDoubleVector->new([ 2, 10, 4, 22, 16, 10]),
             ],
             attributes => {
                 names => Statistics::R::REXP::Character->new(['speed', 'dist']),
@@ -150,17 +156,17 @@ my %expected_frames = (
     my_mtcars =>
         Statistics::R::REXP::List->new(
             elements => [
-                Statistics::R::REXP::Double->new([ 21.0, 21.0, 22.8, 21.4, 18.7, 18.1 ]),
-                Statistics::R::REXP::Double->new([ 6, 6, 4, 6, 8, 6 ]),
-                Statistics::R::REXP::Double->new([ 160, 160, 108, 258, 360, 225 ]),
-                Statistics::R::REXP::Double->new([ 110, 110, 93, 110, 175, 105 ]),
-                Statistics::R::REXP::Double->new([ 3.90, 3.90, 3.85, 3.08, 3.15, 2.76 ]),
-                Statistics::R::REXP::Double->new([ 2.620, 2.875, 2.320, 3.215, 3.440, 3.460 ]),
-                Statistics::R::REXP::Double->new([ 16.46, 17.02, 18.61, 19.44, 17.02, 20.22 ]),
-                Statistics::R::REXP::Double->new([ 0, 0, 1, 1, 0, 1 ]),
-                Statistics::R::REXP::Double->new([ 1, 1, 1, 0, 0, 0 ]),
-                Statistics::R::REXP::Double->new([ 4, 4, 4, 3, 3, 3 ]),
-                Statistics::R::REXP::Double->new([ 4, 4, 1, 1, 2, 1 ]),
+                ShortDoubleVector->new([ 21.0, 21.0, 22.8, 21.4, 18.7, 18.1 ]),
+                ShortDoubleVector->new([ 6, 6, 4, 6, 8, 6 ]),
+                ShortDoubleVector->new([ 160, 160, 108, 258, 360, 225 ]),
+                ShortDoubleVector->new([ 110, 110, 93, 110, 175, 105 ]),
+                ShortDoubleVector->new([ 3.90, 3.90, 3.85, 3.08, 3.15, 2.76 ]),
+                ShortDoubleVector->new([ 2.620, 2.875, 2.320, 3.215, 3.440, 3.460 ]),
+                ShortDoubleVector->new([ 16.46, 17.02, 18.61, 19.44, 17.02, 20.22 ]),
+                ShortDoubleVector->new([ 0, 0, 1, 1, 0, 1 ]),
+                ShortDoubleVector->new([ 1, 1, 1, 0, 0, 0 ]),
+                ShortDoubleVector->new([ 4, 4, 4, 3, 3, 3 ]),
+                ShortDoubleVector->new([ 4, 4, 1, 1, 2, 1 ]),
             ],
             attributes => {
                 names => Statistics::R::REXP::Character->new([
@@ -175,10 +181,10 @@ my %expected_frames = (
     my_iris =>
         Statistics::R::REXP::List->new(
             elements => [
-                Statistics::R::REXP::Double->new([ 5.1, 4.9, 4.7, 4.6, 5.0, 5.4 ]),
-                Statistics::R::REXP::Double->new([ 3.5, 3.0, 3.2, 3.1, 3.6, 3.9 ]),
-                Statistics::R::REXP::Double->new([ 1.4, 1.4, 1.3, 1.5, 1.4, 1.7 ]),
-                Statistics::R::REXP::Double->new([ 0.2, 0.2, 0.2, 0.2, 0.2, 0.4 ]),
+                ShortDoubleVector->new([ 5.1, 4.9, 4.7, 4.6, 5.0, 5.4 ]),
+                ShortDoubleVector->new([ 3.5, 3.0, 3.2, 3.1, 3.6, 3.9 ]),
+                ShortDoubleVector->new([ 1.4, 1.4, 1.3, 1.5, 1.4, 1.7 ]),
+                ShortDoubleVector->new([ 0.2, 0.2, 0.2, 0.2, 0.2, 0.4 ]),
                 Statistics::R::REXP::Integer->new(
                     elements => [ 1, 1, 1, 1, 1, 1 ],
                     attributes => {
@@ -233,13 +239,13 @@ my %expected_models = (
         Statistics::R::REXP::List->new(
             elements => [
                 # coefficients
-                Statistics::R::REXP::Double->new(
+                ShortDoubleVector->new(
                     elements => [ 30.3002034730204, -3.27948805566774 ],
                     attributes => {
                         names => Statistics::R::REXP::Character->new(['(Intercept)', 'wt'])
                     }),
                 # residuals
-                Statistics::R::REXP::Double->new(
+                ShortDoubleVector->new(
                     elements => [ -0.707944767170941, 0.128324687024322, 0.108208816128727,
                                   1.64335062595135, -0.318764561523408, -0.853174800410051 ],
                     attributes => {
@@ -249,7 +255,7 @@ my %expected_models = (
                             "Hornet Sportabout", "Valiant" ])
                     }),
                 # effects
-                Statistics::R::REXP::Double->new(
+                ShortDoubleVector->new(
                     elements => [ -50.2145397270552, -3.39713386075597, 0.13375416348722,
                                   1.95527848390874, 0.0651588996571721, -0.462851730054076 ],
                     attributes => {
@@ -260,7 +266,7 @@ my %expected_models = (
                 # rank
                 Statistics::R::REXP::Integer->new([2]),
                 # fitted.values
-                Statistics::R::REXP::Double->new(
+                ShortDoubleVector->new(
                     elements => [ 21.7079447671709, 20.8716753129757, 22.6917911838713,
                                   19.7566493740486, 19.0187645615234, 18.9531748004101  ],
                     attributes => {
@@ -275,7 +281,7 @@ my %expected_models = (
                 Statistics::R::REXP::List->new(
                     elements => [
                         # qr
-                        Statistics::R::REXP::Double->new(
+                        ShortDoubleVector->new(
                             elements => [ -2.44948974278318, 0.408248290463863,
                                           0.408248290463863, 0.408248290463863,
                                           0.408248290463863, 0.408248290463863,
@@ -297,12 +303,12 @@ my %expected_models = (
                                 ]),
                             }),
                         # qraux
-                        Statistics::R::REXP::Double->new(
+                        ShortDoubleVector->new(
                             [ 1.40824829046386, 1.0063272758402 ]),
                         # pivot
                         Statistics::R::REXP::Integer->new([1, 2]),
                         # tol
-                        Statistics::R::REXP::Double->new([1E-7]),
+                        ShortDoubleVector->new([1E-7]),
                         # rank
                         Statistics::R::REXP::Integer->new([2]),
                     ],
@@ -387,8 +393,8 @@ my %expected_models = (
                 # model
                 Statistics::R::REXP::List->new(
                     elements => [
-                        Statistics::R::REXP::Double->new([ 21.0, 21.0, 22.8, 21.4, 18.7, 18.1 ]),
-                        Statistics::R::REXP::Double->new([ 2.62, 2.875, 2.32, 3.215, 3.44, 3.46 ]),
+                        ShortDoubleVector->new([ 21.0, 21.0, 22.8, 21.4, 18.7, 18.1 ]),
+                        ShortDoubleVector->new([ 2.62, 2.875, 2.32, 3.215, 3.44, 3.46 ]),
                     ],
                     attributes => {
                         names => Statistics::R::REXP::Character->new(['mpg', 'wt']),

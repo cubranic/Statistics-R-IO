@@ -10,6 +10,9 @@ use Statistics::R::IO::Parser qw(:all);
 use Statistics::R::IO::ParserState;
 use Statistics::R::IO::REXPFactory qw(:all);
 
+use lib 't/lib';
+use ShortDoubleVector;
+
 
 subtest 'integer vectors' => sub {
     plan tests => 9;
@@ -112,8 +115,8 @@ subtest 'double vectors' => sub {
                 flags => 14 },
               'header plus object info - no atts');
 
-    is(unserialize($noatt_123456_xdr->data)->[0],
-       Statistics::R::REXP::Double->new([ 1234.56 ]),
+    is(ShortDoubleVector->new([ 1234.56 ]),
+       unserialize($noatt_123456_xdr->data)->[0],
        'no atts');
 
 
@@ -134,8 +137,8 @@ subtest 'double vectors' => sub {
                 flags => 14 },
               'binary header plus object info - no atts');
 
-    is(unserialize($noatt_123456_bin->data)->[0],
-       Statistics::R::REXP::Double->new([ 1234.56 ]),
+    is(ShortDoubleVector->new([ 1234.56 ]),
+       unserialize($noatt_123456_bin->data)->[0],
        'no atts - binary');
 
 
@@ -144,12 +147,12 @@ subtest 'double vectors' => sub {
         "\x3d\x70\xa3\xd7\x0a\0\0\4\2\0\0\0\1\0\4\0\x09\0\0\0\5\x6e\x61\x6d\x65" .
         "\x73\0\0\0\x10\0\0\0\1\0\4\0\x09\0\0\0\3\x66\x6f\x6f\0\0\0\xfe";
 
-    is(unserialize($foo_123456_xdr)->[0],
-       Statistics::R::REXP::Double->new(
+    is(ShortDoubleVector->new(
            elements => [ 1234.56 ],
            attributes => {
                names => Statistics::R::REXP::Character->new(['foo'])
            }),
+       unserialize($foo_123456_xdr)->[0],
        'names att - xdr');
 
 
@@ -283,14 +286,14 @@ subtest 'generic vector (list)' => sub {
                 flags => 19 },
               'header plus object info - no atts');
 
-    is(unserialize($noatt_list_xdr->data)->[0],
-       Statistics::R::REXP::List->new([
+    is(Statistics::R::REXP::List->new([
            Statistics::R::REXP::Integer->new([ 1, 2, 3]),
            Statistics::R::REXP::List->new([
                Statistics::R::REXP::Character->new(['a']),
                Statistics::R::REXP::Character->new(['b']),
-               Statistics::R::REXP::Double->new([11]) ]),
+               ShortDoubleVector->new([11]) ]),
            Statistics::R::REXP::Character->new(['foo']) ]),
+       unserialize($noatt_list_xdr->data)->[0],
        'no atts');
 
 
@@ -305,18 +308,18 @@ subtest 'generic vector (list)' => sub {
         "\x62\x61\x72\0\0\0\xfe";
 
 
-    is(unserialize($foobar_list_xdr)->[0],
-       Statistics::R::REXP::List->new(
+    is(Statistics::R::REXP::List->new(
            elements => [
                Statistics::R::REXP::Integer->new([ 1, 2, 3]),
                Statistics::R::REXP::List->new([
                    Statistics::R::REXP::Character->new(['a']),
                    Statistics::R::REXP::Character->new(['b']),
-                   Statistics::R::REXP::Double->new([11]) ]),
+                   ShortDoubleVector->new([11]) ]),
                Statistics::R::REXP::Character->new(['foo']) ],
            attributes => {
                names => Statistics::R::REXP::Character->new(['foo', '', 'bar'])
            }),
+       unserialize($foobar_list_xdr)->[0],
        'names att - xdr');
 
 
@@ -589,16 +592,16 @@ subtest 'data frames' => sub {
         "\0\0\0\6\0\0\4\2\0\0\0\1\0\4\0\x09\0\0\0\5\x63\x6c\x61\x73\x73" .
         "\0\0\0\x10\0\0\0\1\0\4\0\x09\0\0\0\x0a\x64\x61\x74\x61\x2e\x66\x72\x61\x6d" .
         "\x65\0\0\0\xfe";
-    is(unserialize($cars_xdr)->[0],
-       Statistics::R::REXP::List->new(
+    is(Statistics::R::REXP::List->new(
            elements => [
-               Statistics::R::REXP::Double->new([ 4, 4, 7, 7, 8, 9]),
-               Statistics::R::REXP::Double->new([ 2, 10, 4, 22, 16, 10]),
+               ShortDoubleVector->new([ 4, 4, 7, 7, 8, 9]),
+               ShortDoubleVector->new([ 2, 10, 4, 22, 16, 10]),
            ],
            attributes => {
                names => Statistics::R::REXP::Character->new(['speed', 'dist']),
                'row.names' => Statistics::R::REXP::Integer->new([1, 2, 3, 4, 5, 6]),
                class => Statistics::R::REXP::Character->new(['data.frame']) }),
+       unserialize($cars_xdr)->[0],
        'cars');
 };
 
