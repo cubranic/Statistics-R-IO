@@ -1,6 +1,6 @@
 package Statistics::R::IO::REXPFactory;
 # ABSTRACT: Functions for parsing R data files
-$Statistics::R::IO::REXPFactory::VERSION = '0.05';
+$Statistics::R::IO::REXPFactory::VERSION = '0.06';
 use 5.012;
 
 use strict;
@@ -434,7 +434,7 @@ Statistics::R::IO::REXPFactory - Functions for parsing R data files
 
 =head1 VERSION
 
-version 0.05
+version 0.06
 
 =head1 SYNOPSIS
 

@@ -1,6 +1,6 @@
 package Statistics::R::IO;
 # ABSTRACT: Perl interface to serialized R data
-$Statistics::R::IO::VERSION = '0.05';
+$Statistics::R::IO::VERSION = '0.06';
 use 5.012;
 use strict;
 use warnings FATAL => 'all';
@@ -22,16 +22,18 @@ use Carp;
 
 sub readRDS {
     open (my $f, shift) or croak $!;
-    my $data;
-    sysread($f, $data, 1<<30);
+    binmode $f;
+    my ($data, $rc) = '';
+    while ($rc = read($f, $data, 8192, length $data)) {}
+    croak $! unless defined $rc;
     if (substr($data, 0, 2) eq "\x1f\x8b") {
         ## gzip-compressed file
-        sysseek($f, 0, 0);
+        seek($f, 0, 0);
         IO::Uncompress::Gunzip::gunzip $f, \$data;
     }
     elsif (substr($data, 0, 3) eq 'BZh') {
         ## bzip2-compressed file
-        sysseek($f, 0, 0);
+        seek($f, 0, 0);
         IO::Uncompress::Bunzip2::bunzip2 $f, \$data;
     }
     elsif (substr($data, 0, 6) eq "\xfd7zXZ\0") {
@@ -47,16 +49,18 @@ sub readRDS {
 
 sub readRData {
     open (my $f, shift) or croak $!;
-    my $data;
-    sysread($f, $data, 1<<30);
+    binmode $f;
+    my ($data, $rc) = '';
+    while ($rc = read($f, $data, 8192, length $data)) {}
+    croak $! unless defined $rc;
     if (substr($data, 0, 2) eq "\x1f\x8b") {
         ## gzip-compressed file
-        sysseek($f, 0, 0);
+        seek($f, 0, 0);
         IO::Uncompress::Gunzip::gunzip $f, \$data;
     }
     elsif (substr($data, 0, 3) eq 'BZh') {
         ## bzip2-compressed file
-        sysseek($f, 0, 0);
+        seek($f, 0, 0);
         IO::Uncompress::Bunzip2::bunzip2 $f, \$data;
     }
     elsif (substr($data, 0, 6) eq "\xfd7zXZ\0") {
@@ -97,7 +101,7 @@ Statistics::R::IO - Perl interface to serialized R data
 
 =head1 VERSION
 
-version 0.05
+version 0.06
 
 =head1 SYNOPSIS
 

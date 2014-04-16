@@ -176,7 +176,7 @@ subtest 'floating point parsers' => sub {
        6543.125, 'any_real32');
 
     is(any_real64(Statistics::R::IO::ParserState->new(data => "\x40\x93\x4a\x45\x6d\x5c\xfa\xad"))->[0],
-       1234.5678, 'any_real64');
+       unpack('d', pack('d', 1234.5678)), 'any_real64');
 };
 
 
@@ -240,7 +240,7 @@ subtest 'endianness' => sub {
        6543.125, 'any_real32 little endian');
 
     is(any_real64(Statistics::R::IO::ParserState->new(data => "\xad\xfa\x5c\x6d\x45\x4a\x93\x40"))->[0],
-       1234.5678, 'any_real64 little endian');
+       unpack('d', pack('d', 1234.5678)), 'any_real64 little endian');
 };
 
 
@@ -345,7 +345,7 @@ subtest 'combinators' => sub {
 
     is_deeply(with_count(\&any_real64)->
               (Statistics::R::IO::ParserState->new(data => "\0\0\0\1\x40\x93\x4a\x3d\x70\xa3\xd7\x0a"))->[0],
-              [ 1234.56 ],
+              [ unpack('d', pack('d', 1234.56)) ],
               'with_count default counter');
 
     is_deeply(with_count(\&any_uint)->

@@ -29,8 +29,9 @@
       "runtime" : {
          "requires" : {
             "Carp" : "0",
-            "Moo" : "0",
-            "namespace::clean" : "0",
+            "Moo" : "1.004",
+            "Scalar::Util" : "0",
+            "namespace::clean" : "0.24",
             "perl" : "5.012"
          }
       },
@@ -38,7 +39,7 @@
          "requires" : {
             "Test::Fatal" : "0",
             "Test::MockObject" : "0",
-            "Test::More" : "0"
+            "Test::More" : "0.96"
          }
       }
    },
@@ -51,6 +52,6 @@
          "web" : "https://github.com/cubranic/Statistics-R-IO"
       }
    },
-   "version" : "0.05"
+   "version" : "0.06"
 }
 

@@ -18,6 +18,9 @@ use Test::Fatal;
 use Statistics::R::IO::Parser qw(:all);
 use Statistics::R::IO qw( evalRserve );
 
+use lib 't/lib';
+use ShortDoubleVector;
+
 
 ## integer vectors
 ## serialize 1:3, XDR: true
@@ -37,17 +40,17 @@ is(evalRserve('c(a=1L, b=2L, c=3L)'),
 
 ## double vectors
 ## serialize 1234.56, XDR: true
-is(evalRserve('1234.56'),
-   Statistics::R::REXP::Double->new([ 1234.56 ]),
+is(ShortDoubleVector->new([ 1234.56 ]),
+   evalRserve('1234.56'),
    'double vector no atts');
 
 ## serialize foo=1234.56, XDR: true
-is(evalRserve('c(foo=1234.56)'),
-   Statistics::R::REXP::Double->new(
+is(ShortDoubleVector->new(
        elements => [ 1234.56 ],
        attributes => {
            names => Statistics::R::REXP::Character->new(['foo'])
        }),
+   evalRserve('c(foo=1234.56)'),
    'double vector names att');
 
 
@@ -76,14 +79,14 @@ is(evalRserve('as.raw(c(1,2,3,255, 0))'),
 
 ## list (i.e., generic vector)
 ## serialize list(1:3, list('a', 'b', 11), 'foo'), XDR: true
-is(evalRserve("list(1:3, list('a', 'b', 11), 'foo')"),
-   Statistics::R::REXP::List->new([
+is(Statistics::R::REXP::List->new([
        Statistics::R::REXP::Integer->new([ 1, 2, 3]),
        Statistics::R::REXP::List->new([
            Statistics::R::REXP::Character->new(['a']),
            Statistics::R::REXP::Character->new(['b']),
-           Statistics::R::REXP::Double->new([11]) ]),
+           ShortDoubleVector->new([11]) ]),
        Statistics::R::REXP::Character->new(['foo']) ]),
+   evalRserve("list(1:3, list('a', 'b', 11), 'foo')"),
    'generic vector no atts');
 
 ## serialize list(foo=1:3, list('a', 'b', 11), bar='foo'), XDR: true
@@ -94,7 +97,7 @@ is(evalRserve("list(foo=1:3, list('a', 'b', 11), bar='foo')"),
            Statistics::R::REXP::List->new([
                Statistics::R::REXP::Character->new(['a']),
                Statistics::R::REXP::Character->new(['b']),
-               Statistics::R::REXP::Double->new([11]) ]),
+               ShortDoubleVector->new([11]) ]),
            Statistics::R::REXP::Character->new(['foo']) ],
        attributes => {
            names => Statistics::R::REXP::Character->new(['foo', '', 'bar'])
@@ -129,11 +132,10 @@ is(evalRserve("matrix(-1:4, 2, 3, dimnames=list(c('a', 'b')))"),
 
 ## data frames
 ## serialize head(cars)
-is(evalRserve('head(cars)'),
-   Statistics::R::REXP::List->new(
+is(Statistics::R::REXP::List->new(
        elements => [
-           Statistics::R::REXP::Double->new([ 4, 4, 7, 7, 8, 9]),
-           Statistics::R::REXP::Double->new([ 2, 10, 4, 22, 16, 10]),
+           ShortDoubleVector->new([ 4, 4, 7, 7, 8, 9]),
+           ShortDoubleVector->new([ 2, 10, 4, 22, 16, 10]),
        ],
        attributes => {
            names => Statistics::R::REXP::Character->new(['speed', 'dist']),
@@ -142,23 +144,23 @@ is(evalRserve('head(cars)'),
                1, 2, 3, 4, 5, 6
            ]),
        }),
+   evalRserve('head(cars)'),
    'the cars data frame');
 
 ## serialize head(mtcars)
-is(evalRserve('head(mtcars)'),
-   Statistics::R::REXP::List->new(
+is(Statistics::R::REXP::List->new(
        elements => [
-           Statistics::R::REXP::Double->new([ 21.0, 21.0, 22.8, 21.4, 18.7, 18.1 ]),
-           Statistics::R::REXP::Double->new([ 6, 6, 4, 6, 8, 6 ]),
-           Statistics::R::REXP::Double->new([ 160, 160, 108, 258, 360, 225 ]),
-           Statistics::R::REXP::Double->new([ 110, 110, 93, 110, 175, 105 ]),
-           Statistics::R::REXP::Double->new([ 3.90, 3.90, 3.85, 3.08, 3.15, 2.76 ]),
-           Statistics::R::REXP::Double->new([ 2.620, 2.875, 2.320, 3.215, 3.440, 3.460 ]),
-           Statistics::R::REXP::Double->new([ 16.46, 17.02, 18.61, 19.44, 17.02, 20.22 ]),
-           Statistics::R::REXP::Double->new([ 0, 0, 1, 1, 0, 1 ]),
-           Statistics::R::REXP::Double->new([ 1, 1, 1, 0, 0, 0 ]),
-           Statistics::R::REXP::Double->new([ 4, 4, 4, 3, 3, 3 ]),
-           Statistics::R::REXP::Double->new([ 4, 4, 1, 1, 2, 1 ]),
+           ShortDoubleVector->new([ 21.0, 21.0, 22.8, 21.4, 18.7, 18.1 ]),
+           ShortDoubleVector->new([ 6, 6, 4, 6, 8, 6 ]),
+           ShortDoubleVector->new([ 160, 160, 108, 258, 360, 225 ]),
+           ShortDoubleVector->new([ 110, 110, 93, 110, 175, 105 ]),
+           ShortDoubleVector->new([ 3.90, 3.90, 3.85, 3.08, 3.15, 2.76 ]),
+           ShortDoubleVector->new([ 2.620, 2.875, 2.320, 3.215, 3.440, 3.460 ]),
+           ShortDoubleVector->new([ 16.46, 17.02, 18.61, 19.44, 17.02, 20.22 ]),
+           ShortDoubleVector->new([ 0, 0, 1, 1, 0, 1 ]),
+           ShortDoubleVector->new([ 1, 1, 1, 0, 0, 0 ]),
+           ShortDoubleVector->new([ 4, 4, 4, 3, 3, 3 ]),
+           ShortDoubleVector->new([ 4, 4, 1, 1, 2, 1 ]),
        ],
        attributes => {
            names => Statistics::R::REXP::Character->new([
@@ -170,16 +172,16 @@ is(evalRserve('head(mtcars)'),
                'Hornet 4 Drive', 'Hornet Sportabout', 'Valiant'
            ]),
        }),
+   evalRserve('head(mtcars)'),
    'the mtcars data frame');
 
 ## serialize head(iris)
-is(evalRserve('head(iris)'),
-   Statistics::R::REXP::List->new(
+is(Statistics::R::REXP::List->new(
        elements => [
-           Statistics::R::REXP::Double->new([ 5.1, 4.9, 4.7, 4.6, 5.0, 5.4 ]),
-           Statistics::R::REXP::Double->new([ 3.5, 3.0, 3.2, 3.1, 3.6, 3.9 ]),
-           Statistics::R::REXP::Double->new([ 1.4, 1.4, 1.3, 1.5, 1.4, 1.7 ]),
-           Statistics::R::REXP::Double->new([ 0.2, 0.2, 0.2, 0.2, 0.2, 0.4 ]),
+           ShortDoubleVector->new([ 5.1, 4.9, 4.7, 4.6, 5.0, 5.4 ]),
+           ShortDoubleVector->new([ 3.5, 3.0, 3.2, 3.1, 3.6, 3.9 ]),
+           ShortDoubleVector->new([ 1.4, 1.4, 1.3, 1.5, 1.4, 1.7 ]),
+           ShortDoubleVector->new([ 0.2, 0.2, 0.2, 0.2, 0.2, 0.4 ]),
            Statistics::R::REXP::Integer->new(
                elements => [ 1, 1, 1, 1, 1, 1 ],
                attributes => {
@@ -197,6 +199,7 @@ is(evalRserve('head(iris)'),
                1, 2, 3, 4, 5, 6
            ]),
        }),
+   evalRserve('head(iris)'),
    'the iris data frame');
 
 
@@ -225,17 +228,16 @@ is(evalRserve('lm(mpg ~ wt, data = head(mtcars))$call'),
 
 
 ## serialize lm(mpg ~ wt, data = head(mtcars))
-is(evalRserve('lm(mpg ~ wt, data = head(mtcars))'),
-   Statistics::R::REXP::List->new(
+is(Statistics::R::REXP::List->new(
        elements => [
            # coefficients
-           Statistics::R::REXP::Double->new(
+           ShortDoubleVector->new(
                elements => [ 30.3002034730204, -3.27948805566774 ],
                attributes => {
                    names => Statistics::R::REXP::Character->new(['(Intercept)', 'wt'])
                }),
            # residuals
-           Statistics::R::REXP::Double->new(
+           ShortDoubleVector->new(
                elements => [ -0.707944767170941, 0.128324687024322, 0.108208816128727,
                              1.64335062595135, -0.318764561523408, -0.853174800410051 ],
                attributes => {
@@ -245,7 +247,7 @@ is(evalRserve('lm(mpg ~ wt, data = head(mtcars))'),
                        "Hornet Sportabout", "Valiant" ])
                }),
            # effects
-           Statistics::R::REXP::Double->new(
+           ShortDoubleVector->new(
                elements => [ -50.2145397270552, -3.39713386075597, 0.13375416348722,
                              1.95527848390874, 0.0651588996571721, -0.462851730054076 ],
                attributes => {
@@ -256,7 +258,7 @@ is(evalRserve('lm(mpg ~ wt, data = head(mtcars))'),
            # rank
            Statistics::R::REXP::Integer->new([2]),
            # fitted.values
-           Statistics::R::REXP::Double->new(
+           ShortDoubleVector->new(
                elements => [ 21.7079447671709, 20.8716753129757, 22.6917911838713,
                              19.7566493740486, 19.0187645615234, 18.9531748004101  ],
                attributes => {
@@ -271,7 +273,7 @@ is(evalRserve('lm(mpg ~ wt, data = head(mtcars))'),
            Statistics::R::REXP::List->new(
                elements => [
                    # qr
-                   Statistics::R::REXP::Double->new(
+                   ShortDoubleVector->new(
                        elements => [ -2.44948974278318, 0.408248290463863,
                                      0.408248290463863, 0.408248290463863,
                                      0.408248290463863, 0.408248290463863,
@@ -293,12 +295,12 @@ is(evalRserve('lm(mpg ~ wt, data = head(mtcars))'),
                            ]),
                        }),
                    # qraux
-                   Statistics::R::REXP::Double->new(
+                   ShortDoubleVector->new(
                        [ 1.40824829046386, 1.0063272758402 ]),
                    # pivot
                    Statistics::R::REXP::Integer->new([1, 2]),
                    # tol
-                   Statistics::R::REXP::Double->new([1E-7]),
+                   ShortDoubleVector->new([1E-7]),
                    # rank
                    Statistics::R::REXP::Integer->new([2]),
                ],
@@ -383,8 +385,8 @@ is(evalRserve('lm(mpg ~ wt, data = head(mtcars))'),
            # model
            Statistics::R::REXP::List->new(
                elements => [
-                   Statistics::R::REXP::Double->new([ 21.0, 21.0, 22.8, 21.4, 18.7, 18.1 ]),
-                   Statistics::R::REXP::Double->new([ 2.62, 2.875, 2.32, 3.215, 3.44, 3.46 ]),
+                   ShortDoubleVector->new([ 21.0, 21.0, 22.8, 21.4, 18.7, 18.1 ]),
+                   ShortDoubleVector->new([ 2.62, 2.875, 2.32, 3.215, 3.44, 3.46 ]),
                ],
                attributes => {
                    names => Statistics::R::REXP::Character->new(['mpg', 'wt']),
@@ -444,4 +446,5 @@ is(evalRserve('lm(mpg ~ wt, data = head(mtcars))'),
                'xlevels', 'call', 'terms', 'model',
            ]),
            class => Statistics::R::REXP::Character->new(['lm']) }),
+   evalRserve('lm(mpg ~ wt, data = head(mtcars))'),
    'lm mpg~wt, head(mtcars)');

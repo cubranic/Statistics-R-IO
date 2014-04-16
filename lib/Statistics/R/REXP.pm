@@ -1,7 +1,9 @@
 package Statistics::R::REXP;
 # ABSTRACT: base class for R objects (C<SEXP>s)
-$Statistics::R::REXP::VERSION = '0.05';
+$Statistics::R::REXP::VERSION = '0.06';
 use 5.012;
+
+use Scalar::Util qw( blessed );
 
 use Moo::Role;
 
@@ -21,7 +23,7 @@ use overload
 
 sub _eq {
     my ($self, $obj) = (shift, shift);
-    return undef unless ref($self) eq ref($obj);
+    return undef unless _mutual_isa($self, $obj);
     
     my $a = $self->attributes;
     my $b = $obj->attributes;
@@ -30,10 +32,21 @@ sub _eq {
 }
 
 
+## Returns true if either argument is a subclass of the other
+sub _mutual_isa {
+    my ($a, $b) = (shift, shift);
+    
+    ref $a eq ref $b ||
+        (blessed($a) && blessed($b) &&
+         ($a->isa(ref $b) ||
+          $b->isa(ref $a)))
+}
+
+
 sub _compare_deeply {
     my ($a, $b) = @_ or die 'Need two arguments';
     if (defined($a) and defined($b)) {
-        return 0 unless ref $a eq ref $b;
+        return 0 unless _mutual_isa($a, $b);
         if (ref $a eq ref []) {
             return undef unless scalar(@$a) == scalar(@$b);
             for (my $i = 0; $i < scalar(@{$a}); $i++) {
@@ -80,7 +93,7 @@ Statistics::R::REXP - base class for R objects (C<SEXP>s)
 
 =head1 VERSION
 
-version 0.05
+version 0.06
 
 =head1 SYNOPSIS
 

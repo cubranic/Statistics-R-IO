@@ -5,7 +5,7 @@ author:
 build_requires:
   Test::Fatal: '0'
   Test::MockObject: '0'
-  Test::More: '0'
+  Test::More: '0.96'
 configure_requires:
   ExtUtils::MakeMaker: '6.30'
 dynamic_config: 0
@@ -17,10 +17,11 @@ meta-spec:
 name: Statistics-R-IO
 requires:
   Carp: '0'
-  Moo: '0'
-  namespace::clean: '0'
+  Moo: '1.004'
+  Scalar::Util: '0'
+  namespace::clean: '0.24'
   perl: '5.012'
 resources:
   homepage: https://github.com/cubranic/Statistics-R-IO
   repository: https://github.com/cubranic/Statistics-R-IO.git
-version: '0.05'
+version: '0.06'

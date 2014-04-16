@@ -1,6 +1,6 @@
 package Statistics::R::IO::Parser;
 # ABSTRACT: Functions for parsing R data files
-$Statistics::R::IO::Parser::VERSION = '0.05';
+$Statistics::R::IO::Parser::VERSION = '0.06';
 use 5.012;
 use strict;
 use warnings FATAL => 'all';
@@ -433,7 +433,7 @@ Statistics::R::IO::Parser - Functions for parsing R data files
 
 =head1 VERSION
 
-version 0.05
+version 0.06
 
 =head1 SYNOPSIS
 

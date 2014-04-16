@@ -1,6 +1,6 @@
 package Statistics::R::IO::Base;
 # ABSTRACT: Common object methods for processing R files
-$Statistics::R::IO::Base::VERSION = '0.05';
+$Statistics::R::IO::Base::VERSION = '0.06';
 use 5.012;
 
 use IO::File;
@@ -37,6 +37,7 @@ sub BUILDARGS {
                 my $name = shift;
                 die "No such file '$name'" unless -r $name;
                 my $fh = IO::File->new($name);
+                binmode $fh;
                 return { fh => $fh }
             }
         }
@@ -55,17 +56,17 @@ sub BUILDARGS {
 sub _read_and_uncompress {
     my $self = shift;
     
-    my $data;
-    
-    $self->fh->sysread($data, 1<<30);
+    my ($data, $rc) = '';
+    while ($rc = $self->fh->read($data, 8192, length $data)) {}
+    croak $! unless defined $rc;
     if (substr($data, 0, 2) eq "\x1f\x8b") {
         ## gzip-compressed file
-        $self->fh->sysseek(0, 0);
+        $self->fh->seek(0, 0);
         IO::Uncompress::Gunzip::gunzip $self->fh, \$data;
     }
     elsif (substr($data, 0, 3) eq 'BZh') {
         ## bzip2-compressed file
-        $self->fh->sysseek(0, 0);
+        $self->fh->seek(0, 0);
         IO::Uncompress::Bunzip2::bunzip2 $self->fh, \$data;
     }
     elsif (substr($data, 0, 6) eq "\xfd7zXZ\0") {
@@ -110,7 +111,7 @@ Statistics::R::IO::Base - Common object methods for processing R files
 
 =head1 VERSION
 
-version 0.05
+version 0.06
 
 =head1 SYNOPSIS
 

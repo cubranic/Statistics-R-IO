@@ -1,0 +1,14 @@
+language: perl
+
+install:
+    - perlbrew available
+    - perlbrew install 5.16.3 --ld --as long_doubles
+    - perlbrew use long_doubles
+    - perl --version
+    - perlbrew install-cpanm
+    - cpanm --version
+
+branches:
+  only:
+    - /^build/
+
