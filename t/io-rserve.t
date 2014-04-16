@@ -17,8 +17,11 @@ use ShortDoubleVector;
 sub mock_rserve_response {
     my $filename = shift;
     open (my $f, $filename) or die $! . " $filename";
-    my $data;
-    sysread($f, $data, 1<<30);
+    binmode $f;
+    my ($data, $rc) = '';
+    while ($rc = read($f, $data, 8192, length $data)) {}
+    die $! unless defined $rc;
+    
     my $response = pack("VVA*", 0x10001, length($data), "\0"x8) .
         $data;
 

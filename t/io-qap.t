@@ -19,9 +19,11 @@ sub check_qap {
     my $filename = $file . '.qap';
     
     open (my $f, $filename) or die $! . " $filename";
-    my $data;
-    sysread($f, $data, 1<<30);
-
+    binmode $f;
+    my ($data, $rc) = '';
+    while ($rc = read($f, $data, 8192, length $data)) {}
+    die $! unless defined $rc;
+    
     subtest 'qap - ' . $message => sub {
         plan tests => 2;
         
