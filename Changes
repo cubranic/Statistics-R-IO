@@ -1,5 +1,10 @@
 Revision history for Statistics-R-IO
 
+0.06    16 April 2014
+        - Fix out-of-memory crashes on OpenBSD (issue #10)
+        - Fix test failures when using Perl with long doubles (#9)
+        - Specify prerequisites' minimum version where necessary (#11)
+        
 0.05    2 April 2014
         - Provide an object-oriented API to Rserve client
         - Implement the Rserve QAP1 protocol for data serialization
