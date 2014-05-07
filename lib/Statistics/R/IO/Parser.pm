@@ -101,7 +101,7 @@ sub any_uint32 {
 sub uint8 {
     my $arg = shift;
     die 'Argument must be a number 0-255: ' . $arg
-        unless looks_like_number($arg) && $arg < 1<<8 && $arg >= 0;
+        unless looks_like_number($arg) && $arg <= 0x000000FF && $arg >= 0;
     
     sub {
         my ($value, $state) = @{any_uint8 @_ or return};
@@ -115,7 +115,7 @@ sub uint8 {
 sub uint16 {
     my $arg = shift;
     die 'Argument must be a number 0-65535: ' . $arg
-        unless looks_like_number($arg) && $arg < 1<<16 && $arg >= 0;
+        unless looks_like_number($arg) && $arg <= 0x0000FFFF && $arg >= 0;
     
     sub {
         my ($value, $state) = @{any_uint16 @_ or return};
@@ -129,7 +129,7 @@ sub uint16 {
 sub uint24 {
     my $arg = shift;
     die 'Argument must be a number 0-16777215: ' . $arg
-        unless looks_like_number($arg) && $arg < 1<<24 && $arg >= 0;
+        unless looks_like_number($arg) && $arg <= 0x00FFFFFF && $arg >= 0;
     
     sub {
         my ($value, $state) = @{any_uint24 @_ or return};
@@ -143,7 +143,7 @@ sub uint24 {
 sub uint32 {
     my $arg = shift;
     die 'Argument must be a number 0-4294967295: ' . $arg
-        unless looks_like_number($arg) && $arg < 1<<32 && $arg >= 0;
+        unless looks_like_number($arg) && $arg <= 0xFFFFFFFF && $arg >= 0;
     
     sub {
         my ($value, $state) = @{any_uint32 @_ or return};
