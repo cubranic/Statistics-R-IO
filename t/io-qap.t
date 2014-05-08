@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 9;
+use Test::More tests => 11;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -32,6 +32,20 @@ sub check_qap {
         ## ShortDoubleVector's 'eq' overload is used
         is($expected, $actual, $message) or diag explain $actual;
         ok($state->eof, $message . ' - parse complete')
+    }
+}
+
+
+sub check_padding {
+    my ($data, $expected, $message) = @_;
+    subtest 'padding - ' . $message => sub {
+        plan tests => 2;
+        
+        my ($value, $state) = @{ decode($data) };
+        
+        is($value, $expected, $message) or diag explain $value;
+        ok($state->eof, $message . ' - parse complete')
+
     }
 }
 
@@ -85,7 +99,7 @@ subtest 'double vectors' => sub {
 
 
 subtest 'character vectors' => sub {
-    plan tests => 2;
+    plan tests => 3;
 
     ## serialize letters[1:3], XDR: true
     check_qap('t/data/noatt-abc',
@@ -99,16 +113,45 @@ subtest 'character vectors' => sub {
                       names => Statistics::R::REXP::Character->new(['A', 'B', 'C'])
                   }),
               'character vector names att');
+
+    check_padding("\x0a\x0c\0\0\x22\x08\0\0\x61\0\x62\0\x63\0\1\1",
+                  Statistics::R::REXP::Character->new(['a', 'b', 'c']),
+                  'c("a", "b", "c")');
 };
 
 
 subtest 'raw vectors' => sub {
-    plan tests => 1;
+    plan tests => 4;
     
     ## serialize as.raw(c(1:3, 255, 0), XDR: true
     check_qap('t/data/noatt-raw',
               Statistics::R::REXP::Raw->new([ 1, 2, 3, 255, 0 ]),
               'raw vector');
+    
+    check_padding("\x0a\x0c\0\0\x25\x08\0\0\1\0\0\0\x78\0\0\0",
+                  Statistics::R::REXP::Raw->new([120]),
+                  'charToRaw("x")');
+    
+    check_padding("\x0a\x0c\0\0\x25\x08\0\0\3\0\0\0\x66\x6f\x6f\0",
+                  Statistics::R::REXP::Raw->new([102, 111, 111]),
+                  'charToRaw("foo")');
+    
+    check_padding("\x0a\x0c\0\0\x25\x08\0\0\4\0\0\0\x66\x72\x65\x64",
+                  Statistics::R::REXP::Raw->new([102, 114, 101, 100]),
+                  'charToRaw("fred")');
+};
+
+
+subtest 'logical vectors' => sub {
+    plan tests => 2;
+    
+    check_padding("\x0a\x0c\0\0\x24\x08\0\0\1\0\0\0\1\xff\xff\xff",
+                  Statistics::R::REXP::Logical->new([1]),
+                  'TRUE');
+    
+    check_padding("\x0a\x0c\0\0\x24\x08\0\0\4\0\0\0\1\0\0\1",
+                  Statistics::R::REXP::Logical->new([1, 0, 0, 1]),
+                  'c(TRUE, FALSE, FALSE, TRUE)');
 };
 
 
@@ -141,6 +184,24 @@ subtest 'generic vector (list)' => sub {
                   }),
               'generic vector names att');
 };
+
+
+subtest 'symbol' => sub {
+    plan tests => 3;
+    
+    check_padding("\x0a\x08\0\0\x13\4\0\0\x78\0\0\0",
+                  Statistics::R::REXP::Symbol->new('x'),
+                  'as.name("x")');
+    
+    check_padding("\x0a\x08\0\0\x13\4\0\0\x66\x6f\x6f\0",
+                  Statistics::R::REXP::Symbol->new('foo'),
+                  'as.name("foo")');
+    
+    check_padding("\x0a\x0c\0\0\x13\x08\0\0\x66\x72\x65\x64\0\0\0\0",
+                  Statistics::R::REXP::Symbol->new('fred'),
+                  'as.name("fred")');
+};
+
 
 
 subtest 'matrix' => sub {
