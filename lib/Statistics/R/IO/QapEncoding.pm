@@ -235,17 +235,17 @@ sub dblsxp {
 }
 
 
-sub logsxp {
+sub lglsxp {
     my $object_info = shift;
     
     if ($object_info->{length}) {
         bind(with_count(\&any_uint32, \&any_uint8),
              sub {
                  my @elements = @{shift or return};
-                 mreturn Statistics::R::REXP::Logical->new(
+                 mreturn(Statistics::R::REXP::Logical->new(
                      [
                         map { $_ == 2 ? undef : $_ } @elements
-                     ]);
+                     ]));
              })
     } else {
         mreturn(Statistics::R::REXP::Logical->new);
@@ -517,7 +517,7 @@ C<$obj_info> hash's "object_type" key to use the correct parser for
 the particular type.
 
 
-=item intsxp, langsxp, logsxp, listsxp, rawsxp, dblsxp,
+=item intsxp, langsxp, lglsxp, listsxp, rawsxp, dblsxp,
 strsxp, symsxp, vecsxp
 
 Parsers for the corresponding R SEXP-types.
