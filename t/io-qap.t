@@ -143,7 +143,23 @@ subtest 'raw vectors' => sub {
 
 
 subtest 'logical vectors' => sub {
-    plan tests => 2;
+    plan tests => 5;
+    
+    check_qap('t/data/noatt-true',
+              Statistics::R::REXP::Logical->new([ 1 ]),
+              'logical vector - singleton');
+    
+    check_qap('t/data/noatt-tfftf',
+              Statistics::R::REXP::Logical->new([ 1, 0, 0, 1, 0 ]),
+              'logical vector');
+    
+    check_qap('t/data/ABCDE-tfftf',
+              Statistics::R::REXP::Logical->new(
+                  elements => [ 1, 0, 0, 1, 0 ],
+                  attributes => {
+                      names => Statistics::R::REXP::Character->new(['A', 'B', 'C', 'D', 'E'])
+                  }),
+              'logical vector names att');
     
     check_padding("\x0a\x0c\0\0\x24\x08\0\0\1\0\0\0\1\xff\xff\xff",
                   Statistics::R::REXP::Logical->new([1]),
