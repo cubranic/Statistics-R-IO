@@ -66,7 +66,7 @@ sub sexp_data {
         intsxp($object_info, $attributes)
     } elsif ($object_info->{object_type} == 36) {
         # logical vector
-        lglsxp($object_info)
+        lglsxp($object_info, $attributes)
     } elsif ($object_info->{object_type} == 33) {
         # numeric vector
         dblsxp($object_info, $attributes)
@@ -236,7 +236,7 @@ sub dblsxp {
 
 
 sub lglsxp {
-    my $object_info = shift;
+    my ($object_info, $attributes) = (shift, shift);
     
     my $dt_length = $object_info->{length},;
     if ($dt_length) {
@@ -248,12 +248,16 @@ sub lglsxp {
                  bind(seq(count($true_length,
                                 \&any_uint8),
                           count($padding_length,
-                               \&any_uint8)),
+                                \&any_uint8)),
                       sub {
                           my ($elements, $padding) = @{shift or return};
-                          mreturn(Statistics::R::REXP::Logical->new([
-                                      map { $_ == 2 ? undef : $_ } @{$elements}
-                                  ]));
+                          my %args = (elements => [
+                                          map { $_ == 2 ? undef : $_ } @{$elements}
+                                      ]);
+                          if ($attributes) {
+                              $args{attributes} = $attributes
+                          }
+                          mreturn(Statistics::R::REXP::Logical->new(%args));
                       })
              })
     } else {
