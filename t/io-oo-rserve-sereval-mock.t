@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 17;
+use Test::More tests => 31;
 use Test::Fatal;
 use Test::MockObject::Extends;
 
@@ -12,6 +12,7 @@ use Statistics::R::IO::REXPFactory;
 
 use lib 't/lib';
 use ShortDoubleVector;
+use TestCases;
 
 
 sub mock_rserve_response {
@@ -536,3 +537,14 @@ like(exception {
     $rserve->ser_eval('testing, please ignore')
      }, qr/Server returned an error: 123/,
     'server error');
+
+
+while ( my ($name, $value) = each %{TEST_CASES()} ) {
+  SKIP: {
+      skip "not yet supported", 1 if ($value->{skip} || '' =~ 'rds');
+      
+      parse_rserve_eval('t/data/' . $name,
+                        $value->{value},
+                        $value->{desc});
+    }
+}

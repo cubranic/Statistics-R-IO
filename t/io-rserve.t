@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 16;
+use Test::More tests => 30;
 use Test::Fatal;
 use Test::MockObject::Extends;
 
@@ -12,6 +12,7 @@ use Statistics::R::IO qw( evalRserve );
 
 use lib 't/lib';
 use ShortDoubleVector;
+use TestCases;
 
 
 sub mock_rserve_response {
@@ -510,3 +511,10 @@ like(exception {
                $error_mock),
      }, qr/Server returned an error: 123/,
     'server error');
+
+
+while ( my ($name, $value) = each %{TEST_CASES()} ) {
+    parse_rserve_eval('t/data/' . $name,
+                      $value->{value},
+                      $value->{desc});
+}

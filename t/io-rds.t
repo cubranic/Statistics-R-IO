@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 19;
+use Test::More tests => 33;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -11,6 +11,7 @@ use Statistics::R::IO qw( readRDS );
 
 use lib 't/lib';
 use ShortDoubleVector;
+use TestCases;
 
 
 ## integer vectors
@@ -489,3 +490,14 @@ check_rds_variants('t/data/mtcars-lm-mpgwt',
            ]),
            class => Statistics::R::REXP::Character->new(['lm']) }),
    'lm mpg~wt, head(mtcars)');
+
+
+while ( my ($name, $value) = each %{TEST_CASES()} ) {
+  SKIP: {
+      skip "not yet supported", 1 if ($value->{skip} || '' =~ 'rds');
+      
+      check_rds_variants('t/data/' . $name,
+                         $value->{value},
+                         $value->{desc});
+    }
+}

@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 11;
+use Test::More tests => 25;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -12,6 +12,7 @@ use Statistics::R::IO::QapEncoding qw(:all);
 
 use lib 't/lib';
 use ShortDoubleVector;
+use TestCases;
 
 
 sub check_qap {
@@ -569,3 +570,10 @@ check_qap('t/data/mtcars-lm-mpgwt',
            ]),
            class => Statistics::R::REXP::Character->new(['lm']) }),
    'lm mpg~wt, head(mtcars)');
+
+
+while ( my ($name, $value) = each %{TEST_CASES()} ) {
+    check_qap('t/data/' . $name,
+              $value->{value},
+              $value->{desc});
+}

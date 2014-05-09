@@ -9,7 +9,7 @@ use Test::More;
 my $rserve = IO::Socket::INET->new(PeerAddr => 'localhost',
                                    PeerPort => 6311);
 if ($rserve) {
-    plan tests => 16;
+    plan tests => 30;
     $rserve->sysread(my $response, 32);
     die "Unrecognized server ID" unless
         substr($response, 0, 12) eq 'Rsrv0103QAP1';
@@ -24,6 +24,7 @@ use Statistics::R::IO::REXPFactory;
 
 use lib 't/lib';
 use ShortDoubleVector;
+use TestCases;
 
 
 sub check_rserve_eval_variants {
@@ -471,3 +472,14 @@ check_rserve_eval_variants('lm(mpg ~ wt, data = head(mtcars))',
            ]),
            class => Statistics::R::REXP::Character->new(['lm']) }),
    'lm mpg~wt, head(mtcars)');
+
+
+while ( my ($name, $value) = each %{TEST_CASES()} ) {
+  SKIP: {
+      skip "not yet supported", 1 if ($value->{skip} || '' =~ 'rds');
+      
+      check_rserve_eval_variants($value->{expr},
+                                 $value->{value},
+                                 $value->{desc});
+    }
+}

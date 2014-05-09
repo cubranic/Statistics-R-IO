@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 23;
+use Test::More tests => 37;
 use Test::Fatal;
 
 use Statistics::R::IO::RDS;
@@ -11,6 +11,7 @@ use Statistics::R::IO::REXPFactory;
 
 use lib 't/lib';
 use ShortDoubleVector;
+use TestCases;
 
 
 ## integer vectors
@@ -528,3 +529,14 @@ like(exception {
 like(exception {
     Statistics::R::IO::RDS->new(fh => [])
      }, qr/'fh' must be a file handle/, 'bad fh');
+
+
+while ( my ($name, $value) = each %{TEST_CASES()} ) {
+  SKIP: {
+      skip "not yet supported", 1 if ($value->{skip} || '' =~ 'rds');
+      
+      check_rds_variants('t/data/' . $name,
+                         $value->{value},
+                         $value->{desc});
+    }
+}
