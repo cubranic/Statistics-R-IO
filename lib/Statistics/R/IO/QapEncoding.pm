@@ -151,7 +151,7 @@ sub tagged_pairlist_to_attribute_hash {
     
     my $row_names = $rexp_hash{'row.names'};
     if ($row_names && $row_names->type eq 'integer' &&
-        $row_names->elements->[0] == -(1<<31)) {
+        ! defined $row_names->elements->[0]) {
         ## compact encoding when rownames are integers 1..n
         ## the length n is in the second element
         my $n = $row_names->elements->[1];
@@ -199,7 +199,13 @@ sub intsxp {
     my ($object_info, $attributes) = (shift, shift);
     
     if ($object_info->{length} % 4 == 0) {
-        bind(count($object_info->{length}/4, \&any_int32),
+        bind(count($object_info->{length}/4,
+                   bind(\&any_int32,
+                        sub {
+                            my $x = shift;
+                            mreturn ($x != -2147483648 ?
+                                     $x : undef)
+                        })),
              sub {
                  my @ints = @{shift or return};
                  my %args = (elements => [@ints]);
@@ -219,7 +225,15 @@ sub dblsxp {
     my ($object_info, $attributes) = (shift, shift);
     
     if ($object_info->{length} % 8 == 0) {
-        bind(count($object_info->{length}/8, \&any_real64),
+        bind(count($object_info->{length}/8,
+                   bind(\&any_real64,
+                        sub {
+                            my $x = shift;
+                            mreturn (join(':', unpack('V*',
+                                                      pack('d', $x))) ne
+                                     "1954:2146435072"?
+                                     $x : undef)
+                        })),
              sub {
                  my @dbls = @{shift or return};
                  my %args = (elements => [@dbls]);
@@ -307,8 +321,15 @@ sub strsxp {
                 if (ord($ch)) {
                     push @characters, $ch;
                 } else {
-                    ## TODO: check for NaStringRepresentation
-                   push @elements, join('', @characters);
+                    my $element = join('', @characters);
+                    if ($element eq "\xFF") {
+                        ## NaStringRepresentation
+                        push @elements, undef;
+                    } else {
+                        ## unescape real \xFF characters
+                        $element =~ s/\xFF\xFF/\xFF/g;
+                        push @elements, $element;
+                    }
                     @characters = ();
                 }
                 $state = $state->next;
