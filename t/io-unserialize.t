@@ -456,7 +456,7 @@ subtest 'pairlist' => sub {
               [ { tag => Statistics::R::REXP::Symbol->new('names'),
                   value => Statistics::R::REXP::Character->new([ 'speed', 'dist' ]) },
                 { tag => Statistics::R::REXP::Symbol->new('row.names'), # compact encoding
-                  value => Statistics::R::REXP::Integer->new([ -(1<<31), 6 ]) },
+                  value => Statistics::R::REXP::Integer->new([ undef, 6 ]) },
                 { tag => Statistics::R::REXP::Symbol->new('class'),
                   value => Statistics::R::REXP::Character->new([ 'data.frame' ]) },
               ],

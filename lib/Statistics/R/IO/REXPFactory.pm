@@ -222,7 +222,7 @@ sub tagged_pairlist_to_attribute_hash {
     
     my $row_names = $rexp_hash{'row.names'};
     if ($row_names && $row_names->type eq 'integer' &&
-        $row_names->elements->[0] == -(1<<31)) {
+        ! defined $row_names->elements->[0]) {
         ## compact encoding when rownames are integers 1..n
         ## the length n is in the second element
         my $n = $row_names->elements->[1];
@@ -276,21 +276,41 @@ sub vector_and_attributes {
 
 sub lglsxp {
     my $object_info = shift;
-    vector_and_attributes($object_info, \&any_uint32,
+    vector_and_attributes($object_info,
+                          bind(\&any_uint32,
+                               sub {
+                                   my $x = shift;
+                                   mreturn ($x != 0x80000000 ?
+                                            $x : undef)
+                               }),
                           'Statistics::R::REXP::Logical')
 }
 
 
 sub intsxp {
     my $object_info = shift;
-    vector_and_attributes($object_info, \&any_int32,
+    vector_and_attributes($object_info,
+                          bind(\&any_int32,
+                               sub {
+                                   my $x = shift;
+                                   mreturn ($x != -2147483648 ?
+                                            $x : undef)
+                               }),
                           'Statistics::R::REXP::Integer')
 }
 
 
 sub realsxp {
     my $object_info = shift;
-    vector_and_attributes($object_info, \&any_real64,
+    vector_and_attributes($object_info,
+                          bind(\&any_real64,
+                               sub {
+                                   my $x = shift;
+                                   mreturn (join(':', unpack('V*',
+                                                             pack('d', $x))) ne
+                                            "1954:2146435072"?
+                                            $x : undef)
+                               }),
                           'Statistics::R::REXP::Double')
 }
 
@@ -334,7 +354,7 @@ sub charsxp {
                           mreturn join('', @chars);
                       })
              } elsif ($len == -1) {
-                 error 'TODO: NA charsxps';
+                 mreturn undef;
              } else {
                  error 'Negative length detected: ' . $len;
              }

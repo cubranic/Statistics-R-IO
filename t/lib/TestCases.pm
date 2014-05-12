@@ -60,7 +60,6 @@ use constant TEST_CASES => {
     'char_na' => {
         desc => 'char vector with NAs',
         expr => 'c("foo", "", NA, 23)',
-        skip => 'rds',
         value => Statistics::R::REXP::Character->new([ 'foo', '', undef, '23' ]) },
     'num_na' => {
         desc => 'double vector with NAs',
