@@ -113,6 +113,9 @@ sub object_data {
     } elsif ($object_info->{object_type} == 4) {
         # environment
         envsxp($object_info)
+    } elsif ($object_info->{object_type} == 0xfb) {
+        # encoded R_MissingArg, i.e., empty symbol
+        mreturn(Statistics::R::REXP::Symbol->new)
     } elsif ($object_info->{object_type} == 0xfd) {
         # encoded R_GlobalEnv
         mreturn(Statistics::R::REXP::GlobalEnvironment->new)

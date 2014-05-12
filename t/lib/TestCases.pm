@@ -51,7 +51,6 @@ use constant TEST_CASES => {
     'empty_sym' => {
         desc => 'empty symbol',
         expr => 'bquote()',
-        skip => 'rds',
         value => Statistics::R::REXP::Symbol->new()},
     'null' => {
         desc => 'null',
