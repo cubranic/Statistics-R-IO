@@ -6,6 +6,7 @@ test_eval <- function(expr_name, expr_text) {
     ## str(value)
 
     save_serialize(expr_name, eval(expr))
+    save_serialize_noxdr(expr_name, eval(expr))
     save_rds(expr_name, eval(expr))
     save_xz_rds(expr_name, eval(expr))
     save_bzip_rds(expr_name, eval(expr))
@@ -18,6 +19,12 @@ save_serialize <- function(name, value) {
     close(f)
 }
 
+
+save_serialize_noxdr <- function(name, value) {
+    f <- file(paste0(name, '-noxdr'), open='wb')
+    serialize(value, f, xdr=FALSE)
+    close(f)
+}
 
 
 save_rds <- function(name, value) {
