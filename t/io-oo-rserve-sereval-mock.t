@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 17;
+use Test::More tests => 31;
 use Test::Fatal;
 use Test::MockObject::Extends;
 
@@ -12,6 +12,7 @@ use Statistics::R::IO::REXPFactory;
 
 use lib 't/lib';
 use ShortDoubleVector;
+use TestCases;
 
 
 sub mock_rserve_response {
@@ -26,21 +27,22 @@ sub mock_rserve_response {
         $data;
 
     my $mock = Test::MockObject::Extends->new('IO::Socket');
-    $mock->mock('syswrite',
+    $mock->mock('print',
                 sub {
                     my ($self, $data) = (shift, shift);
                     length($data);
                 });
-    $mock->mock('sysread',
+    $mock->mock('read',
                 sub {
                     state $pos = 0;
                     
-                    # args: self, $data, length
-                    $_[1] = substr($response, $pos, $_[2]);
+                    my ($length, $offset) = @_[2..3];
+                    # args: self, $data, length, position
+                    $_[1] .= substr($response, $pos, $length);
                     
-                    $pos += length($_[1]); # advance the cursor
+                    $pos += $length; # advance the cursor
                     
-                    length($_[1]); # return the amount read
+                    $length     # return the amount read
                 })
 }
 
@@ -65,7 +67,7 @@ sub parse_rserve_eval {
         my ($request, $args) = $mock->next_call();
         
         is($request,
-           'syswrite', 'send request');
+           'print', 'send request');
         
         my ($command, $length, $offset, $length_hi) =
             unpack('V4', $args->[1]);
@@ -79,9 +81,9 @@ sub parse_rserve_eval {
            0, 'request hi-length');
         
         is($mock->next_call(),
-           'sysread', 'read response status');
+           'read', 'read response status');
         is($mock->next_call(),
-           'sysread', 'read response data');
+           'read', 'read response data');
         is($mock->next_call(),
            undef, 'last call');
     }
@@ -518,12 +520,12 @@ parse_rserve_eval('t/data/mtcars-lm-mpgwt',
 
 ## Server error
 my $error_mock = Test::MockObject::Extends->new('IO::Handle');
-$error_mock->mock('syswrite',
+$error_mock->mock('print',
                   sub {
                       my ($self, $data) = (shift, shift);
                       length($data);
                   });
-$error_mock->mock('sysread',
+$error_mock->mock('read',
                   sub {
                       # args: self, $data, length
                       $_[1] = pack('VVA*', 123, 0, "\0"x8);
@@ -535,3 +537,14 @@ like(exception {
     $rserve->ser_eval('testing, please ignore')
      }, qr/Server returned an error: 123/,
     'server error');
+
+
+while ( my ($name, $value) = each %{TEST_CASES()} ) {
+  SKIP: {
+      skip "not yet supported", 1 if ($value->{skip} || '' =~ 'rds');
+      
+      parse_rserve_eval('t/data/' . $name,
+                        $value->{value},
+                        $value->{desc});
+    }
+}

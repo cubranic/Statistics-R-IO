@@ -220,11 +220,15 @@ subtest 'character vectors' => sub {
 
 
     ## handling of negative charsxp length
-    like(exception {
-        unserialize("\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\0\x10\0\0\0\1".
-                    "\0\4\0\x09" . "\xff\xff\xff\xff")
-         }, qr/TODO: NA charsxp/, 'NA_STRING');
-
+    
+    # Length "-1" is used as the encoding for a NA string
+    is(unserialize("\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\0\x10\0\0\0\1".
+                   "\0\4\0\x09" . "\xff\xff\xff\xff")->[0],
+       Statistics::R::REXP::Character->new(
+           elements => [ undef ]),
+       'NA_STRING');
+    
+    # Other negative lengths are illegal
     like(exception {
         unserialize("\x58\x0a\0\0\0\2\0\3\0\2\0\2\3\0\0\0\0\x10\0\0\0\1".
                     "\0\4\0\x09" . "\xff\xff\xff\xf0")
@@ -456,7 +460,7 @@ subtest 'pairlist' => sub {
               [ { tag => Statistics::R::REXP::Symbol->new('names'),
                   value => Statistics::R::REXP::Character->new([ 'speed', 'dist' ]) },
                 { tag => Statistics::R::REXP::Symbol->new('row.names'), # compact encoding
-                  value => Statistics::R::REXP::Integer->new([ -(1<<31), 6 ]) },
+                  value => Statistics::R::REXP::Integer->new([ undef, 6 ]) },
                 { tag => Statistics::R::REXP::Symbol->new('class'),
                   value => Statistics::R::REXP::Character->new([ 'data.frame' ]) },
               ],

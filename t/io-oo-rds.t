@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 20;
+use Test::More tests => 37;
 use Test::Fatal;
 
 use Statistics::R::IO::RDS;
@@ -11,6 +11,7 @@ use Statistics::R::IO::REXPFactory;
 
 use lib 't/lib';
 use ShortDoubleVector;
+use TestCases;
 
 
 ## integer vectors
@@ -117,6 +118,27 @@ check_rds_variants('t/data/ABC-abc',
 check_rds_variants('t/data/noatt-raw',
    Statistics::R::REXP::Raw->new([ 1, 2, 3, 255, 0 ]),
    'raw vector');
+
+
+## logical vectors
+## serialize TRUE
+check_rds_variants('t/data/noatt-true',
+    Statistics::R::REXP::Logical->new([ 1 ]),
+    'logical vector - singleton');
+
+## serialize c(TRUE, FALSE, FALSE, TRUE, FALSE)
+check_rds_variants('t/data/noatt-tfftf',
+    Statistics::R::REXP::Logical->new([ 1, 0, 0, 1, 0 ]),
+    'logical vector');
+
+## serialize c(A=T, B=F, C=F, D=T, E=F)
+check_rds_variants('t/data/ABCDE-tfftf',
+    Statistics::R::REXP::Logical->new(
+        elements => [ 1, 0, 0, 1, 0 ],
+        attributes => {
+            names => Statistics::R::REXP::Character->new(['A', 'B', 'C', 'D', 'E'])
+        }),
+    'logical vector names att');
 
 
 ## list (i.e., generic vector)
@@ -507,3 +529,14 @@ like(exception {
 like(exception {
     Statistics::R::IO::RDS->new(fh => [])
      }, qr/'fh' must be a file handle/, 'bad fh');
+
+
+while ( my ($name, $value) = each %{TEST_CASES()} ) {
+  SKIP: {
+      skip "not yet supported", 1 if ($value->{skip} || '' =~ 'rds');
+      
+      check_rds_variants('t/data/' . $name,
+                         $value->{value},
+                         $value->{desc});
+    }
+}

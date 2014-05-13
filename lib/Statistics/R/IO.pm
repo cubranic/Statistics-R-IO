@@ -1,6 +1,6 @@
 package Statistics::R::IO;
 # ABSTRACT: Perl interface to serialized R data
-$Statistics::R::IO::VERSION = '0.06';
+$Statistics::R::IO::VERSION = '0.07';
 use 5.012;
 use strict;
 use warnings FATAL => 'all';
@@ -101,7 +101,7 @@ Statistics::R::IO - Perl interface to serialized R data
 
 =head1 VERSION
 
-version 0.06
+version 0.07
 
 =head1 SYNOPSIS
 

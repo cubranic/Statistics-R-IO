@@ -8,7 +8,7 @@ use IO::Socket::INET ();
 use Test::More;
 if (IO::Socket::INET->new(PeerAddr => 'localhost',
                           PeerPort => 6311)) {
-    plan tests => 16;
+    plan tests => 30;
 }
 else {
     plan skip_all => "Cannot connect to Rserve server at localhost:6311";
@@ -20,6 +20,7 @@ use Statistics::R::IO qw( evalRserve );
 
 use lib 't/lib';
 use ShortDoubleVector;
+use TestCases;
 
 
 ## integer vectors
@@ -448,3 +449,10 @@ is(Statistics::R::REXP::List->new(
            class => Statistics::R::REXP::Character->new(['lm']) }),
    evalRserve('lm(mpg ~ wt, data = head(mtcars))'),
    'lm mpg~wt, head(mtcars)');
+
+
+while ( my ($name, $value) = each %{TEST_CASES()} ) {
+    is(evalRserve($value->{expr}),
+       $value->{value},
+       $value->{desc});
+}

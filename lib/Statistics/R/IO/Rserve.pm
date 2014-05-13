@@ -1,6 +1,6 @@
 package Statistics::R::IO::Rserve;
 # ABSTRACT: Supply object methods for Rserve communication
-$Statistics::R::IO::Rserve::VERSION = '0.06';
+$Statistics::R::IO::Rserve::VERSION = '0.07';
 use 5.012;
 
 use Moo;
@@ -20,8 +20,12 @@ has fh => (
         my $self = shift;
         my $fh = IO::Socket::INET->new(PeerAddr => $self->server,
                                        PeerPort => $self->port) or
-                                  croak $!;
-        $fh->sysread(my $response, 32);
+                                           croak $!;
+        my ($response, $rc) = '';
+        while ($rc = $fh->read($response, 32 - length $response,
+                               length $response)) {}
+        croak $! unless defined $rc;
+
         croak "Unrecognized server ID" unless
             substr($response, 0, 12) eq 'Rsrv0103QAP1';
         $fh
@@ -95,7 +99,6 @@ sub BUILDARGS {
     }
 }
 
-
 sub eval {
     my ($self, $expr) = (shift, shift);
 
@@ -152,10 +155,10 @@ sub _send_command {
     ## - length of the message (low 32 bits)
     ## - offset of the data part (normally 0)
     ## - high 32 bits of the length of the message (0 if < 4GB)
-    $self->fh->syswrite(pack('V4', $command, length($parameters), 0, 0) .
-                        $parameters);
+    $self->fh->print(pack('V4', $command, length($parameters), 0, 0) .
+                     $parameters);
     
-    $self->fh->sysread(my $response, 16);
+    my $response = $self->_receive_response(16);
     ## Of the next four long-ints:
     ## - the first one is status and should be 65537 (bytes \1, \0, \1, \0)
     ## - the second one is length
@@ -164,10 +167,21 @@ sub _send_command {
     unless ($status == 65537) {
         croak 'Server returned an error: ' . $status;
     }
+
+    $self->_receive_response($length)
+}
+
+
+sub _receive_response {
+    my ($self, $length) = (shift, shift);
     
-    $self->fh->sysread(my $data, $length);
-    
-    $data
+    my ($response, $offset, $rc) = ('', 0);
+    while ($rc = $self->fh->read($response, $length - $offset, $offset)) {
+        $offset += $rc;
+        last if $length == $offset;
+    }
+    croak $! unless defined $rc;
+    $response
 }
 
 
@@ -197,7 +211,7 @@ Statistics::R::IO::Rserve - Supply object methods for Rserve communication
 
 =head1 VERSION
 
-version 0.06
+version 0.07
 
 =head1 SYNOPSIS
 

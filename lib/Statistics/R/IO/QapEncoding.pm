@@ -1,6 +1,6 @@
 package Statistics::R::IO::QapEncoding;
 # ABSTRACT: Functions for parsing Rserve packets
-$Statistics::R::IO::QapEncoding::VERSION = '0.06';
+$Statistics::R::IO::QapEncoding::VERSION = '0.07';
 use 5.012;
 
 use strict;
@@ -66,7 +66,7 @@ sub sexp_data {
         intsxp($object_info, $attributes)
     } elsif ($object_info->{object_type} == 36) {
         # logical vector
-        lglsxp($object_info)
+        lglsxp($object_info, $attributes)
     } elsif ($object_info->{object_type} == 33) {
         # numeric vector
         dblsxp($object_info, $attributes)
@@ -151,7 +151,7 @@ sub tagged_pairlist_to_attribute_hash {
     
     my $row_names = $rexp_hash{'row.names'};
     if ($row_names && $row_names->type eq 'integer' &&
-        $row_names->elements->[0] == -(1<<31)) {
+        ! defined $row_names->elements->[0]) {
         ## compact encoding when rownames are integers 1..n
         ## the length n is in the second element
         my $n = $row_names->elements->[1];
@@ -199,7 +199,8 @@ sub intsxp {
     my ($object_info, $attributes) = (shift, shift);
     
     if ($object_info->{length} % 4 == 0) {
-        bind(count($object_info->{length}/4, \&any_int32),
+        bind(count($object_info->{length}/4,
+                   any_int32_na),
              sub {
                  my @ints = @{shift or return};
                  my %args = (elements => [@ints]);
@@ -219,7 +220,8 @@ sub dblsxp {
     my ($object_info, $attributes) = (shift, shift);
     
     if ($object_info->{length} % 8 == 0) {
-        bind(count($object_info->{length}/8, \&any_real64),
+        bind(count($object_info->{length}/8,
+                   any_real64_na),
              sub {
                  my @dbls = @{shift or return};
                  my %args = (elements => [@dbls]);
@@ -235,17 +237,30 @@ sub dblsxp {
 }
 
 
-sub logsxp {
-    my $object_info = shift;
+sub lglsxp {
+    my ($object_info, $attributes) = (shift, shift);
     
-    if ($object_info->{length}) {
-        bind(with_count(\&any_uint32, \&any_uint8),
+    my $dt_length = $object_info->{length},;
+    if ($dt_length) {
+        bind(\&any_uint32,
              sub {
-                 my @elements = @{shift or return};
-                 mreturn Statistics::R::REXP::Logical->new(
-                     [
-                        map { $_ == 2 ? undef : $_ } @elements
-                     ]);
+                 my $true_length = shift // return;
+                 my $padding_length = $dt_length - $true_length - 4;
+
+                 bind(seq(count($true_length,
+                                \&any_uint8),
+                          count($padding_length,
+                                \&any_uint8)),
+                      sub {
+                          my ($elements, $padding) = @{shift or return};
+                          my %args = (elements => [
+                                          map { $_ == 2 ? undef : $_ } @{$elements}
+                                      ]);
+                          if ($attributes) {
+                              $args{attributes} = $attributes
+                          }
+                          mreturn(Statistics::R::REXP::Logical->new(%args));
+                      })
              })
     } else {
         mreturn(Statistics::R::REXP::Logical->new);
@@ -294,8 +309,15 @@ sub strsxp {
                 if (ord($ch)) {
                     push @characters, $ch;
                 } else {
-                    ## TODO: check for NaStringRepresentation
-                   push @elements, join('', @characters);
+                    my $element = join('', @characters);
+                    if ($element eq "\xFF") {
+                        ## NaStringRepresentation
+                        push @elements, undef;
+                    } else {
+                        ## unescape real \xFF characters
+                        $element =~ s/\xFF\xFF/\xFF/g;
+                        push @elements, $element;
+                    }
                     @characters = ();
                 }
                 $state = $state->next;
@@ -462,7 +484,7 @@ Statistics::R::IO::QapEncoding - Functions for parsing Rserve packets
 
 =head1 VERSION
 
-version 0.06
+version 0.07
 
 =head1 SYNOPSIS
 
@@ -524,7 +546,7 @@ Parser for a QAP-serialized R object, using the object type stored in
 C<$obj_info> hash's "object_type" key to use the correct parser for
 the particular type.
 
-=item intsxp, langsxp, logsxp, listsxp, rawsxp, dblsxp,
+=item intsxp, langsxp, lglsxp, listsxp, rawsxp, dblsxp,
 strsxp, symsxp, vecsxp
 
 Parsers for the corresponding R SEXP-types.

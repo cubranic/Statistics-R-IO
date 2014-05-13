@@ -1,0 +1,76 @@
+#!/usr/bin/Rscript
+
+test_eval <- function(expr_name, expr_text) {
+    expr <- parse(text = expr_text)
+    ## value <- eval(expr)
+    ## str(value)
+
+    save_serialize(expr_name, eval(expr))
+    save_rds(expr_name, eval(expr))
+    save_xz_rds(expr_name, eval(expr))
+    save_bzip_rds(expr_name, eval(expr))
+}
+
+
+save_serialize <- function(name, value) {
+    f <- file(paste0(name, '-xdr'), open='wb')
+    serialize(value, f)
+    close(f)
+}
+
+
+
+save_rds <- function(name, value) {
+    saveRDS(value, paste0(name, '-xdr.rds'))
+}
+
+
+save_xz_rds <- function(name, value) {
+    saveRDS(value, paste0(name, '-xdr_xz.rds'), compress = 'xz')
+}
+
+
+save_bzip_rds <- function(name, value) {
+    saveRDS(value, paste0(name, '-xdr_bzip.rds'), compress = 'bzip2')
+}
+
+
+tests <- list(
+    `empty_char` = 'character()',
+    `empty_int` = 'integer()',
+    `empty_num` = 'numeric()',
+    `empty_lgl` = 'logical()',
+    `empty_list` = 'list()',
+    `empty_raw` = 'raw()',
+    `empty_sym` = 'bquote()',
+    `null` = 'NULL',
+    `char_na` = 'c("foo", "", NA, 23)',
+    `num_na` = 'c(11.3, NaN, -Inf, NA, 0)',
+    `int_na` = 'c(11L, 0L, NA, 0L)',
+    `lgl_na` = 'c(TRUE, FALSE, TRUE, NA)',
+    `list_na` = 'list(1, 1L, list("b", list(letters[4:7], NA, c(44.1, NA)), list()))',
+    `list_null` = 'list(NULL)',
+    `noatt-123l`='1:3',
+    `abc-123l`='c(a=1L, b=2L, c=3L)',
+    `noatt-123456`='1234.56',
+    `foo-123456`='c(foo=1234.56)',
+    `f-123456`='c(f=1234.56)',
+    `noatt-abc`='letters[1:3]',
+    `ABC-abc`='c(A="a", B="b", C="c")',
+    `noatt-raw`='as.raw(c(1,2,3,255, 0))',
+    `noatt-list`="list(1:3, list('a', 'b', 11), 'foo')",
+    `noatt-true`='TRUE',
+    `noatt-tfftf`='c(T, F, F, T, F)',
+    `ABCDE-tfftf`='c(A=T, B=F, C=F, D=T, E=F)',
+    `foobar-list`="list(foo=1:3, list('a', 'b', 11), bar='foo')",
+    `noatt-mat`='matrix(-1:4, 2, 3)',
+    `ab-mat`="matrix(-1:4, 2, 3, dimnames=list(c('a', 'b')))",
+    `cars`='head(cars)',
+    `mtcars`='head(mtcars)',
+    `iris`='head(iris)',
+    `lang-lm-mpgwt`='lm(mpg ~ wt, data = head(mtcars))$call',
+    `mtcars-lm-mpgwt`='lm(mpg ~ wt, data = head(mtcars))')
+
+for (i in seq_along(tests)) {
+    test_eval(names(tests)[i], tests[[i]])
+}

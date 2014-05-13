@@ -1,6 +1,6 @@
 package Statistics::R::IO::Parser;
 # ABSTRACT: Functions for parsing R data files
-$Statistics::R::IO::Parser::VERSION = '0.06';
+$Statistics::R::IO::Parser::VERSION = '0.07';
 use 5.012;
 use strict;
 use warnings FATAL => 'all';
@@ -9,14 +9,14 @@ use Exporter 'import';
 
 our @EXPORT = qw( );
 our @EXPORT_OK = qw( endianness any_char char string
-                     any_uint8 any_uint16 any_uint24 any_uint32 any_real32 any_real64
+                     any_uint8 any_uint16 any_uint24 any_uint32 any_real32 any_real64 any_real64_na
                      uint8 uint16 uint24 uint32
-                     any_int8 any_int16 any_int24 any_int32
+                     any_int8 any_int16 any_int24 any_int32 any_int32_na
                      int8 int16 int24 int32
                      count with_count many_till seq choose mreturn error add_singleton get_singleton reserve_singleton bind );
 
 our %EXPORT_TAGS = ( all => [ @EXPORT_OK ],
-                     num => [ qw( any_uint8 any_uint16 any_uint24 any_uint32 any_real32 any_real64 uint8 uint16 uint24 uint32 ) ],
+                     num => [ qw( any_uint8 any_uint16 any_uint24 any_uint32 any_int32_na any_real32 any_real64 any_real64_na uint8 uint16 uint24 uint32 ) ],
                      char => [ qw( any_char char string ) ],
                      combinator => [ qw( count with_count many_till seq choose mreturn bind ) ] );
 
@@ -101,7 +101,7 @@ sub any_uint32 {
 sub uint8 {
     my $arg = shift;
     die 'Argument must be a number 0-255: ' . $arg
-        unless looks_like_number($arg) && $arg < 1<<8 && $arg >= 0;
+        unless looks_like_number($arg) && $arg <= 0x000000FF && $arg >= 0;
     
     sub {
         my ($value, $state) = @{any_uint8 @_ or return};
@@ -115,7 +115,7 @@ sub uint8 {
 sub uint16 {
     my $arg = shift;
     die 'Argument must be a number 0-65535: ' . $arg
-        unless looks_like_number($arg) && $arg < 1<<16 && $arg >= 0;
+        unless looks_like_number($arg) && $arg <= 0x0000FFFF && $arg >= 0;
     
     sub {
         my ($value, $state) = @{any_uint16 @_ or return};
@@ -129,7 +129,7 @@ sub uint16 {
 sub uint24 {
     my $arg = shift;
     die 'Argument must be a number 0-16777215: ' . $arg
-        unless looks_like_number($arg) && $arg < 1<<24 && $arg >= 0;
+        unless looks_like_number($arg) && $arg <= 0x00FFFFFF && $arg >= 0;
     
     sub {
         my ($value, $state) = @{any_uint24 @_ or return};
@@ -143,7 +143,7 @@ sub uint24 {
 sub uint32 {
     my $arg = shift;
     die 'Argument must be a number 0-4294967295: ' . $arg
-        unless looks_like_number($arg) && $arg < 1<<32 && $arg >= 0;
+        unless looks_like_number($arg) && $arg <= 0xFFFFFFFF && $arg >= 0;
     
     sub {
         my ($value, $state) = @{any_uint32 @_ or return};
@@ -241,6 +241,28 @@ sub int32 {
         
         [ $arg, $state ]
     }
+}
+
+
+sub any_int32_na {
+    choose(&bind(int32(-2147483648),
+                 sub {
+                     mreturn(undef);
+                 }),
+           \&any_int32)
+}
+
+my %na_real = ( '>' => [ uint32(0x7ff00000),
+                         uint32(0x7a2) ],
+                '<' => [ uint32(0x7a2),
+                         uint32(0x7ff00000) ]);
+
+sub any_real64_na {
+    choose(&bind(seq(@{$na_real{endianness()}}),
+                 sub {
+                     mreturn(undef);
+                 }),
+           \&any_real64)
 }
 
 
@@ -433,7 +455,7 @@ Statistics::R::IO::Parser - Functions for parsing R data files
 
 =head1 VERSION
 
-version 0.06
+version 0.07
 
 =head1 SYNOPSIS
 
@@ -568,6 +590,16 @@ by 4 or 8 bytes from the starting state, depending on the parser. The
 real value is determined by the current value of C<endianness>. If
 there are not enough elements left in the data from the current
 position, returns undef to signal failure.
+
+=item any_int32_na, any_real64_na
+
+Parses a 32-bit I<signed> integer or 64-bit real number, respectively,
+but recognizing R-style missing values (NAs): INT_MIN for integers and
+a special NaN bit pattern for reals. Returns a pair of the number
+value (C<undef> if a NA) and the new state, advanced by 4 or 8 bytes
+from the starting state, depending on the parser. If there are not
+enough elements left in the data from the current position, returns
+undef to signal failure.
 
 =back
 

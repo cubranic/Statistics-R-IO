@@ -1,6 +1,6 @@
 package Statistics::R::IO::REXPFactory;
 # ABSTRACT: Functions for parsing R data files
-$Statistics::R::IO::REXPFactory::VERSION = '0.06';
+$Statistics::R::IO::REXPFactory::VERSION = '0.07';
 use 5.012;
 
 use strict;
@@ -113,6 +113,9 @@ sub object_data {
     } elsif ($object_info->{object_type} == 4) {
         # environment
         envsxp($object_info)
+    } elsif ($object_info->{object_type} == 0xfb) {
+        # encoded R_MissingArg, i.e., empty symbol
+        mreturn(Statistics::R::REXP::Symbol->new)
     } elsif ($object_info->{object_type} == 0xfd) {
         # encoded R_GlobalEnv
         mreturn(Statistics::R::REXP::GlobalEnvironment->new)
@@ -222,7 +225,7 @@ sub tagged_pairlist_to_attribute_hash {
     
     my $row_names = $rexp_hash{'row.names'};
     if ($row_names && $row_names->type eq 'integer' &&
-        $row_names->elements->[0] == -(1<<31)) {
+        ! defined $row_names->elements->[0]) {
         ## compact encoding when rownames are integers 1..n
         ## the length n is in the second element
         my $n = $row_names->elements->[1];
@@ -276,21 +279,29 @@ sub vector_and_attributes {
 
 sub lglsxp {
     my $object_info = shift;
-    vector_and_attributes($object_info, \&any_uint32,
+    vector_and_attributes($object_info,
+                          bind(\&any_uint32,
+                               sub {
+                                   my $x = shift;
+                                   mreturn ($x != 0x80000000 ?
+                                            $x : undef)
+                               }),
                           'Statistics::R::REXP::Logical')
 }
 
 
 sub intsxp {
     my $object_info = shift;
-    vector_and_attributes($object_info, \&any_int32,
+    vector_and_attributes($object_info,
+                          any_int32_na,
                           'Statistics::R::REXP::Integer')
 }
 
 
 sub realsxp {
     my $object_info = shift;
-    vector_and_attributes($object_info, \&any_real64,
+    vector_and_attributes($object_info,
+                          any_real64_na,
                           'Statistics::R::REXP::Double')
 }
 
@@ -334,7 +345,7 @@ sub charsxp {
                           mreturn join('', @chars);
                       })
              } elsif ($len == -1) {
-                 error 'TODO: NA charsxps';
+                 mreturn undef;
              } else {
                  error 'Negative length detected: ' . $len;
              }
@@ -434,7 +445,7 @@ Statistics::R::IO::REXPFactory - Functions for parsing R data files
 
 =head1 VERSION
 
-version 0.06
+version 0.07
 
 =head1 SYNOPSIS
 
