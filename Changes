@@ -1,5 +1,11 @@
 Revision history for Statistics-R-IO
 
+0.07    13 May 2014
+        - Implement NA values for all vector types (#16, #17, #18)
+        - Fix parsing of logical vectors (incl. #14, #4)
+        - Use Perl IO for Rserve communication (#13)
+        - Fix argument check to work on 32-bit Perl (#12)
+        
 0.06    16 April 2014
         - Fix out-of-memory crashes on OpenBSD (issue #10)
         - Fix test failures when using Perl with long doubles (#9)
