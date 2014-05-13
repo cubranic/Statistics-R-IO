@@ -200,12 +200,7 @@ sub intsxp {
     
     if ($object_info->{length} % 4 == 0) {
         bind(count($object_info->{length}/4,
-                   bind(\&any_int32,
-                        sub {
-                            my $x = shift;
-                            mreturn ($x != -2147483648 ?
-                                     $x : undef)
-                        })),
+                   any_int32_na),
              sub {
                  my @ints = @{shift or return};
                  my %args = (elements => [@ints]);
@@ -226,14 +221,7 @@ sub dblsxp {
     
     if ($object_info->{length} % 8 == 0) {
         bind(count($object_info->{length}/8,
-                   bind(\&any_real64,
-                        sub {
-                            my $x = shift;
-                            mreturn (join(':', unpack('V*',
-                                                      pack('d', $x))) ne
-                                     "1954:2146435072"?
-                                     $x : undef)
-                        })),
+                   any_real64_na),
              sub {
                  my @dbls = @{shift or return};
                  my %args = (elements => [@dbls]);

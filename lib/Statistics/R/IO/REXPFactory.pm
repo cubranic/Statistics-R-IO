@@ -293,12 +293,7 @@ sub lglsxp {
 sub intsxp {
     my $object_info = shift;
     vector_and_attributes($object_info,
-                          bind(\&any_int32,
-                               sub {
-                                   my $x = shift;
-                                   mreturn ($x != -2147483648 ?
-                                            $x : undef)
-                               }),
+                          any_int32_na,
                           'Statistics::R::REXP::Integer')
 }
 
@@ -306,14 +301,7 @@ sub intsxp {
 sub realsxp {
     my $object_info = shift;
     vector_and_attributes($object_info,
-                          bind(\&any_real64,
-                               sub {
-                                   my $x = shift;
-                                   mreturn (join(':', unpack('V*',
-                                                             pack('d', $x))) ne
-                                            "1954:2146435072"?
-                                            $x : undef)
-                               }),
+                          any_real64_na,
                           'Statistics::R::REXP::Double')
 }
 
