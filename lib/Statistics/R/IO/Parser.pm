@@ -584,6 +584,15 @@ real value is determined by the current value of C<endianness>. If
 there are not enough elements left in the data from the current
 position, returns undef to signal failure.
 
+=item any_int32_na, any_real64_na
+
+Parses a 32-bit I<signed> integer or 64-bit real number, respectively,
+but recognizing R-style missing values (NAs): INT_MIN for integers and
+a special NaN bit pattern for reals. Returns a pair of the number
+value (C<undef> if a NA) and the new state, advanced by 4 or 8 bytes
+from the starting state, depending on the parser. If there are not
+enough elements left in the data from the current position, returns
+undef to signal failure.
 
 =back
 
