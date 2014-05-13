@@ -9,14 +9,14 @@ use Exporter 'import';
 
 our @EXPORT = qw( );
 our @EXPORT_OK = qw( endianness any_char char string
-                     any_uint8 any_uint16 any_uint24 any_uint32 any_real32 any_real64
+                     any_uint8 any_uint16 any_uint24 any_uint32 any_real32 any_real64 any_real64_na
                      uint8 uint16 uint24 uint32
-                     any_int8 any_int16 any_int24 any_int32
+                     any_int8 any_int16 any_int24 any_int32 any_int32_na
                      int8 int16 int24 int32
                      count with_count many_till seq choose mreturn error add_singleton get_singleton reserve_singleton bind );
 
 our %EXPORT_TAGS = ( all => [ @EXPORT_OK ],
-                     num => [ qw( any_uint8 any_uint16 any_uint24 any_uint32 any_real32 any_real64 uint8 uint16 uint24 uint32 ) ],
+                     num => [ qw( any_uint8 any_uint16 any_uint24 any_uint32 any_int32_na any_real32 any_real64 any_real64_na uint8 uint16 uint24 uint32 ) ],
                      char => [ qw( any_char char string ) ],
                      combinator => [ qw( count with_count many_till seq choose mreturn bind ) ] );
 
@@ -241,6 +241,28 @@ sub int32 {
         
         [ $arg, $state ]
     }
+}
+
+
+sub any_int32_na {
+    choose(&bind(int32(-2147483648),
+                 sub {
+                     mreturn(undef);
+                 }),
+           \&any_int32)
+}
+
+my %na_real = ( '>' => [ uint32(0x7ff00000),
+                         uint32(0x7a2) ],
+                '<' => [ uint32(0x7a2),
+                         uint32(0x7ff00000) ]);
+
+sub any_real64_na {
+    choose(&bind(seq(@{$na_real{endianness()}}),
+                 sub {
+                     mreturn(undef);
+                 }),
+           \&any_real64)
 }
 
 

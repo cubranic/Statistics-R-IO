@@ -3,7 +3,7 @@ use 5.012;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 8;
+use Test::More tests => 9;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -177,6 +177,27 @@ subtest 'floating point parsers' => sub {
 
     is(any_real64(Statistics::R::IO::ParserState->new(data => "\x40\x93\x4a\x45\x6d\x5c\xfa\xad"))->[0],
        unpack('d', pack('d', 1234.5678)), 'any_real64');
+};
+
+
+subtest 'NAs' => sub {
+    plan tests => 4;
+    
+    my $signed_num_state = Statistics::R::IO::ParserState->new(data => pack('N', 0x12bacafe));
+    
+    is(any_int32_na->($signed_num_state)->[0],
+       0x12bacafe, 'any_int32_na');
+    
+    my $int_na = Statistics::R::IO::ParserState->new(data => "\x80\0\0\0");
+    is(any_int32_na->($int_na)->[0],
+       undef, 'int NA');
+    
+    is(any_real64_na->(Statistics::R::IO::ParserState->new(data => "\x40\x93\x4a\x45\x6d\x5c\xfa\xad"))->[0],
+       unpack('d', pack('d', 1234.5678)), 'any_real64_na');
+    
+    my $real_na = Statistics::R::IO::ParserState->new(data => "\x7f\xf0\0\0\0\0\7\xa2");
+    is(any_real64_na->($real_na)->[0],
+       undef, 'real NA')
 };
 
 
