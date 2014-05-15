@@ -9,6 +9,8 @@ use Exporter 'import';
 
 our @EXPORT = qw( TEST_CASES );
 
+use ShortDoubleVector;
+
 use Statistics::R::IO::Parser qw( :all );
 use Statistics::R::IO::ParserState;
 use Statistics::R::REXP::Character;
@@ -35,7 +37,7 @@ use constant TEST_CASES => {
     'empty_num' => {
         desc => 'empty double vector',
         expr => 'numeric()',
-        value => Statistics::R::REXP::Double->new()},
+        value => ShortDoubleVector->new()},
     'empty_lgl' => {
         desc => 'empty logical vector',
         expr => 'logical()',
@@ -63,7 +65,7 @@ use constant TEST_CASES => {
     'num_na' => {
         desc => 'double vector with NAs',
         expr => 'c(11.3, NaN, -Inf, NA, 0)',
-        value => Statistics::R::REXP::Double->new([ 11.3, 'nan', '-inf', undef, 0 ]) },
+        value => ShortDoubleVector->new([ 11.3, 'nan', '-inf', undef, 0 ]) },
     'int_na' => {
         desc => 'int vector with NAs',
         expr => 'c(11L, 0L, NA, 0L)',
@@ -76,14 +78,14 @@ use constant TEST_CASES => {
         desc => 'list with NAs',
         expr => 'list(1, 1L, list("b", list(letters[4:7], NA, c(44.1, NA)), list()))',
         value => Statistics::R::REXP::List->new([
-            Statistics::R::REXP::Double->new([ 1 ]),
+            ShortDoubleVector->new([ 1 ]),
             Statistics::R::REXP::Integer->new([ 1 ]),
             Statistics::R::REXP::List->new([
                 Statistics::R::REXP::Character->new(['b']),
                 Statistics::R::REXP::List->new([
                     Statistics::R::REXP::Character->new(['d', 'e', 'f', 'g']),
                     Statistics::R::REXP::Logical->new([undef]),
-                    Statistics::R::REXP::Double->new([44.1, undef]) ]),
+                    ShortDoubleVector->new([44.1, undef]) ]),
                 Statistics::R::REXP::List->new([]) ]) ]) },
     'list_null' => {
         desc => 'list with a single NULL',
