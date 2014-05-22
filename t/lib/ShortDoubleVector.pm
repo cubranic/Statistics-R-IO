@@ -21,7 +21,15 @@ around _eq => sub {
     my $b = $obj->elements;
     return undef unless scalar(@$a) == scalar(@$b);
     for (my $i = 0; $i < scalar(@{$a}); $i++) {
-        return undef unless abs($a->[$i] - $b->[$i]) < 1e-13;
+        my $x = $a->[$i];
+        my $y = $b->[$i];
+        if (defined($x) && defined($y)) {
+            return undef unless
+                $x eq $y ||
+                (abs($x - $y) < 1e-13);
+        } else {
+            return undef if defined($x) or defined($y);
+        }
     }
     
     1

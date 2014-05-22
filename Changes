@@ -1,5 +1,8 @@
 Revision history for Statistics-R-IO
 
+0.071   22 May 2014
+        - Fix test failures when using Perl with long doubles (#9)
+
 0.07    13 May 2014
         - Implement NA values for all vector types (#16, #17, #18)
         - Fix parsing of logical vectors (incl. #14, #4)

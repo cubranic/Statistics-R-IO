@@ -1,6 +1,6 @@
 package Statistics::R::IO::Rserve;
 # ABSTRACT: Supply object methods for Rserve communication
-$Statistics::R::IO::Rserve::VERSION = '0.07';
+$Statistics::R::IO::Rserve::VERSION = '0.071';
 use 5.012;
 
 use Moo;
@@ -211,7 +211,7 @@ Statistics::R::IO::Rserve - Supply object methods for Rserve communication
 
 =head1 VERSION
 
-version 0.07
+version 0.071
 
 =head1 SYNOPSIS
 

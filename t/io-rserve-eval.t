@@ -452,7 +452,9 @@ is(Statistics::R::REXP::List->new(
 
 
 while ( my ($name, $value) = each %{TEST_CASES()} ) {
-    is(evalRserve($value->{expr}),
-       $value->{value},
+    ## NOTE: I'm switching the order of comparisons to ensure
+    ## ShortDoubleVector's 'eq' overload is used
+    is($value->{value},
+       evalRserve($value->{expr}),
        $value->{desc});
 }
