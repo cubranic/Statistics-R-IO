@@ -111,7 +111,7 @@ __END__
 
 This module is a pure-Perl implementation for reading native data
 files produced by the L<R statistical computing
-environmnent|http://www.r-project.org>)
+environment|http://www.r-project.org>)
 
 It provides routines for reading files in the two primary file
 formats used in R for serializing native objects:
