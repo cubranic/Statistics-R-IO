@@ -32,8 +32,9 @@ has fh => (
     },
     isa => sub {
         my $obj = shift;
-        die "'fh' must be a file handle"
-            unless blessed($obj) && $obj->isa('IO::Handle')
+        die "'fh' must be an IO handle"
+            unless ref($obj) eq 'GLOB' ||
+            blessed($obj) && $obj->isa('IO::Handle')
     }
 );
 
@@ -66,6 +67,12 @@ has _autoclose => (
 );
 
 
+has _autoflush => (
+    is => 'ro',
+    default => 0
+);
+
+
 sub BUILDARGS {
     my $class = shift;
     
@@ -74,21 +81,19 @@ sub BUILDARGS {
                  port => 6311,
                  _autoclose => 1 }
     } elsif ( scalar @_ == 1 ) {
-        if ( defined $_[0] ) {
-            if ( ref $_[0] eq 'HASH' ) {
-                return { %{ $_[0] } }
-            } elsif (ref $_[0] eq '') {
-                my $server = shift;
-                return { server => $server,
-                         port => 6311,
-                         _autoclose => 1  }
-            } elsif (UNIVERSAL::isa($_[0], 'IO::Handle')) {
-                my $fh = shift;
-                return { fh => $fh,
-                         _autoclose => 0  }
-            }
+        if ( ref $_[0] eq 'HASH' ) {
+            return { %{ $_[0] } }
+        } elsif (ref $_[0] eq '') {
+            my $server = shift;
+            return { server => $server,
+                     port => 6311,
+                     _autoclose => 1  }
+        } else {
+            my $fh = shift;
+            return { fh => $fh,
+                     _autoclose => 0,
+                     _autoflush => ref($fh) eq 'GLOB' }
         }
-        die "Single parameters to new() must be a HASH ref, an IO::Handle of the server connection, or server name scalar"
     }
     elsif ( @_ % 2 ) {
         die "The new() method for $class expects a hash reference or a key/value list."
@@ -157,6 +162,7 @@ sub _send_command {
     ## - high 32 bits of the length of the message (0 if < 4GB)
     $self->fh->print(pack('V4', $command, length($parameters), 0, 0) .
                      $parameters);
+    $self->fh->flush if $self->_autoflush;
     
     my $response = $self->_receive_response(16);
     ## Of the next four long-ints:
