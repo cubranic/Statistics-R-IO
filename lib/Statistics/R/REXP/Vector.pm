@@ -5,11 +5,11 @@ use 5.012;
 
 use Scalar::Util qw(blessed);
 
-use Moo::Role;
+use Moose::Role;
 
 with 'Statistics::R::REXP';
 
-requires qw(_to_s _type);
+requires qw(_type);
 
 use overload '""' => sub { shift->_to_s; };
 
@@ -20,11 +20,8 @@ has type => (
 
 has elements => (
     is => 'ro',
+    isa => 'ArrayRef',
     default => sub { []; },
-    isa => sub {
-        die "Vector elements must be an ARRAY ref". $_[0] ."\n"
-            if defined $_[0] and ref $_[0] ne ref [];
-    },
 );
 
 
@@ -108,7 +105,7 @@ __END__
 =head1 DESCRIPTION
 
 An object of this class represents an R vector. This class
-cannot be directly instantiated (it's a L<Moo::Role>), because it is
+cannot be directly instantiated (it's a L<Moose::Role>), because it is
 intended as a base abstract class with concrete subclasses to
 represent specific types of vectors, such as numeric or list.
 

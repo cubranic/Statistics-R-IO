@@ -5,25 +5,15 @@ use 5.012;
 
 use Scalar::Util qw(blessed);
 
-use Moo;
+use Moose;
 use namespace::clean;
 
 with 'Statistics::R::REXP';
 
 has name => (
     is => 'ro',
+    isa => 'Str',
     default => '',
-    coerce => sub {
-        my $x = shift;
-        if (defined $x && ! ref $x) {
-            $x;
-        } elsif (blessed $x && $x->isa('Statistics::R::REXP::Symbol')) {
-            $x->name;
-        } else {
-            die "Symbol name must be a non-reference scalar or another Symbol".
-                $x ."\n";
-        }
-    },
 );
 
 use overload
@@ -51,7 +41,12 @@ sub BUILDARGS {
                 . " You passed an odd number of arguments\n";
     }
     else {
-        return {@_};
+        my $attributes = {@_};
+        if (blessed $attributes->{name} &&
+            $attributes->{name}->isa('Statistics::R::REXP::Symbol')) {
+            $attributes->{name} = $attributes->{name}->name;
+        }
+        $attributes
     }
 }
 

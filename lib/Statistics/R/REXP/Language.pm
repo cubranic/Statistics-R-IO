@@ -5,21 +5,27 @@ use 5.012;
 
 use Scalar::Util qw(blessed);
 
-use Moo;
+use Moose;
 use namespace::clean;
 
 extends 'Statistics::R::REXP::List';
 
 has '+elements' => (
-    isa => sub {
-        die "Vector elements must be an ARRAY ref". $_[0] ."\n"
-            if defined $_[0] and ref $_[0] ne ref [];
-        my $first_element_isa = ref($_[0]->[0]);
-        die 'The first element must be a Symbol or Language'
-            unless $first_element_isa eq 'Statistics::R::REXP::Language' ||
-                $first_element_isa eq 'Statistics::R::REXP::Symbol'
-    },
+    isa => 'ArrayRef',
 );
+
+around BUILDARGS => sub {
+    my $orig = shift;
+    my $attributes = $orig->(@_);
+    my $elements = $attributes->{elements} // [];
+    if (ref $elements eq ref []) {
+        die 'The first element must be a Symbol or Language' unless
+            blessed $elements->[0] &&
+            ($elements->[0]->isa('Statistics::R::REXP::Language') ||
+             $elements->[0]->isa('Statistics::R::REXP::Symbol'))
+    }
+    $attributes
+};
 
 around _type => sub { 'language' };
 

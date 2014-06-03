@@ -5,15 +5,13 @@ use 5.012;
 
 use Scalar::Util qw( blessed );
 
-use Moo::Role;
+use Moose::Role;
 
 requires qw( to_pl );
 
 has attributes => (
     is => 'ro',
-    isa => sub {
-        die "$_[0] is not a HASH ref" unless ref $_[0] eq ref {};
-    },
+    isa => 'HashRef',
 );
 
 use overload
@@ -101,7 +99,7 @@ __END__
 =head1 DESCRIPTION
 
 An object of this class represents a native R object. This class
-cannot be directly instantiated (it's a L<Moo::Role>), because it is
+cannot be directly instantiated (it's a L<Moose::Role>), because it is
 intended as a base abstract class with concrete subclasses to
 represent specific object types.
 

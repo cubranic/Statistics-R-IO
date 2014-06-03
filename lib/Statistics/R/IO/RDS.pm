@@ -3,7 +3,7 @@ package Statistics::R::IO::RDS;
 
 use 5.012;
 
-use Moo;
+use Moose;
 
 with 'Statistics::R::IO::Base';
 

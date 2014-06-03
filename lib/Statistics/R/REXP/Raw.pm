@@ -5,23 +5,26 @@ use 5.012;
 
 use Scalar::Util qw(looks_like_number);
 
-use Moo;
+use Moose;
 use namespace::clean;
 
 with 'Statistics::R::REXP::Vector';
+use overload;
 
-has '+elements' => (
-    coerce => sub {
-        my $x = shift;
-        [ map { looks_like_number $_ && ($_ >= 0) && ($_ <= 255) ?
+
+around BUILDARGS => sub {
+    my $orig = shift;
+    my $attributes = $orig->(@_);
+    if (ref $attributes->{elements} eq ref []) {
+        $attributes->{elements} = [
+            map { looks_like_number $_ && ($_ >= 0) && ($_ <= 255) ?
                     int($_) : die "Elements of raw vectors must be 0-255" }
-              _flatten(@{$x}) ] if ref $x eq ref []
-    },
-);
-
-has '+attributes' => (
-    isa => sub { die 'Raw vectors cannot have attributes' if defined shift; },
-);
+              _flatten(@{$attributes->{elements}})
+            ];
+    }
+    die 'Raw vectors cannot have attributes' if $attributes->{attributes};
+    $attributes
+};
 
 
 sub _type { 'raw'; }

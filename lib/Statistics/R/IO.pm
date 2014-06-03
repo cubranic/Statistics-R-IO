@@ -222,7 +222,7 @@ Requires perl 5.012 or newer.
 
 =over
 
-=item * Moo
+=item * Moose
 
 =item * namespace::clean
 

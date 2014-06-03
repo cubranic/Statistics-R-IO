@@ -5,10 +5,11 @@ use 5.012;
 
 use Scalar::Util qw(weaken);
 
-use Moo;
+use Moose;
 use namespace::clean;
 
 with 'Statistics::R::REXP::Vector';
+use overload;
 
 sub _to_s {
     my $self = shift;

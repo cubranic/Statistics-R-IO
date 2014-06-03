@@ -37,7 +37,7 @@ like(exception {
      'odd constructor arguments');
 like(exception {
         Statistics::R::REXP::List->new(elements => {foo => 1, bar => 2})
-     }, qr/elements must be an ARRAY ref/,
+     }, qr/Attribute \(elements\) does not pass the type constraint/,
      'bad elements argument');
 
 my $another_list = Statistics::R::REXP::List->new(elements => [3.3, 4, 10.9]);
@@ -110,7 +110,8 @@ isnt($list_attr, $another_list_attr, 'inequality considers attributes deeply');
 ## attributes must be a hash
 like(exception {
         Statistics::R::REXP::List->new(attributes => 1)
-     }, qr/not a HASH ref/, 'setting non-HASH attributes');
+     }, qr/Attribute \(attributes\) does not pass the type constraint/,
+     'setting non-HASH attributes');
 
 ## Perl representation
 is_deeply($empty_list->to_pl,

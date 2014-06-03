@@ -3,21 +3,20 @@ package Statistics::R::REXP::GlobalEnvironment;
 
 use 5.012;
 
-use Moo;
+use Moose;
 use namespace::clean;
 
 extends 'Statistics::R::REXP::Environment';
 
-has '+attributes' => (
-    isa => sub { die 'Global environment has implicit attributes' if defined shift },
-);
-
-has '+enclosure' => (
-    isa => sub {
-        die 'Global environment has an implicit enclosure'
-            if defined $_[0]
-    },
-);
+around BUILDARGS => sub {
+    my $orig = shift;
+    my $attributes = $orig->(@_);
+    die 'Global environment has implicit attributes' if
+        exists $attributes->{attributes};
+    die 'Global environment has an implicit enclosure' if
+        exists $attributes->{enclosure};
+    $attributes
+};
 
 
 around name => sub {

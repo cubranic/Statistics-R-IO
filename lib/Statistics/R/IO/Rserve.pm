@@ -3,7 +3,7 @@ package Statistics::R::IO::Rserve;
 
 use 5.012;
 
-use Moo;
+use Moose;
 
 use Statistics::R::IO::REXPFactory;
 use Statistics::R::IO::QapEncoding;
@@ -30,12 +30,7 @@ has fh => (
             substr($response, 0, 12) eq 'Rsrv0103QAP1';
         $fh
     },
-    isa => sub {
-        my $obj = shift;
-        die "'fh' must be an IO handle"
-            unless ref($obj) eq 'GLOB' ||
-            blessed($obj) && $obj->isa('IO::Handle')
-    }
+    isa => 'FileHandle',
 );
 
 has server => (
@@ -54,10 +49,7 @@ has port => (
         my $self = shift;
         $self->fh ? $self->fh->peerport : 6311
     },
-    isa => sub {
-        die "'port' must be a number"
-            unless looks_like_number($_[0])
-    },
+    isa => 'Int',
 );
 
 

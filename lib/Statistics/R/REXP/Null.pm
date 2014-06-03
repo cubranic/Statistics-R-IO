@@ -3,14 +3,18 @@ package Statistics::R::REXP::Null;
 
 use 5.012;
 
-use Moo;
+use Moose;
 use namespace::clean;
 
 with 'Statistics::R::REXP';
 
-has '+attributes' => (
-    isa => sub { die 'Null cannot have attributes' if defined shift; },
-);
+
+sub BUILDARGS {
+    my $class = shift;
+    die 'Null cannot have attributes' if scalar @_;
+
+    return {@_}
+}
 
 sub is_null {
     return 1;

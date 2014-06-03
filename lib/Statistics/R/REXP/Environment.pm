@@ -5,7 +5,7 @@ use 5.012;
 
 use Scalar::Util qw(refaddr blessed);
 
-use Moo;
+use Moose;
 use namespace::clean;
 
 with 'Statistics::R::REXP';
@@ -15,21 +15,12 @@ has frame => (
     default => sub {
         { }
     },
-    isa => sub {
-        die 'Environment frame must be a HASH reference'
-            unless ref $_[0] eq ref {}
-    },
+    isa => 'HashRef',
 );
 
 has enclosure => (
     is => 'ro',
-    isa => sub {
-        my $parent_env = shift;
-        die 'Environment enclosure must be another Environment'
-            if defined $parent_env &&
-                !(blessed $parent_env &&
-                  $parent_env->isa('Statistics::R::REXP::Environment'))
-    },
+    isa => 'Maybe[Statistics::R::REXP::Environment]',
 );
 
 

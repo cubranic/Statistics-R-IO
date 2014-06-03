@@ -3,17 +3,24 @@ package Statistics::R::REXP::Logical;
 
 use 5.012;
 
-use Moo;
+use Moose;
 use namespace::clean;
 
 with 'Statistics::R::REXP::Vector';
+use overload;
 
-has '+elements' => (
-    coerce => sub {
-        my $x = shift;
-        [ map { defined $_ ? ($_ ? 1 : 0) : undef } _flatten(@{$x}) ] if ref $x eq ref []
-    },
-);
+
+around BUILDARGS => sub {
+    my $orig = shift;
+    my $attributes = $orig->(@_);
+    if (ref $attributes->{elements} eq ref []) {
+        $attributes->{elements} = [
+            map { defined $_ ? ($_ ? 1 : 0) : undef }
+              _flatten(@{$attributes->{elements}})
+            ];
+    }
+    $attributes
+};
 
 
 sub _type { 'logical'; }

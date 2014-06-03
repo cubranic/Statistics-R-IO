@@ -3,16 +3,13 @@ package Statistics::R::IO::ParserState;
 
 use 5.012;
 
-use Moo;
+use Moose;
 use namespace::clean;
 
 has data => (
     is => 'ro',
+    isa => 'ArrayRef',
     default => sub { [] },
-    coerce => sub {
-        my $x = shift;
-        (!ref($x)) ? [split //, $x] : $x
-    }
 );
 
 has position => (
@@ -24,6 +21,16 @@ has singletons => (
     is => 'ro',
     default => sub { [] },
 );
+
+
+around BUILDARGS => sub {
+    my $orig = shift;
+    my $attributes = $orig->(@_);
+    my $x = $attributes->{data};
+    $attributes->{data} = (!ref($x)) ? [split //, $x] : $x;
+    $attributes
+};
+
 
 sub at {
     my $self = shift;

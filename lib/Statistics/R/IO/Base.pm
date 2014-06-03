@@ -11,19 +11,14 @@ use IO::Uncompress::Bunzip2 ();
 use Scalar::Util qw(blessed);
 use Carp;
 
-use Moo::Role;
+use Moose::Role;
 
 requires qw( read );
 
 has fh => (
     is => 'ro',
     required => 1,
-    isa => sub {
-        my $obj = shift;
-        die "'fh' must be a file handle"
-            unless (blessed($obj) && $obj->isa('IO::Handle')) ||
-            UNIVERSAL::isa($obj, 'GLOB')
-    }
+    isa => 'FileHandle',
 );
 
 
@@ -115,7 +110,7 @@ __END__
 =head1 DESCRIPTION
 
 An object of this class represents a handle to an R-related file. This
-class cannot be directly instantiated (it's a L<Moo::Role>), because
+class cannot be directly instantiated (it's a L<Moose::Role>), because
 it is intended as a base abstract class with concrete subclasses to
 parse specific types of files, such as RDS or RData.
 

@@ -35,7 +35,7 @@ like(exception {
      'odd constructor arguments');
 like(exception {
         Statistics::R::REXP::Raw->new(elements => {foo => 1, bar => 2})
-     }, qr/elements must be an ARRAY ref/,
+     }, qr/Attribute \(elements\) does not pass the type constraint/,
      'bad elements argument');
 like(exception {
         Statistics::R::REXP::Raw->new([-1])
