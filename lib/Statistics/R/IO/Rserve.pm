@@ -7,6 +7,8 @@ use Moose;
 
 use Statistics::R::IO::REXPFactory;
 use Statistics::R::IO::QapEncoding;
+
+use Socket;
 use IO::Socket::INET ();
 use Scalar::Util qw(blessed looks_like_number);
 use Carp;
@@ -18,9 +20,18 @@ has fh => (
     is => 'ro',
     default => sub {
         my $self = shift;
-        my $fh = IO::Socket::INET->new(PeerAddr => $self->server,
-                                       PeerPort => $self->port) or
-                                           croak $!;
+        my $fh;
+        if ($self->_usesocket) {
+            socket($fh, PF_INET, SOCK_STREAM, getprotobyname('tcp')) ||
+                croak "socket: $!";
+            connect($fh, sockaddr_in($self->port, inet_aton($self->server))) ||
+                croak "connect: $!";
+        }
+        else {
+            $fh = IO::Socket::INET->new(PeerAddr => $self->server,
+                                        PeerPort => $self->port) or
+                                            croak $!
+        }
         my ($response, $rc) = '';
         while ($rc = $fh->read($response, 32 - length $response,
                                length $response)) {}
@@ -60,6 +71,15 @@ has _autoclose => (
 
 
 has _autoflush => (
+    is => 'ro',
+    lazy => 1,
+    default => sub {
+        my $self = shift;
+        $self->_usesocket ? 1 : 0
+    },
+);
+
+has _usesocket => (
     is => 'ro',
     default => 0
 );

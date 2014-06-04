@@ -43,7 +43,7 @@ sub check_rserve_eval_variants {
     my ($rexp, $expected, $message) = @_;
 
     subtest 'rserve eval ' . $message => sub {
-        plan tests => 4;
+        plan tests => 5;
         
         ## NOTE: I'm switching the order of comparisons to ensure
         ## ShortDoubleVector's 'eq' overload is used
@@ -60,6 +60,9 @@ sub check_rserve_eval_variants {
         is($expected,
            Statistics::R::IO::Rserve->new($s)->eval($rexp),
            $message . ' socket arg');
+        is($expected,
+           Statistics::R::IO::Rserve->new(_usesocket => 1)->eval($rexp),
+           $message . ' usesocket arg');
     }
 }
 
