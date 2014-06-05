@@ -80,7 +80,7 @@ my $Rserve_server  = 'localhost';
 my $rserve;                     # Statistics::R::IO::Rserve instance
 
 sub rserve_start {
-    $rserve //= Statistics::R::IO::Rserve->new(server => $Rserve_server, _usesocket => 1);
+    $rserve = Statistics::R::IO::Rserve->new(server => $Rserve_server, _usesocket => 1);
 
     # Keep R's RNG reproducible for this problem
     $rserve->eval("set.seed($problemSeed)")
@@ -88,14 +88,16 @@ sub rserve_start {
 
 
 sub rserve_finish {
-    $rserve->close() if $rserve
+    $rserve->close() if $rserve;
+    undef $rserve
 }
 
 
 sub rserve_eval {
     my $query = shift;
     
-    $rserve //= Statistics::R::IO::Rserve->new(server => $Rserve_server, _usesocket => 1);
+    rserve_start unless $rserve;
+    
     my $result = $rserve->eval($query);
     _unref_rexp($result)
 }
@@ -106,6 +108,7 @@ sub rserve_query {
     $query = "set.seed($problemSeed)\n" . $query;
     my $rserve_client = Statistics::R::IO::Rserve->new(server => $Rserve_server, _usesocket => 1);
     my $result = $rserve_client->eval($query);
+    $rserve_client->close;
     _unref_rexp($result)
 }
 
