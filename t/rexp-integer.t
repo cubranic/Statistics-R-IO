@@ -27,7 +27,7 @@ is(Statistics::R::REXP::Integer->new(Statistics::R::REXP::List->new([3.3, [4, '1
 ## error checking in constructor arguments
 like(exception {
         Statistics::R::REXP::Integer->new(sub {1+1})
-     }, qr/HASH or ARRAY ref data or a Statistics::R::REXP::Vector/,
+     }, qr/Attribute \(elements\) does not pass the type constraint/,
      'error-check in single-arg constructor');
 like(exception {
         Statistics::R::REXP::Integer->new(1, 2, 3)

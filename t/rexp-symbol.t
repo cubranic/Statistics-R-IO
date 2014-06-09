@@ -20,7 +20,7 @@ is(Statistics::R::REXP::Symbol->new('sym'), $sym, 'string constructor');
 ## error checking in constructor arguments
 like(exception {
         Statistics::R::REXP::Symbol->new([1, 2, 3])
-     }, qr/HASH data or a Statistics::R::REXP::Symbol/,
+     }, qr/Attribute \(name\) does not pass the type constraint/,
      'error-check in single-arg constructor');
 like(exception {
         Statistics::R::REXP::Symbol->new(1, 2, 3)

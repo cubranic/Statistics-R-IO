@@ -8,15 +8,16 @@ use namespace::clean;
 
 extends 'Statistics::R::REXP::Environment';
 
-around BUILDARGS => sub {
-    my $orig = shift;
-    my $attributes = $orig->(@_);
-    die 'Global environment has implicit attributes' if
-        exists $attributes->{attributes};
-    die 'Global environment has an implicit enclosure' if
-        exists $attributes->{enclosure};
-    $attributes
-};
+
+has '+attributes' => (
+    trigger => sub {
+        die 'Global environment has implicit attributes'
+    });
+
+has '+enclosure' => (
+    trigger => sub {
+        die 'Global environment has an implicit enclosure'
+    });
 
 
 around name => sub {

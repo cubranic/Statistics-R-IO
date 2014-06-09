@@ -18,7 +18,7 @@ isnt($env, 'null', 'null inequality');
 
 ## cannot set enclosure or attributes on the global environment
 like(exception {
-         Statistics::R::REXP::GlobalEnvironment->new(enclosure => 'foo')
+         Statistics::R::REXP::GlobalEnvironment->new(enclosure => $env_2)
      }, qr/Global environment has an implicit enclosure/, 'setting global env enclosure');
 like(exception {
          Statistics::R::REXP::GlobalEnvironment->new(attributes => { foo => 'bar', x => 42 })

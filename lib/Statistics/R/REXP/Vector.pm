@@ -6,6 +6,7 @@ use 5.012;
 use Scalar::Util qw(blessed);
 
 use Moose::Role;
+use Statistics::R::REXP::Types;
 
 with 'Statistics::R::REXP' => {
     -excludes => 'is_vector'
@@ -22,33 +23,28 @@ has type => (
 
 has elements => (
     is => 'ro',
-    isa => 'ArrayRef',
+    isa => 'VectorElements',
     default => sub { []; },
+    coerce => 1,
 );
 
 
 sub BUILDARGS {
     my $class = shift;
     if ( scalar @_ == 1 ) {
-        if ( defined $_[0] ) {
-            if ( ref $_[0] eq 'HASH' ) {
-                return { %{ $_[0] } };
-            } elsif ( ref $_[0] eq 'ARRAY' ) {
-                return { elements => $_[0] };
-            } elsif ( blessed $_[0] && $_[0]->can('does') &&
-                      $_[0]->does('Statistics::R::REXP::Vector') ) {
-                return { elements => $_[0]->elements };
-            }
+        if ( ref $_[0] eq 'HASH' ) {
+            return $_[0];
         }
-        die "Single parameters to new() must be a HASH or ARRAY ref"
-            ." data or a Statistics::R::REXP::Vector object => ". $_[0] ."\n";
+        else {
+            return { elements => $_[0] }
+        }
     }
     elsif ( @_ % 2 ) {
         die "The new() method for $class expects a hash reference or a key/value list."
                 . " You passed an odd number of arguments\n";
     }
     else {
-        return {@_};
+        return { @_ };
     }
 }
 

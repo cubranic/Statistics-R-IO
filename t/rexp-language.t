@@ -32,7 +32,7 @@ like(exception {
      'error-check in empty vec constructor');
 like(exception {
         Statistics::R::REXP::Language->new(sub {1+1})
-     }, qr/HASH or ARRAY ref data or a Statistics::R::REXP::Vector/,
+     }, qr/Attribute \(elements\) does not pass the type constraint/,
      'error-check in single-arg constructor');
 like(exception {
         Statistics::R::REXP::Language->new(1, 2, 3)

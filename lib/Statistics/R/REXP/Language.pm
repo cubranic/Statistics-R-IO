@@ -11,21 +11,8 @@ use namespace::clean;
 extends 'Statistics::R::REXP::List';
 
 has '+elements' => (
-    isa => 'ArrayRef',
+    isa => 'LanguageElements',
 );
-
-around BUILDARGS => sub {
-    my $orig = shift;
-    my $attributes = $orig->(@_);
-    my $elements = $attributes->{elements} // [];
-    if (ref $elements eq ref []) {
-        die 'The first element must be a Symbol or Language' unless
-            blessed $elements->[0] &&
-            ($elements->[0]->isa('Statistics::R::REXP::Language') ||
-             $elements->[0]->isa('Statistics::R::REXP::Symbol'))
-    }
-    $attributes
-};
 
 around _type => sub { 'language' };
 

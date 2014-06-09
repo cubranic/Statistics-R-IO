@@ -15,7 +15,7 @@ has frame => (
     default => sub {
         { }
     },
-    isa => 'HashRef',
+    isa => 'HashRef[Statistics::R::REXP]',
 );
 
 has enclosure => (
@@ -31,14 +31,12 @@ use overload
 sub BUILDARGS {
     my $class = shift;
     if ( scalar @_ == 1 ) {
-        if ( defined $_[0] ) {
-            if ( ref $_[0] eq 'HASH' ) {
-                return { %{ $_[0] } };
-            } elsif ( blessed $_[0] && $_[0]->isa('Statistics::R::REXP::Environment') ) {
-                # copy constructor from another environment
-                return { frame => $_[0]->frame,
-                         enclosure => $_[0]->enclosure };
-            }
+        if ( ref $_[0] eq 'HASH' ) {
+            return $_[0];
+        } elsif ( blessed $_[0] && $_[0]->isa('Statistics::R::REXP::Environment') ) {
+            # copy constructor from another environment
+            return { frame => $_[0]->frame,
+                     enclosure => $_[0]->enclosure };
         }
         die "Single parameters to new() must be a HASH data"
             ." or a Statistics::R::REXP::Environment object => ". $_[0] ."\n";

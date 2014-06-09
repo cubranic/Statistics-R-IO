@@ -10,18 +10,9 @@ with 'Statistics::R::REXP::Vector';
 use overload;
 
 
-around BUILDARGS => sub {
-    my $orig = shift;
-    my $attributes = $orig->(@_);
-    if (ref $attributes->{elements} eq ref []) {
-        $attributes->{elements} = [
-            map { defined $_ ? ($_ ? 1 : 0) : undef }
-              _flatten(@{$attributes->{elements}})
-            ];
-    }
-    $attributes
-};
-
+has '+elements' => (
+    isa => 'LogicalElements',
+    );
 
 sub _type { 'logical'; }
 

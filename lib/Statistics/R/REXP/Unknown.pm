@@ -6,25 +6,16 @@ use 5.012;
 use Scalar::Util qw(looks_like_number);
 
 use Moose;
+use Statistics::R::REXP::Types;
 use namespace::clean;
 
 with 'Statistics::R::REXP';
 
 has sexptype => (
     is => 'ro',
-    isa => 'Int',
+    isa => 'SexpType',
     required => 1,
 );
-
-around BUILDARGS => sub {
-    my $orig = shift;
-    my $attributes = $orig->(@_);
-    my $x = $attributes->{sexptype};
-    $attributes->{sexptype} = looks_like_number $x &&
-        ($x >= 0) && ($x <= 255) ? int($x) :
-            die "SEXP type must be a number in range 0-255";
-    $attributes
-};
 
 use overload
     '""' => sub { 'Unknown' };

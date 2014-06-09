@@ -11,20 +11,10 @@ use namespace::clean;
 with 'Statistics::R::REXP::Vector';
 use overload;
 
-around BUILDARGS => sub {
-    my $orig = shift;
-    my $attributes = $orig->(@_);
-    if (ref $attributes->{elements} eq ref []) {
-        $attributes->{elements} = [
-            map { looks_like_number $_ ?
-                      int($_ + ($_ <=> 0) * 0.5) :
-                      undef}
-              _flatten(@{$attributes->{elements}})
-            ];
-    }
-    $attributes
-};
 
+has '+elements' => (
+    isa => 'IntegerElements',
+);
 
 sub _type { 'integer'; }
 

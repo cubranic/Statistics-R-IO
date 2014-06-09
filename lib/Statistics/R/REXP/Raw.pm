@@ -12,20 +12,14 @@ with 'Statistics::R::REXP::Vector';
 use overload;
 
 
-around BUILDARGS => sub {
-    my $orig = shift;
-    my $attributes = $orig->(@_);
-    if (ref $attributes->{elements} eq ref []) {
-        $attributes->{elements} = [
-            map { looks_like_number $_ && ($_ >= 0) && ($_ <= 255) ?
-                    int($_) : die "Elements of raw vectors must be 0-255" }
-              _flatten(@{$attributes->{elements}})
-            ];
-    }
-    die 'Raw vectors cannot have attributes' if $attributes->{attributes};
-    $attributes
-};
+has '+attributes' => (
+    trigger => sub {
+        die 'Raw vectors cannot have attributes'
+    });
 
+has '+elements' => (
+    isa => 'RawElements',
+);
 
 sub _type { 'raw'; }
 

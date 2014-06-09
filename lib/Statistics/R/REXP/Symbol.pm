@@ -6,14 +6,16 @@ use 5.012;
 use Scalar::Util qw(blessed);
 
 use Moose;
+use Statistics::R::REXP::Types;
 use namespace::clean;
 
 with 'Statistics::R::REXP';
 
 has name => (
     is => 'ro',
-    isa => 'Str',
+    isa => 'SymbolName',
     default => '',
+    coerce => 1,
 );
 
 use overload
@@ -21,32 +23,20 @@ use overload
 
 sub BUILDARGS {
     my $class = shift;
-    if ( scalar @_ == 1 ) {
-        if ( defined $_[0] ) {
-            if ( ref $_[0] eq 'HASH' ) {
-                return { %{ $_[0] } };
-            } elsif ( blessed $_[0] && $_[0]->isa('Statistics::R::REXP::Symbol') ) {
-                # copy constructor from another name
-                return { name => $_[0]->name };
-            } elsif ( ! ref $_[0] ) {
-                # name as scalar
-                return { name => $_[0] };
-            }
+    if ( scalar @_ == 1) {
+        if ( ref $_[0] eq 'HASH' ) {
+            return $_[0]
         }
-        die "Single parameters to new() must be a HASH data"
-            ." or a Statistics::R::REXP::Symbol object => ". $_[0] ."\n";
+        else {
+            return { name => $_[0] }
+        }
     }
     elsif ( @_ % 2 ) {
         die "The new() method for $class expects a hash reference or a key/value list."
                 . " You passed an odd number of arguments\n";
     }
     else {
-        my $attributes = {@_};
-        if (blessed $attributes->{name} &&
-            $attributes->{name}->isa('Statistics::R::REXP::Symbol')) {
-            $attributes->{name} = $attributes->{name}->name;
-        }
-        $attributes
+        return { @_ };
     }
 }
 

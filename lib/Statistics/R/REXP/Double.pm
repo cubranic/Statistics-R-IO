@@ -12,18 +12,9 @@ with 'Statistics::R::REXP::Vector';
 use overload;
 
 
-around BUILDARGS => sub {
-    my $orig = shift;
-    my $attributes = $orig->(@_);
-    if (ref $attributes->{elements} eq ref []) {
-        $attributes->{elements} = [ 
-            map { looks_like_number $_ ? $_ : undef}
-              _flatten(@{$attributes->{elements}})
-            ];
-    }
-    $attributes
-};
-
+has '+elements' => (
+    isa => 'DoubleElements',
+    );
 
 sub _type { 'double'; }
 
