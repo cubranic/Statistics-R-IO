@@ -74,6 +74,8 @@ sub to_pl {
 }
 
 
+__PACKAGE__->meta->make_immutable;
+
 1; # End of Statistics::R::REXP::Environment
 
 __END__

@@ -29,6 +29,9 @@ around BUILDARGS => sub {
 
 around _type => sub { 'language' };
 
+
+__PACKAGE__->meta->make_immutable;
+
 1; # End of Statistics::R::REXP::Language
 
 __END__

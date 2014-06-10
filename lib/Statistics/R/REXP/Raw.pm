@@ -29,6 +29,9 @@ around BUILDARGS => sub {
 
 sub _type { 'raw'; }
 
+
+__PACKAGE__->meta->make_immutable;
+
 1; # End of Statistics::R::REXP::Raw
 
 __END__

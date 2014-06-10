@@ -23,6 +23,9 @@ around name => sub {
     'R_GlobalEnvironment'
 };
 
+
+__PACKAGE__->meta->make_immutable;
+
 1; # End of Statistics::R::REXP::GlobalEnvironment
 
 __END__

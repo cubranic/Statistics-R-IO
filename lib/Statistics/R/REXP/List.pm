@@ -26,6 +26,9 @@ sub _to_s {
 
 sub _type { 'list'; }
 
+
+__PACKAGE__->meta->make_immutable;
+
 1; # End of Statistics::R::REXP::List
 
 __END__

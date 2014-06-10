@@ -62,6 +62,9 @@ sub to_pl {
     $self->name
 }
 
+
+__PACKAGE__->meta->make_immutable;
+
 1; # End of Statistics::R::REXP::Symbol
 
 __END__

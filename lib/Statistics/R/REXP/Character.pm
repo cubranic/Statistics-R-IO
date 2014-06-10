@@ -23,6 +23,9 @@ around BUILDARGS => sub {
 
 sub _type { 'character'; }
 
+
+__PACKAGE__->meta->make_immutable;
+
 1; # End of Statistics::R::REXP::Character
 
 __END__

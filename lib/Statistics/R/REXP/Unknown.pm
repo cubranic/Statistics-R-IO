@@ -33,6 +33,9 @@ sub to_pl {
     undef
 }
 
+
+__PACKAGE__->meta->make_immutable;
+
 1; # End of Statistics::R::REXP::Unknown
 
 __END__

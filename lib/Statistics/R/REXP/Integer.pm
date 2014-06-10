@@ -28,6 +28,9 @@ around BUILDARGS => sub {
 
 sub _type { 'integer'; }
 
+
+__PACKAGE__->meta->make_immutable;
+
 1; # End of Statistics::R::REXP::Integer
 
 __END__

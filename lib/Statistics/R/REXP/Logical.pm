@@ -25,6 +25,9 @@ around BUILDARGS => sub {
 
 sub _type { 'logical'; }
 
+
+__PACKAGE__->meta->make_immutable;
+
 1; # End of Statistics::R::REXP::Logical
 
 __END__
