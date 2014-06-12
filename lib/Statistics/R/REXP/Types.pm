@@ -59,7 +59,10 @@ coerce 'IntegerElements',
 
 ## Used by Logical
 type 'LogicalElement',
-    where { !defined $_ || $_ eq '1' || $_ eq '0' };
+    where { !defined $_ || $_ eq '1' || $_ eq '0' },
+    inline_as {
+        '!defined(' . $_[1] . ') || ' . $_[1] . ' ==1 || ' . $_[1] . ' == 0'
+    };
 
 sub _logicalize {
     my $x = scalar @_ ? $_[0] : $_;
@@ -93,6 +96,9 @@ type 'DoubleElement',
     where {
         require Scalar::Util;
         !defined($_) || Scalar::Util::looks_like_number($_);
+    },
+    inline_as {
+        '!defined(' . $_[1] . ') || Scalar::Util::looks_like_number(' . $_[1] . ')'
     };
 
 subtype 'DoubleElements',
@@ -124,6 +130,12 @@ type 'LanguageElements',
             ($_->[0]->isa('Statistics::R::REXP::Language') ||
              $_->[0]->isa('Statistics::R::REXP::Symbol'))
     },
+    inline_as {
+        "ref " . $_[1] . " eq ref [] &&
+            Scalar::Util::blessed " . $_[1] . "->[0] &&
+            (" . $_[1] . "->[0]->isa('Statistics::R::REXP::Language') ||
+             " . $_[1] . "->[0]->isa('Statistics::R::REXP::Symbol'))"
+    },
     message { "The first element must be a Symbol or Language" };
 
 coerce 'LanguageElements',
@@ -138,7 +150,11 @@ subtype 'RawElement',
     as 'Int',
     where {
         $_ >= 0 && $_ <= 255
-},
+    },
+    inline_as {
+        $_[0]->parent()->_inline_check($_[1]) . " && " .
+            $_[1] . " >= 0 && " . $_[1] . " <= 255";
+    },
     message { "Elements of raw vectors must be 0-255" };
 
 subtype 'RawElements',
@@ -171,6 +187,11 @@ coerce 'SymbolName',
 ## Used by Unknown
 subtype 'SexpType',
     as 'Int',
-    where { ($_ >= 0) && ($_ <= 255)
+    where {
+        ($_ >= 0) && ($_ <= 255)
+    },
+    inline_as {
+        $_[0]->parent()->_inline_check($_[1]) . " && " .
+            $_[1] . " >= 0 && " . $_[1] . " <= 255";
     },
     message { "SEXP type must be a number in range 0-255" };
