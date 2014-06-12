@@ -7,7 +7,9 @@ use Scalar::Util qw(blessed);
 
 use Moose::Role;
 
-with 'Statistics::R::REXP';
+with 'Statistics::R::REXP' => {
+    -excludes => 'is_vector'
+};
 
 requires qw(_type);
 
