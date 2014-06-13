@@ -130,6 +130,6 @@ is_deeply($nested_list->to_pl,
           'nested lists Perl representation');
 
 is_deeply($nested_rexps->to_pl,
-          [ [ 1, 2, 3], [ ['a'], ['b'], [11] ], ['foo'] ],
+          [ [ 1, 2, 3], [ 'a', 'b', 11 ], 'foo' ],
           'list with nested REXPs Perl representation');
 

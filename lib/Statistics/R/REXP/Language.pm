@@ -14,6 +14,10 @@ has '+elements' => (
     isa => 'LanguageElements',
 );
 
+sub to_pl {
+    Statistics::R::REXP::Vector::to_pl(@_)
+}
+
 around _type => sub { 'language' };
 
 
@@ -55,6 +59,16 @@ L<Statistics::R::REXP::Vector>, with the added restriction that its
 first element has to be a L<Statistics::R::REXP::Symbol> or another
 C<Language> instance. Trying to create a Language instance that
 doesn't follow this restriction will raise an exception.
+
+=over
+
+=item to_pl
+
+Perl value of the language vector is an array reference to the Perl
+values of its C<elements>. (That is, it's equivalent to C<map
+{$_->to_pl}, $vec->elements>.
+
+=back
 
 
 =head1 BUGS AND LIMITATIONS

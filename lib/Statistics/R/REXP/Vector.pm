@@ -122,9 +122,10 @@ Returns an array reference to the vector's elements.
 
 =item to_pl
 
-Perl value of the symbol is an array reference to the Perl values of
-its C<elements>. (That is, it's equivalent to C<map {$_->to_pl},
-$vec->elements>.
+Perl value of the language vector is an array reference to the Perl
+values of its C<elements>. (That is, it's equivalent to C<map
+{$_->to_pl}, $vec->elements>.)
+
 
 =back
 
