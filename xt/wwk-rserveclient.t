@@ -6,12 +6,13 @@ use warnings FATAL => 'all';
 use Test::More;
 if (IO::Socket::INET->new(PeerAddr => 'localhost',
                           PeerPort => 6311)) {
-    plan tests => 30;
+    plan tests => 31;
 }
 else {
     plan skip_all => "Cannot connect to Rserve server at localhost:6311";
 }
 use Test::Fatal;
+use Test::MockObject::Extends;
 
 use Statistics::R::IO::Rserve;
 use Statistics::R::REXP::Integer;
@@ -22,6 +23,34 @@ use TestCases;
 
 ## load the RserveClient macro
 my $problemSeed = 1234;         # var provided by WWk env
+
+use File::Spec;
+use File::Path;
+use Path::Class;
+my $PG = Test::MockObject::Extends->new();
+
+## return the last segment of the path
+$PG->mock('fileFromPath',
+          sub {
+              my ($self, $path) = (shift, shift);
+              (File::Spec->splitpath($path))[-1];
+          });
+## creates all of the intermediate directories between the tempDirectory
+$PG->mock('surePathToTmpFile',
+          sub {
+              my ($self, $file) = (shift, shift);
+
+              my $file_path = Path::Class::file($file);
+              my $file_dir = $file_path->dir;
+              
+              my $tmp_dir = Path::Class::dir(File::Spec->tmpdir);
+              $file_dir = File::Spec->catdir($tmp_dir, $file_dir) unless
+                  $tmp_dir->subsumes($file_dir);
+              File::Path::make_path($file_dir);
+
+              File::Spec->catdir($file_dir, $file_path->basename)
+          });
+
 open(my $macrofile, 'extras/WebWork/RserveClient.pl') ||
     die "Cannot open file: $!";
 eval join('', <$macrofile>) ||
@@ -500,3 +529,10 @@ while ( my ($name, $value) = each %{TEST_CASES()} ) {
                       $value->{value}->to_pl,
                       $value->{desc});
 }
+
+
+my $remote = rserve_start_plot();
+rserve_eval('plot(1)');
+my $local = rserve_finish_plot($remote);
+ok(-e $local, 'rserve plot file');
+Path::Class::file($local)->remove;

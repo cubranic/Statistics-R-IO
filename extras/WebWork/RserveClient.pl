@@ -62,6 +62,19 @@ Other than backward compatibility, the only reason for using these
 functions is to start a new clean session within a single problem,
 which shouldn't be a common occurrence.
 
+=item rserve_start_plot [IMG_TYPE]
+
+Opens a new R graphics device to capture subsequent graphics output in
+a temporary file on the R server. IMG_TYPE can be 'png', 'jpg', or
+'pdf', with 'png' as the default. Returns the name of the remote file.
+
+
+=item rserve_finish_plot REMOTE_NAME
+
+Closes the R graphics capture to file REMOTE_NAME, transfers the file
+to WebWork's temporary file area, and returns the name of the local
+file that can then be used by the image macro.
+
 =back
 
 
@@ -131,5 +144,33 @@ sub _unref_rexp {
         $value
     }
 }
+
+sub rserve_start_plot {
+    my $device = shift // 'png';
+
+    die "Unsupported image type $device" unless $device =~ /^(png|pdf|jpg)$/;
+    my $remote_image = (rserve_eval("tempfile(fileext='.$device')"))[0];
+    
+    $device =~ s/jpg/jpeg/;
+    rserve_eval("$device('$remote_image')");
+
+    $remote_image
+}
+
+
+sub rserve_finish_plot {
+    my $remote_image = shift or die "Missing remote image name";
+
+    my $img_file = $PG->fileFromPath($remote_image);
+
+    my $local_image = $PG->surePathToTmpFile($img_file);
+
+    rserve_eval("dev.off()");
+
+    $rserve->get_file($remote_image, $local_image);
+    
+    $local_image
+}
+
 
 1;
