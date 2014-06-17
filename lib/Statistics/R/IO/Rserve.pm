@@ -160,6 +160,24 @@ sub ser_eval {
 }
 
 
+sub get_file {
+    my ($self, $remote, $local) = (shift, shift, shift);
+
+    my $data = pack 'C*', @{$self->eval("readBin('$remote', what='raw', n=file.info('$remote')[['size']])")->to_pl};
+
+    if ($local) {
+        open my $local_file, '>:raw', $local or
+            croak "Cannot open $!";
+        
+        print $local_file $data;
+        
+        close $local_file;
+    }
+    
+    $data
+}
+
+
 ## Sends a request to Rserve and receives the response, checking for
 ## any errors.
 ## 
@@ -323,6 +341,13 @@ Rserve command (code 0xf5), which is designated as "internal/special"
 and "should not be used by clients". Consequently, it is not
 recommended to use this method in a production environment, but only
 to help debug cases where C<eval> isn't working as desired.
+
+=item get_file REMOTE_NAME [, LOCAL_NAME]
+
+Transfers a file named REMOTE_NAME from the Rserve server to the local
+machine, copying it to LOCAL_NAME if it is specified. The file is
+transferred in binary mode. Returns the contents of the file as a
+scalar.
 
 =item close
 
