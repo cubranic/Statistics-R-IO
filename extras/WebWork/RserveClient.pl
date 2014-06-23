@@ -75,6 +75,13 @@ Closes the R graphics capture to file REMOTE_NAME, transfers the file
 to WebWork's temporary file area, and returns the name of the local
 file that can then be used by the image macro.
 
+=item rserve_get_file REMOTE_NAME, [LOCAL_NAME]
+
+Transfer the file REMOTE_NAME from the R server to WebWork's temporary
+file area, and returns the name of the local file that can then be
+used by the C<htmlLink> macro. If LOCAL_NAME is not specified, the
+filename portion of the REMOTE_NAME is used.
+
 =back
 
 
@@ -161,15 +168,21 @@ sub rserve_start_plot {
 sub rserve_finish_plot {
     my $remote_image = shift or die "Missing remote image name";
 
-    my $img_file = $PG->fileFromPath($remote_image);
-
-    my $local_image = $PG->surePathToTmpFile($img_file);
-
     rserve_eval("dev.off()");
 
-    $rserve->get_file($remote_image, $local_image);
+    rserve_get_file($remote_image)
+}
+
+
+sub rserve_get_file {
+    my $remote = shift or die "Missing remote file name";
+    my $local = shift // $PG->fileFromPath($remote);
+
+    $local = $PG->surePathToTmpFile($local);
+
+    $rserve->get_file($remote, $local);
     
-    $local_image
+    $local
 }
 
 

@@ -6,7 +6,7 @@ use warnings FATAL => 'all';
 use Test::More;
 if (IO::Socket::INET->new(PeerAddr => 'localhost',
                           PeerPort => 6311)) {
-    plan tests => 31;
+    plan tests => 32;
 }
 else {
     plan skip_all => "Cannot connect to Rserve server at localhost:6311";
@@ -534,5 +534,10 @@ while ( my ($name, $value) = each %{TEST_CASES()} ) {
 my $remote = rserve_start_plot();
 rserve_eval('plot(1)');
 my $local = rserve_finish_plot($remote);
+ok(-e $local, 'rserve plot file');
+Path::Class::file($local)->remove;
+
+$remote = (rserve_eval("file.path(system.file(package='base'), 'DESCRIPTION')"))[0];
+$local = rserve_get_file($remote);
 ok(-e $local, 'rserve plot file');
 Path::Class::file($local)->remove;
