@@ -1,5 +1,12 @@
 Revision history for Statistics-R-IO
 
+0.08    23 June 2014
+        - Use scalars in Perl rep of list for atomic vectors of length 1
+        - Switch from Moo to Moose (#22)
+        - Create Rserve::get_file method to copy a file from the R server
+        - Allow using low-level sockets as Rserve handles
+        - Include a WebWork macros that wrap the Rserve functionality
+
 0.071   22 May 2014
         - Fix test failures when using Perl with long doubles (#9)
 
