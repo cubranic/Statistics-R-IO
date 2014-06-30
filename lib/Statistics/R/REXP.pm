@@ -1,7 +1,7 @@
 package Statistics::R::REXP;
 # ABSTRACT: base class for R objects (C<SEXP>s)
-$Statistics::R::REXP::VERSION = '0.08';
-use 5.012;
+$Statistics::R::REXP::VERSION = '0.091';
+use 5.010;
 
 use Scalar::Util qw( blessed );
 
@@ -91,7 +91,7 @@ Statistics::R::REXP - base class for R objects (C<SEXP>s)
 
 =head1 VERSION
 
-version 0.08
+version 0.091
 
 =head1 SYNOPSIS
 

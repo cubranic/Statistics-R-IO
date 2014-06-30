@@ -21,8 +21,8 @@ requires:
   Moose: '2.0'
   Scalar::Util: '0'
   namespace::clean: '0.24'
-  perl: '5.012'
+  perl: '5.010'
 resources:
   homepage: https://github.com/cubranic/Statistics-R-IO
   repository: https://github.com/cubranic/Statistics-R-IO.git
-version: '0.08'
+version: '0.091'

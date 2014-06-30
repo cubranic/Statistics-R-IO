@@ -1,7 +1,7 @@
 package Statistics::R::REXP::Language;
 # ABSTRACT: an R language vector
-$Statistics::R::REXP::Language::VERSION = '0.08';
-use 5.012;
+$Statistics::R::REXP::Language::VERSION = '0.091';
+use 5.010;
 
 use Scalar::Util qw(blessed);
 
@@ -37,7 +37,7 @@ Statistics::R::REXP::Language - an R language vector
 
 =head1 VERSION
 
-version 0.08
+version 0.091
 
 =head1 SYNOPSIS
 

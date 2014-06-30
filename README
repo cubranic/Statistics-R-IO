@@ -2,7 +2,7 @@ NAME
     Statistics::R::IO - Perl interface to serialized R data
 
 VERSION
-    version 0.08
+    version 0.091
 
 SYNOPSIS
         use Statistics::R::IO;
@@ -84,7 +84,7 @@ SUBROUTINES
         opened it itself, but not if the connection was passed as a HANDLE.
 
 DEPENDENCIES
-    Requires perl 5.012 or newer.
+    Requires perl 5.010 or newer.
 
   Core modules
     *   strict

@@ -87,7 +87,7 @@ filename portion of the REMOTE_NAME is used.
 
 =head1 DEPENDENCIES
 
-Requires perl 5.012 or newer and CPAN module Statistics::R::IO, which
+Requires perl 5.010 or newer and CPAN module Statistics::R::IO, which
 has to be loaded in WebWork's Safe compartment by adding it to
 ${pg}{modules}.
 

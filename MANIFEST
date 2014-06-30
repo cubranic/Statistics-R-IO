@@ -34,7 +34,6 @@ lib/Statistics/R/REXP/Symbol.pm
 lib/Statistics/R/REXP/Types.pm
 lib/Statistics/R/REXP/Unknown.pm
 lib/Statistics/R/REXP/Vector.pm
-t/data/.Rhistory
 t/data/ABC-abc-noxdr
 t/data/ABC-abc-xdr
 t/data/ABC-abc-xdr.rds

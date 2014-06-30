@@ -33,7 +33,7 @@
             "Moose" : "2.0",
             "Scalar::Util" : "0",
             "namespace::clean" : "0.24",
-            "perl" : "5.012"
+            "perl" : "5.010"
          }
       },
       "test" : {
@@ -58,6 +58,6 @@
          "web" : "https://github.com/cubranic/Statistics-R-IO"
       }
    },
-   "version" : "0.08"
+   "version" : "0.091"
 }
 
