@@ -2,7 +2,7 @@ NAME
     Statistics::R::IO - Perl interface to serialized R data
 
 VERSION
-    version 0.071
+    version 0.08
 
 SYNOPSIS
         use Statistics::R::IO;
@@ -20,7 +20,7 @@ SYNOPSIS
 
 DESCRIPTION
     This module is a pure-Perl implementation for reading native data files
-    produced by the R statistical computing environmnent
+    produced by the R statistical computing environment
     <http://www.r-project.org>)
 
     It provides routines for reading files in the two primary file formats
@@ -104,7 +104,7 @@ DEPENDENCIES
     *   Test::More
 
   Additional CPAN modules
-    *   Moo
+    *   Moose
 
     *   namespace::clean
 

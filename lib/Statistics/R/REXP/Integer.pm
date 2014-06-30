@@ -1,27 +1,25 @@
 package Statistics::R::REXP::Integer;
 # ABSTRACT: an R integer vector
-$Statistics::R::REXP::Integer::VERSION = '0.071';
+$Statistics::R::REXP::Integer::VERSION = '0.08';
 use 5.012;
 
 use Scalar::Util qw(looks_like_number);
 
-use Moo;
+use Moose;
 use namespace::clean;
 
 with 'Statistics::R::REXP::Vector';
+use overload;
+
 
 has '+elements' => (
-    coerce => sub {
-        my $x = shift;
-        [ map { looks_like_number $_ ?
-                    int($_ + ($_ <=> 0) * 0.5) :
-                    undef}
-              _flatten(@{$x}) ] if ref $x eq ref []
-    },
+    isa => 'IntegerElements',
 );
 
-
 sub _type { 'integer'; }
+
+
+__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::Integer
 
@@ -37,7 +35,7 @@ Statistics::R::REXP::Integer - an R integer vector
 
 =head1 VERSION
 
-version 0.071
+version 0.08
 
 =head1 SYNOPSIS
 

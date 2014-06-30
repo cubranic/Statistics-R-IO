@@ -1,24 +1,25 @@
 package Statistics::R::REXP::Character;
 # ABSTRACT: an R character vector
-$Statistics::R::REXP::Character::VERSION = '0.071';
+$Statistics::R::REXP::Character::VERSION = '0.08';
 use 5.012;
 
 use Scalar::Util qw(looks_like_number);
 
-use Moo;
+use Moose;
 use namespace::clean;
 
 with 'Statistics::R::REXP::Vector';
+use overload;
+
 
 has '+elements' => (
-    coerce => sub {
-        my $x = shift;
-        [ _flatten(@{$x}) ] if ref $x eq ref [];
-    },
+    isa => 'CharacterElements',
 );
 
-
 sub _type { 'character'; }
+
+
+__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::Character
 
@@ -34,7 +35,7 @@ Statistics::R::REXP::Character - an R character vector
 
 =head1 VERSION
 
-version 0.071
+version 0.08
 
 =head1 SYNOPSIS
 

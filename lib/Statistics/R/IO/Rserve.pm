@@ -1,12 +1,14 @@
 package Statistics::R::IO::Rserve;
 # ABSTRACT: Supply object methods for Rserve communication
-$Statistics::R::IO::Rserve::VERSION = '0.071';
+$Statistics::R::IO::Rserve::VERSION = '0.08';
 use 5.012;
 
-use Moo;
+use Moose;
 
 use Statistics::R::IO::REXPFactory;
 use Statistics::R::IO::QapEncoding;
+
+use Socket;
 use IO::Socket::INET ();
 use Scalar::Util qw(blessed looks_like_number);
 use Carp;
@@ -18,9 +20,18 @@ has fh => (
     is => 'ro',
     default => sub {
         my $self = shift;
-        my $fh = IO::Socket::INET->new(PeerAddr => $self->server,
-                                       PeerPort => $self->port) or
-                                           croak $!;
+        my $fh;
+        if ($self->_usesocket) {
+            socket($fh, PF_INET, SOCK_STREAM, getprotobyname('tcp')) ||
+                croak "socket: $!";
+            connect($fh, sockaddr_in($self->port, inet_aton($self->server))) ||
+                croak "connect: $!";
+        }
+        else {
+            $fh = IO::Socket::INET->new(PeerAddr => $self->server,
+                                        PeerPort => $self->port) or
+                                            croak $!
+        }
         my ($response, $rc) = '';
         while ($rc = $fh->read($response, 32 - length $response,
                                length $response)) {}
@@ -30,11 +41,7 @@ has fh => (
             substr($response, 0, 12) eq 'Rsrv0103QAP1';
         $fh
     },
-    isa => sub {
-        my $obj = shift;
-        die "'fh' must be a file handle"
-            unless blessed($obj) && $obj->isa('IO::Handle')
-    }
+    isa => 'FileHandle',
 );
 
 has server => (
@@ -53,14 +60,26 @@ has port => (
         my $self = shift;
         $self->fh ? $self->fh->peerport : 6311
     },
-    isa => sub {
-        die "'port' must be a number"
-            unless looks_like_number($_[0])
-    },
+    isa => 'Int',
 );
 
 
 has _autoclose => (
+    is => 'ro',
+    default => 0
+);
+
+
+has _autoflush => (
+    is => 'ro',
+    lazy => 1,
+    default => sub {
+        my $self = shift;
+        $self->_usesocket ? 1 : 0
+    },
+);
+
+has _usesocket => (
     is => 'ro',
     default => 0
 );
@@ -74,21 +93,19 @@ sub BUILDARGS {
                  port => 6311,
                  _autoclose => 1 }
     } elsif ( scalar @_ == 1 ) {
-        if ( defined $_[0] ) {
-            if ( ref $_[0] eq 'HASH' ) {
-                return { %{ $_[0] } }
-            } elsif (ref $_[0] eq '') {
-                my $server = shift;
-                return { server => $server,
-                         port => 6311,
-                         _autoclose => 1  }
-            } elsif (UNIVERSAL::isa($_[0], 'IO::Handle')) {
-                my $fh = shift;
-                return { fh => $fh,
-                         _autoclose => 0  }
-            }
+        if ( ref $_[0] eq 'HASH' ) {
+            return { %{ $_[0] } }
+        } elsif (ref $_[0] eq '') {
+            my $server = shift;
+            return { server => $server,
+                     port => 6311,
+                     _autoclose => 1  }
+        } else {
+            my $fh = shift;
+            return { fh => $fh,
+                     _autoclose => 0,
+                     _autoflush => ref($fh) eq 'GLOB' }
         }
-        die "Single parameters to new() must be a HASH ref, an IO::Handle of the server connection, or server name scalar"
     }
     elsif ( @_ % 2 ) {
         die "The new() method for $class expects a hash reference or a key/value list."
@@ -143,6 +160,24 @@ sub ser_eval {
 }
 
 
+sub get_file {
+    my ($self, $remote, $local) = (shift, shift, shift);
+
+    my $data = pack 'C*', @{$self->eval("readBin('$remote', what='raw', n=file.info('$remote')[['size']])")->to_pl};
+
+    if ($local) {
+        open my $local_file, '>:raw', $local or
+            croak "Cannot open $!";
+        
+        print $local_file $data;
+        
+        close $local_file;
+    }
+    
+    $data
+}
+
+
 ## Sends a request to Rserve and receives the response, checking for
 ## any errors.
 ## 
@@ -157,6 +192,7 @@ sub _send_command {
     ## - high 32 bits of the length of the message (0 if < 4GB)
     $self->fh->print(pack('V4', $command, length($parameters), 0, 0) .
                      $parameters);
+    $self->fh->flush if $self->_autoflush;
     
     my $response = $self->_receive_response(16);
     ## Of the next four long-ints:
@@ -197,6 +233,8 @@ sub DEMOLISH {
 }
 
 
+__PACKAGE__->meta->make_immutable;
+
 1;
 
 __END__
@@ -211,7 +249,7 @@ Statistics::R::IO::Rserve - Supply object methods for Rserve communication
 
 =head1 VERSION
 
-version 0.071
+version 0.08
 
 =head1 SYNOPSIS
 
@@ -310,6 +348,13 @@ Rserve command (code 0xf5), which is designated as "internal/special"
 and "should not be used by clients". Consequently, it is not
 recommended to use this method in a production environment, but only
 to help debug cases where C<eval> isn't working as desired.
+
+=item get_file REMOTE_NAME [, LOCAL_NAME]
+
+Transfers a file named REMOTE_NAME from the Rserve server to the local
+machine, copying it to LOCAL_NAME if it is specified. The file is
+transferred in binary mode. Returns the contents of the file as a
+scalar.
 
 =item close
 

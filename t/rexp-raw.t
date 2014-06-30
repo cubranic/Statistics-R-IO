@@ -27,7 +27,7 @@ is(Statistics::R::REXP::Raw->new(Statistics::R::REXP::List->new([3.3, [4, '11']]
 ## error checking in constructor arguments
 like(exception {
         Statistics::R::REXP::Raw->new(sub {1+1})
-     }, qr/HASH or ARRAY ref data or a Statistics::R::REXP::Vector/,
+     }, qr/Attribute \(elements\) does not pass the type constraint/,
      'error-check in single-arg constructor');
 like(exception {
         Statistics::R::REXP::Raw->new(1, 2, 3)
@@ -35,7 +35,7 @@ like(exception {
      'odd constructor arguments');
 like(exception {
         Statistics::R::REXP::Raw->new(elements => {foo => 1, bar => 2})
-     }, qr/elements must be an ARRAY ref/,
+     }, qr/Attribute \(elements\) does not pass the type constraint/,
      'bad elements argument');
 like(exception {
         Statistics::R::REXP::Raw->new([-1])

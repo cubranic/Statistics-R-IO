@@ -5,7 +5,7 @@ use 5.012;
 
 use Scalar::Util qw(looks_like_number);
 
-use Moo;
+use Moose;
 use namespace::clean;
 
 extends 'Statistics::R::REXP::Double';

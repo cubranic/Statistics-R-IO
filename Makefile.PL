@@ -7,6 +7,8 @@ use 5.012;
 
 use ExtUtils::MakeMaker 6.30;
 
+use File::ShareDir::Install;
+install_share dist => "extras";
 
 
 my %WriteMakefileArgs = (
@@ -14,7 +16,8 @@ my %WriteMakefileArgs = (
   "AUTHOR" => "Davor Cubranic <cubranic\@stat.ubc.ca>",
   "BUILD_REQUIRES" => {},
   "CONFIGURE_REQUIRES" => {
-    "ExtUtils::MakeMaker" => "6.30"
+    "ExtUtils::MakeMaker" => "6.30",
+    "File::ShareDir::Install" => "0.03"
   },
   "DISTNAME" => "Statistics-R-IO",
   "EXE_FILES" => [],
@@ -22,7 +25,7 @@ my %WriteMakefileArgs = (
   "NAME" => "Statistics::R::IO",
   "PREREQ_PM" => {
     "Carp" => 0,
-    "Moo" => "1.004",
+    "Moose" => "2.0",
     "Scalar::Util" => 0,
     "namespace::clean" => "0.24"
   },
@@ -31,7 +34,7 @@ my %WriteMakefileArgs = (
     "Test::MockObject" => 0,
     "Test::More" => "0.96"
   },
-  "VERSION" => "0.071",
+  "VERSION" => "0.08",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -40,7 +43,7 @@ my %WriteMakefileArgs = (
 
 my %FallbackPrereqs = (
   "Carp" => 0,
-  "Moo" => "1.004",
+  "Moose" => "2.0",
   "Scalar::Util" => 0,
   "Test::Fatal" => 0,
   "Test::MockObject" => 0,
@@ -60,5 +63,10 @@ delete $WriteMakefileArgs{CONFIGURE_REQUIRES}
 
 WriteMakefile(%WriteMakefileArgs);
 
+{
+package
+MY;
+use File::ShareDir::Install qw(postamble);
+}
 
 

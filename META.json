@@ -16,7 +16,8 @@
    "prereqs" : {
       "configure" : {
          "requires" : {
-            "ExtUtils::MakeMaker" : "6.30"
+            "ExtUtils::MakeMaker" : "6.30",
+            "File::ShareDir::Install" : "0.03"
          }
       },
       "develop" : {
@@ -29,7 +30,7 @@
       "runtime" : {
          "requires" : {
             "Carp" : "0",
-            "Moo" : "1.004",
+            "Moose" : "2.0",
             "Scalar::Util" : "0",
             "namespace::clean" : "0.24",
             "perl" : "5.012"
@@ -40,6 +41,11 @@
             "Test::Fatal" : "0",
             "Test::MockObject" : "0",
             "Test::More" : "0.96"
+         },
+         "suggests" : {
+            "File::Path" : "0",
+            "File::Spec" : "0",
+            "Path::Class" : "0"
          }
       }
    },
@@ -52,6 +58,6 @@
          "web" : "https://github.com/cubranic/Statistics-R-IO"
       }
    },
-   "version" : "0.071"
+   "version" : "0.08"
 }
 

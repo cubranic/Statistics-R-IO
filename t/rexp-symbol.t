@@ -20,7 +20,7 @@ is(Statistics::R::REXP::Symbol->new('sym'), $sym, 'string constructor');
 ## error checking in constructor arguments
 like(exception {
         Statistics::R::REXP::Symbol->new([1, 2, 3])
-     }, qr/HASH data or a Statistics::R::REXP::Symbol/,
+     }, qr/Attribute \(name\) does not pass the type constraint/,
      'error-check in single-arg constructor');
 like(exception {
         Statistics::R::REXP::Symbol->new(1, 2, 3)
@@ -28,7 +28,7 @@ like(exception {
      'odd constructor arguments');
 like(exception {
         Statistics::R::REXP::Symbol->new(name => [1, 2, 3])
-     }, qr/name must be a non-reference scalar/,
+     }, qr/Attribute \(name\) does not pass the type constraint/,
      'bad name argument');
 
 my $sym_foo = Statistics::R::REXP::Symbol->new(name => 'foo');
@@ -63,7 +63,8 @@ isnt($sym_attr, $another_sym_attr, 'inequality considers attributes deeply');
 ## attributes must be a hash
 like(exception {
         Statistics::R::REXP::Symbol->new(attributes => 1)
-     }, qr/not a HASH ref/, 'setting non-HASH attributes');
+     }, qr/Attribute \(attributes\) does not pass the type constraint/,
+     'setting non-HASH attributes');
 
 ## Perl representation
 is_deeply($sym->to_pl,

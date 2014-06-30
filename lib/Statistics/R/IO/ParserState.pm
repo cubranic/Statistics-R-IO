@@ -1,18 +1,15 @@
 package Statistics::R::IO::ParserState;
 # ABSTRACT: Current state of the IO parser
-$Statistics::R::IO::ParserState::VERSION = '0.071';
+$Statistics::R::IO::ParserState::VERSION = '0.08';
 use 5.012;
 
-use Moo;
+use Moose;
 use namespace::clean;
 
 has data => (
     is => 'ro',
+    isa => 'ArrayRef',
     default => sub { [] },
-    coerce => sub {
-        my $x = shift;
-        (!ref($x)) ? [split //, $x] : $x
-    }
 );
 
 has position => (
@@ -24,6 +21,16 @@ has singletons => (
     is => 'ro',
     default => sub { [] },
 );
+
+
+around BUILDARGS => sub {
+    my $orig = shift;
+    my $attributes = $orig->(@_);
+    my $x = $attributes->{data};
+    $attributes->{data} = (!ref($x)) ? [split //, $x] : $x;
+    $attributes
+};
+
 
 sub at {
     my $self = shift;
@@ -59,6 +66,8 @@ sub eof {
 }
 
     
+__PACKAGE__->meta->make_immutable;
+
 1;
 
 __END__
@@ -73,7 +82,7 @@ Statistics::R::IO::ParserState - Current state of the IO parser
 
 =head1 VERSION
 
-version 0.071
+version 0.08
 
 =head1 SYNOPSIS
 

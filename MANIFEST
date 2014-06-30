@@ -8,9 +8,8 @@ META.json
 META.yml
 Makefile.PL
 README
-Statistics-R-IO-0.07/Statistics-R-IO-0.07/Statistics-R-IO-0.07/.build/4v_1xNr3TX/.travis.yml
-Statistics-R-IO-0.07/Statistics-R-IO-0.07/Statistics-R-IO-0.07/.travis.yml
 dist.ini
+extras/WebWork/RserveClient.pl
 lib/Statistics/R/IO.pm
 lib/Statistics/R/IO/Base.pm
 lib/Statistics/R/IO/Parser.pm
@@ -32,8 +31,10 @@ lib/Statistics/R/REXP/Logical.pm
 lib/Statistics/R/REXP/Null.pm
 lib/Statistics/R/REXP/Raw.pm
 lib/Statistics/R/REXP/Symbol.pm
+lib/Statistics/R/REXP/Types.pm
 lib/Statistics/R/REXP/Unknown.pm
 lib/Statistics/R/REXP/Vector.pm
+t/data/.Rhistory
 t/data/ABC-abc-noxdr
 t/data/ABC-abc-xdr
 t/data/ABC-abc-xdr.rds
@@ -280,6 +281,7 @@ t/io-oo-rdata.t
 t/io-oo-rds.t
 t/io-oo-rserve-eval-live.t
 t/io-oo-rserve-eval-mock.t
+t/io-oo-rserve-getfile-live.t
 t/io-oo-rserve-sereval-live.t
 t/io-oo-rserve-sereval-mock.t
 t/io-parser.t
@@ -307,3 +309,4 @@ t/rexp-raw.t
 t/rexp-symbol.t
 t/rexp-vector.t
 t/rexp.t
+xt/wwk-rserveclient.t

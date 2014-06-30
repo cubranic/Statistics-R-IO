@@ -1,16 +1,20 @@
 package Statistics::R::REXP::Null;
 # ABSTRACT: the R null object
-$Statistics::R::REXP::Null::VERSION = '0.071';
+$Statistics::R::REXP::Null::VERSION = '0.08';
 use 5.012;
 
-use Moo;
+use Moose;
 use namespace::clean;
 
 with 'Statistics::R::REXP';
 
-has '+attributes' => (
-    isa => sub { die 'Null cannot have attributes' if defined shift; },
-);
+
+sub BUILDARGS {
+    my $class = shift;
+    die 'Null cannot have attributes' if scalar @_;
+
+    return {@_}
+}
 
 sub is_null {
     return 1;
@@ -22,6 +26,9 @@ use overload
 sub to_pl {
     undef
 }
+
+
+__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::Null
 
@@ -37,7 +44,7 @@ Statistics::R::REXP::Null - the R null object
 
 =head1 VERSION
 
-version 0.071
+version 0.08
 
 =head1 SYNOPSIS
 

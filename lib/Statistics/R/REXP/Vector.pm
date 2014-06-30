@@ -1,15 +1,18 @@
 package Statistics::R::REXP::Vector;
 # ABSTRACT: an R vector
-$Statistics::R::REXP::Vector::VERSION = '0.071';
+$Statistics::R::REXP::Vector::VERSION = '0.08';
 use 5.012;
 
 use Scalar::Util qw(blessed);
 
-use Moo::Role;
+use Moose::Role;
+use Statistics::R::REXP::Types;
 
-with 'Statistics::R::REXP';
+with 'Statistics::R::REXP' => {
+    -excludes => 'is_vector'
+};
 
-requires qw(_to_s _type);
+requires qw(_type);
 
 use overload '""' => sub { shift->_to_s; };
 
@@ -20,36 +23,28 @@ has type => (
 
 has elements => (
     is => 'ro',
+    isa => 'VectorElements',
     default => sub { []; },
-    isa => sub {
-        die "Vector elements must be an ARRAY ref". $_[0] ."\n"
-            if defined $_[0] and ref $_[0] ne ref [];
-    },
+    coerce => 1,
 );
 
 
 sub BUILDARGS {
     my $class = shift;
     if ( scalar @_ == 1 ) {
-        if ( defined $_[0] ) {
-            if ( ref $_[0] eq 'HASH' ) {
-                return { %{ $_[0] } };
-            } elsif ( ref $_[0] eq 'ARRAY' ) {
-                return { elements => $_[0] };
-            } elsif ( blessed $_[0] && $_[0]->can('does') &&
-                      $_[0]->does('Statistics::R::REXP::Vector') ) {
-                return { elements => $_[0]->elements };
-            }
+        if ( ref $_[0] eq 'HASH' ) {
+            return $_[0];
         }
-        die "Single parameters to new() must be a HASH or ARRAY ref"
-            ." data or a Statistics::R::REXP::Vector object => ". $_[0] ."\n";
+        else {
+            return { elements => $_[0] }
+        }
     }
     elsif ( @_ % 2 ) {
         die "The new() method for $class expects a hash reference or a key/value list."
                 . " You passed an odd number of arguments\n";
     }
     else {
-        return {@_};
+        return { @_ };
     }
 }
 
@@ -105,7 +100,7 @@ Statistics::R::REXP::Vector - an R vector
 
 =head1 VERSION
 
-version 0.071
+version 0.08
 
 =head1 SYNOPSIS
 
@@ -118,7 +113,7 @@ version 0.071
 =head1 DESCRIPTION
 
 An object of this class represents an R vector. This class
-cannot be directly instantiated (it's a L<Moo::Role>), because it is
+cannot be directly instantiated (it's a L<Moose::Role>), because it is
 intended as a base abstract class with concrete subclasses to
 represent specific types of vectors, such as numeric or list.
 
@@ -136,9 +131,9 @@ Returns an array reference to the vector's elements.
 
 =item to_pl
 
-Perl value of the symbol is an array reference to the Perl values of
-its C<elements>. (That is, it's equivalent to C<map {$_->to_pl},
-$vec->elements>.
+Perl value of the language vector is an array reference to the Perl
+values of its C<elements>. (That is, it's equivalent to C<map
+{$_->to_pl}, $vec->elements>.)
 
 =back
 

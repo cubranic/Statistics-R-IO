@@ -1,14 +1,15 @@
 package Statistics::R::REXP::List;
 # ABSTRACT: an R generic vector (list)
-$Statistics::R::REXP::List::VERSION = '0.071';
+$Statistics::R::REXP::List::VERSION = '0.08';
 use 5.012;
 
 use Scalar::Util qw(weaken);
 
-use Moo;
+use Moose;
 use namespace::clean;
 
 with 'Statistics::R::REXP::Vector';
+use overload;
 
 sub _to_s {
     my $self = shift;
@@ -23,7 +24,33 @@ sub _to_s {
     $self->_type . '(' . &$unfold(@{$self->elements}) . ')';
 }
 
+
+sub to_pl {
+    my $self = shift;
+    [ map {
+        if (blessed $_ && $_->can('to_pl')) {
+            my $x = $_->to_pl;
+            if (ref $x eq ref []) {
+                unless (scalar @{$x} > 1 ||
+                        $_->isa('Statistics::R::REXP::List')) {
+                    @{$x}
+                } else {
+                    $x
+                }
+            } else {
+                $x
+            }
+        } else {
+            $_
+        }
+      } @{$self->elements} ]
+}
+
+
 sub _type { 'list'; }
+
+
+__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::List
 
@@ -39,7 +66,7 @@ Statistics::R::REXP::List - an R generic vector (list)
 
 =head1 VERSION
 
-version 0.071
+version 0.08
 
 =head1 SYNOPSIS
 
@@ -61,6 +88,26 @@ form a tree structure.
 C<Statistics::R::REXP:List> inherits from
 L<Statistics::R::REXP::Vector>, with no added restrictions on the value
 of its elements. Missing values (C<NA> in R) have value C<undef>.
+
+=over
+
+=item to_pl
+
+Perl value of the list is an array reference to the Perl values of its
+C<elements>, but using a scalar value to represent elements that are
+atomic vectors of length 1, rather than a one-element array reference.
+
+The idea is that in R, C<1:3>, and C<list(1, 2, 3)> can often be used
+interchangeably, even though the list is really composed of three
+integer vectors, each of length one. Now, both will have native Perl
+representation of C<[1, 2, 3]>.
+
+This only applies to elements that are atomic vectors. An element of
+type list will always be represented as an array reference:
+
+C<< list(list(1), list(2), list(3))->to_pl >> -> C<[ [ 1 ], [ 2 ], [ 3 ] ]>
+
+=back
 
 =head1 BUGS AND LIMITATIONS
 

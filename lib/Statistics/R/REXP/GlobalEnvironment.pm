@@ -1,28 +1,31 @@
 package Statistics::R::REXP::GlobalEnvironment;
 # ABSTRACT: the global R environment (C<.GlobalEnv>)
-$Statistics::R::REXP::GlobalEnvironment::VERSION = '0.071';
+$Statistics::R::REXP::GlobalEnvironment::VERSION = '0.08';
 use 5.012;
 
-use Moo;
+use Moose;
 use namespace::clean;
 
 extends 'Statistics::R::REXP::Environment';
 
+
 has '+attributes' => (
-    isa => sub { die 'Global environment has implicit attributes' if defined shift },
-);
+    trigger => sub {
+        die 'Global environment has implicit attributes'
+    });
 
 has '+enclosure' => (
-    isa => sub {
+    trigger => sub {
         die 'Global environment has an implicit enclosure'
-            if defined $_[0]
-    },
-);
+    });
 
 
 around name => sub {
     'R_GlobalEnvironment'
 };
+
+
+__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::GlobalEnvironment
 
@@ -38,7 +41,7 @@ Statistics::R::REXP::GlobalEnvironment - the global R environment (C<.GlobalEnv>
 
 =head1 VERSION
 
-version 0.071
+version 0.08
 
 =head1 SYNOPSIS
 

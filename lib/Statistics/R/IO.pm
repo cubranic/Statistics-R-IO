@@ -1,6 +1,6 @@
 package Statistics::R::IO;
 # ABSTRACT: Perl interface to serialized R data
-$Statistics::R::IO::VERSION = '0.071';
+$Statistics::R::IO::VERSION = '0.08';
 use 5.012;
 use strict;
 use warnings FATAL => 'all';
@@ -101,7 +101,7 @@ Statistics::R::IO - Perl interface to serialized R data
 
 =head1 VERSION
 
-version 0.071
+version 0.08
 
 =head1 SYNOPSIS
 
@@ -122,7 +122,7 @@ version 0.071
 
 This module is a pure-Perl implementation for reading native data
 files produced by the L<R statistical computing
-environmnent|http://www.r-project.org>)
+environment|http://www.r-project.org>)
 
 It provides routines for reading files in the two primary file
 formats used in R for serializing native objects:
@@ -230,7 +230,7 @@ Requires perl 5.012 or newer.
 
 =over
 
-=item * Moo
+=item * Moose
 
 =item * namespace::clean
 

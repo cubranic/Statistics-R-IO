@@ -31,7 +31,7 @@ like(exception {
 ## Enclosure must be another Environment
 like(exception {
          Statistics::R::REXP::Environment->new(enclosure => 'foo')
-     }, qr/Environment enclosure must be another Environment/,
+     }, qr/Attribute \(enclosure\) does not pass the type constraint/,
      'bad env enclosure');
 
 my $env_foo = Statistics::R::REXP::Environment->new(enclosure => $env);
@@ -66,7 +66,8 @@ isnt($env_attr, $another_sym_attr, 'inequality considers attributes deeply');
 ## attributes must be a hash
 like(exception {
         Statistics::R::REXP::Environment->new(attributes => 1)
-     }, qr/not a HASH ref/, 'setting non-HASH attributes');
+     }, qr/Attribute \(attributes\) does not pass the type constraint/,
+     'setting non-HASH attributes');
 
 ## Perl representation
 like(exception {

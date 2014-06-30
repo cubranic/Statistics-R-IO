@@ -29,7 +29,7 @@ is(Statistics::R::REXP::List->new(Statistics::R::REXP::Double->new([3.3, 4, 11])
 ## error checking in constructor arguments
 like(exception {
         Statistics::R::REXP::List->new(sub {1+1})
-     }, qr/HASH or ARRAY ref data or a Statistics::R::REXP::Vector/,
+     }, qr/Attribute \(elements\) does not pass the type constraint/,
      'error-check in single-arg constructor');
 like(exception {
         Statistics::R::REXP::List->new(1, 2, 3)
@@ -37,7 +37,7 @@ like(exception {
      'odd constructor arguments');
 like(exception {
         Statistics::R::REXP::List->new(elements => {foo => 1, bar => 2})
-     }, qr/elements must be an ARRAY ref/,
+     }, qr/Attribute \(elements\) does not pass the type constraint/,
      'bad elements argument');
 
 my $another_list = Statistics::R::REXP::List->new(elements => [3.3, 4, 10.9]);
@@ -110,7 +110,8 @@ isnt($list_attr, $another_list_attr, 'inequality considers attributes deeply');
 ## attributes must be a hash
 like(exception {
         Statistics::R::REXP::List->new(attributes => 1)
-     }, qr/not a HASH ref/, 'setting non-HASH attributes');
+     }, qr/Attribute \(attributes\) does not pass the type constraint/,
+     'setting non-HASH attributes');
 
 ## Perl representation
 is_deeply($empty_list->to_pl,
@@ -129,6 +130,6 @@ is_deeply($nested_list->to_pl,
           'nested lists Perl representation');
 
 is_deeply($nested_rexps->to_pl,
-          [ [ 1, 2, 3], [ ['a'], ['b'], [11] ], ['foo'] ],
+          [ [ 1, 2, 3], [ 'a', 'b', 11 ], 'foo' ],
           'list with nested REXPs Perl representation');
 

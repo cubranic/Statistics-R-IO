@@ -4,13 +4,25 @@ use strict;
 use warnings FATAL => 'all';
 
 use IO::Socket::INET ();
+use Socket;
 
 use Test::More;
+
+## Low level connections to the server used in tests
+my $s;
 my $rserve = IO::Socket::INET->new(PeerAddr => 'localhost',
                                    PeerPort => 6311);
 if ($rserve) {
     plan tests => 29;
     $rserve->read(my $response, 32);
+    die "Unrecognized server ID" unless
+        substr($response, 0, 12) eq 'Rsrv0103QAP1';
+
+    socket($s, PF_INET, SOCK_STREAM, getprotobyname('tcp')) ||
+        die "socket: $!";
+    connect($s, sockaddr_in(6311, inet_aton('localhost'))) ||
+        die "connect: $!";
+    $s->read($response, 32);
     die "Unrecognized server ID" unless
         substr($response, 0, 12) eq 'Rsrv0103QAP1';
 }
@@ -31,6 +43,8 @@ sub check_rserve_eval_variants {
     my ($rexp, $expected, $message) = @_;
 
     subtest 'rserve eval ' . $message => sub {
+        plan tests => 5;
+        
         ## NOTE: I'm switching the order of comparisons to ensure
         ## ShortDoubleVector's 'eq' overload is used
         is($expected,
@@ -42,6 +56,13 @@ sub check_rserve_eval_variants {
         is($expected,
            Statistics::R::IO::Rserve->new($rserve)->eval($rexp),
            $message . ' handle arg');
+
+        is($expected,
+           Statistics::R::IO::Rserve->new($s)->eval($rexp),
+           $message . ' socket arg');
+        is($expected,
+           Statistics::R::IO::Rserve->new(_usesocket => 1)->eval($rexp),
+           $message . ' usesocket arg');
     }
 }
 

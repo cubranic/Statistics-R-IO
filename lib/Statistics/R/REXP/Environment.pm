@@ -1,11 +1,11 @@
 package Statistics::R::REXP::Environment;
 # ABSTRACT: an R environment
-$Statistics::R::REXP::Environment::VERSION = '0.071';
+$Statistics::R::REXP::Environment::VERSION = '0.08';
 use 5.012;
 
 use Scalar::Util qw(refaddr blessed);
 
-use Moo;
+use Moose;
 use namespace::clean;
 
 with 'Statistics::R::REXP';
@@ -15,21 +15,12 @@ has frame => (
     default => sub {
         { }
     },
-    isa => sub {
-        die 'Environment frame must be a HASH reference'
-            unless ref $_[0] eq ref {}
-    },
+    isa => 'HashRef[Statistics::R::REXP]',
 );
 
 has enclosure => (
     is => 'ro',
-    isa => sub {
-        my $parent_env = shift;
-        die 'Environment enclosure must be another Environment'
-            if defined $parent_env &&
-                !(blessed $parent_env &&
-                  $parent_env->isa('Statistics::R::REXP::Environment'))
-    },
+    isa => 'Maybe[Statistics::R::REXP::Environment]',
 );
 
 
@@ -40,14 +31,12 @@ use overload
 sub BUILDARGS {
     my $class = shift;
     if ( scalar @_ == 1 ) {
-        if ( defined $_[0] ) {
-            if ( ref $_[0] eq 'HASH' ) {
-                return { %{ $_[0] } };
-            } elsif ( blessed $_[0] && $_[0]->isa('Statistics::R::REXP::Environment') ) {
-                # copy constructor from another environment
-                return { frame => $_[0]->frame,
-                         enclosure => $_[0]->enclosure };
-            }
+        if ( ref $_[0] eq 'HASH' ) {
+            return $_[0];
+        } elsif ( blessed $_[0] && $_[0]->isa('Statistics::R::REXP::Environment') ) {
+            # copy constructor from another environment
+            return { frame => $_[0]->frame,
+                     enclosure => $_[0]->enclosure };
         }
         die "Single parameters to new() must be a HASH data"
             ." or a Statistics::R::REXP::Environment object => ". $_[0] ."\n";
@@ -83,6 +72,8 @@ sub to_pl {
 }
 
 
+__PACKAGE__->meta->make_immutable;
+
 1; # End of Statistics::R::REXP::Environment
 
 __END__
@@ -97,7 +88,7 @@ Statistics::R::REXP::Environment - an R environment
 
 =head1 VERSION
 
-version 0.071
+version 0.08
 
 =head1 SYNOPSIS
 

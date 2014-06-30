@@ -32,7 +32,7 @@ like(exception {
      'error-check in empty vec constructor');
 like(exception {
         Statistics::R::REXP::Language->new(sub {1+1})
-     }, qr/HASH or ARRAY ref data or a Statistics::R::REXP::Vector/,
+     }, qr/Attribute \(elements\) does not pass the type constraint/,
      'error-check in single-arg constructor');
 like(exception {
         Statistics::R::REXP::Language->new(1, 2, 3)
@@ -44,7 +44,7 @@ like(exception {
      'bad call argument');
 like(exception {
         Statistics::R::REXP::Language->new(elements => {foo => 1, bar => 2})
-     }, qr/elements must be an ARRAY ref/,
+     }, qr/Attribute \(elements\) does not pass the type constraint/,
      'bad elements argument');
 
 my $another_language = Statistics::R::REXP::Language->new([Statistics::R::REXP::Symbol->new('bla'), 4, 11.2]);
@@ -116,8 +116,10 @@ isnt($language_attr, $another_language_attr, 'inequality considers attributes de
 
 ## attributes must be a hash
 like(exception {
-        Statistics::R::REXP::Language->new(attributes => 1)
-     }, qr/not a HASH ref/, 'setting non-HASH attributes');
+        Statistics::R::REXP::Language->new(elements => [ Statistics::R::REXP::Symbol->new('foo') ],
+                                           attributes => 1)
+     }, qr/Attribute \(attributes\) does not pass the type constraint/,
+     'setting non-HASH attributes');
 
 ## Perl representation
 is_deeply($language->to_pl,

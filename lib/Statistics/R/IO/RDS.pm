@@ -1,9 +1,9 @@
 package Statistics::R::IO::RDS;
 # ABSTRACT: Supply object methods for RDS files
-$Statistics::R::IO::RDS::VERSION = '0.071';
+$Statistics::R::IO::RDS::VERSION = '0.08';
 use 5.012;
 
-use Moo;
+use Moose;
 
 with 'Statistics::R::IO::Base';
 
@@ -25,6 +25,8 @@ sub read {
 }
 
 
+__PACKAGE__->meta->make_immutable;
+
 1;
 
 __END__
@@ -39,7 +41,7 @@ Statistics::R::IO::RDS - Supply object methods for RDS files
 
 =head1 VERSION
 
-version 0.071
+version 0.08
 
 =head1 SYNOPSIS
 

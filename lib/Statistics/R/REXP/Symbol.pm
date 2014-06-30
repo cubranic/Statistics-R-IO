@@ -1,29 +1,21 @@
 package Statistics::R::REXP::Symbol;
 # ABSTRACT: an R symbol
-$Statistics::R::REXP::Symbol::VERSION = '0.071';
+$Statistics::R::REXP::Symbol::VERSION = '0.08';
 use 5.012;
 
 use Scalar::Util qw(blessed);
 
-use Moo;
+use Moose;
+use Statistics::R::REXP::Types;
 use namespace::clean;
 
 with 'Statistics::R::REXP';
 
 has name => (
     is => 'ro',
+    isa => 'SymbolName',
     default => '',
-    coerce => sub {
-        my $x = shift;
-        if (defined $x && ! ref $x) {
-            $x;
-        } elsif (blessed $x && $x->isa('Statistics::R::REXP::Symbol')) {
-            $x->name;
-        } else {
-            die "Symbol name must be a non-reference scalar or another Symbol".
-                $x ."\n";
-        }
-    },
+    coerce => 1,
 );
 
 use overload
@@ -31,27 +23,20 @@ use overload
 
 sub BUILDARGS {
     my $class = shift;
-    if ( scalar @_ == 1 ) {
-        if ( defined $_[0] ) {
-            if ( ref $_[0] eq 'HASH' ) {
-                return { %{ $_[0] } };
-            } elsif ( blessed $_[0] && $_[0]->isa('Statistics::R::REXP::Symbol') ) {
-                # copy constructor from another name
-                return { name => $_[0]->name };
-            } elsif ( ! ref $_[0] ) {
-                # name as scalar
-                return { name => $_[0] };
-            }
+    if ( scalar @_ == 1) {
+        if ( ref $_[0] eq 'HASH' ) {
+            return $_[0]
         }
-        die "Single parameters to new() must be a HASH data"
-            ." or a Statistics::R::REXP::Symbol object => ". $_[0] ."\n";
+        else {
+            return { name => $_[0] }
+        }
     }
     elsif ( @_ % 2 ) {
         die "The new() method for $class expects a hash reference or a key/value list."
                 . " You passed an odd number of arguments\n";
     }
     else {
-        return {@_};
+        return { @_ };
     }
 }
 
@@ -67,6 +52,9 @@ sub to_pl {
     $self->name
 }
 
+
+__PACKAGE__->meta->make_immutable;
+
 1; # End of Statistics::R::REXP::Symbol
 
 __END__
@@ -81,7 +69,7 @@ Statistics::R::REXP::Symbol - an R symbol
 
 =head1 VERSION
 
-version 0.071
+version 0.08
 
 =head1 SYNOPSIS
 

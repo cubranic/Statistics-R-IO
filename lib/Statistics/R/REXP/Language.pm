@@ -1,27 +1,27 @@
 package Statistics::R::REXP::Language;
 # ABSTRACT: an R language vector
-$Statistics::R::REXP::Language::VERSION = '0.071';
+$Statistics::R::REXP::Language::VERSION = '0.08';
 use 5.012;
 
 use Scalar::Util qw(blessed);
 
-use Moo;
+use Moose;
 use namespace::clean;
 
 extends 'Statistics::R::REXP::List';
 
 has '+elements' => (
-    isa => sub {
-        die "Vector elements must be an ARRAY ref". $_[0] ."\n"
-            if defined $_[0] and ref $_[0] ne ref [];
-        my $first_element_isa = ref($_[0]->[0]);
-        die 'The first element must be a Symbol or Language'
-            unless $first_element_isa eq 'Statistics::R::REXP::Language' ||
-                $first_element_isa eq 'Statistics::R::REXP::Symbol'
-    },
+    isa => 'LanguageElements',
 );
 
+sub to_pl {
+    Statistics::R::REXP::Vector::to_pl(@_)
+}
+
 around _type => sub { 'language' };
+
+
+__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::Language
 
@@ -37,7 +37,7 @@ Statistics::R::REXP::Language - an R language vector
 
 =head1 VERSION
 
-version 0.071
+version 0.08
 
 =head1 SYNOPSIS
 
@@ -68,6 +68,16 @@ L<Statistics::R::REXP::Vector>, with the added restriction that its
 first element has to be a L<Statistics::R::REXP::Symbol> or another
 C<Language> instance. Trying to create a Language instance that
 doesn't follow this restriction will raise an exception.
+
+=over
+
+=item to_pl
+
+Perl value of the language vector is an array reference to the Perl
+values of its C<elements>. (That is, it's equivalent to C<map
+{$_->to_pl}, $vec->elements>.
+
+=back
 
 =head1 BUGS AND LIMITATIONS
 

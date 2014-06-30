@@ -1,19 +1,17 @@
 package Statistics::R::REXP;
 # ABSTRACT: base class for R objects (C<SEXP>s)
-$Statistics::R::REXP::VERSION = '0.071';
+$Statistics::R::REXP::VERSION = '0.08';
 use 5.012;
 
 use Scalar::Util qw( blessed );
 
-use Moo::Role;
+use Moose::Role;
 
 requires qw( to_pl );
 
 has attributes => (
     is => 'ro',
-    isa => sub {
-        die "$_[0] is not a HASH ref" unless ref $_[0] eq ref {};
-    },
+    isa => 'HashRef',
 );
 
 use overload
@@ -93,7 +91,7 @@ Statistics::R::REXP - base class for R objects (C<SEXP>s)
 
 =head1 VERSION
 
-version 0.071
+version 0.08
 
 =head1 SYNOPSIS
 
@@ -111,7 +109,7 @@ version 0.071
 =head1 DESCRIPTION
 
 An object of this class represents a native R object. This class
-cannot be directly instantiated (it's a L<Moo::Role>), because it is
+cannot be directly instantiated (it's a L<Moose::Role>), because it is
 intended as a base abstract class with concrete subclasses to
 represent specific object types.
 

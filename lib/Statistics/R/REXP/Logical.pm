@@ -1,22 +1,23 @@
 package Statistics::R::REXP::Logical;
 # ABSTRACT: an R logical vector
-$Statistics::R::REXP::Logical::VERSION = '0.071';
+$Statistics::R::REXP::Logical::VERSION = '0.08';
 use 5.012;
 
-use Moo;
+use Moose;
 use namespace::clean;
 
 with 'Statistics::R::REXP::Vector';
+use overload;
+
 
 has '+elements' => (
-    coerce => sub {
-        my $x = shift;
-        [ map { defined $_ ? ($_ ? 1 : 0) : undef } _flatten(@{$x}) ] if ref $x eq ref []
-    },
-);
-
+    isa => 'LogicalElements',
+    );
 
 sub _type { 'logical'; }
+
+
+__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::Logical
 
@@ -32,7 +33,7 @@ Statistics::R::REXP::Logical - an R logical vector
 
 =head1 VERSION
 
-version 0.071
+version 0.08
 
 =head1 SYNOPSIS
 

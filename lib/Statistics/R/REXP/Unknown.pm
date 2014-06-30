@@ -1,23 +1,20 @@
 package Statistics::R::REXP::Unknown;
 # ABSTRACT: R object not representable in Rserve
-$Statistics::R::REXP::Unknown::VERSION = '0.071';
+$Statistics::R::REXP::Unknown::VERSION = '0.08';
 use 5.012;
 
 use Scalar::Util qw(looks_like_number);
 
-use Moo;
+use Moose;
+use Statistics::R::REXP::Types;
 use namespace::clean;
 
 with 'Statistics::R::REXP';
 
 has sexptype => (
     is => 'ro',
+    isa => 'SexpType',
     required => 1,
-    coerce => sub {
-        my $x = shift;
-        looks_like_number $x && ($x >= 0) && ($x <= 255) ?
-            int($x) : die "SEXP type must be a number in range 0-255"
-    },
 );
 
 use overload
@@ -26,6 +23,9 @@ use overload
 sub to_pl {
     undef
 }
+
+
+__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::Unknown
 
@@ -41,7 +41,7 @@ Statistics::R::REXP::Unknown - R object not representable in Rserve
 
 =head1 VERSION
 
-version 0.071
+version 0.08
 
 =head1 SYNOPSIS
 
