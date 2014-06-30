@@ -1,7 +1,7 @@
 package Statistics::R::IO::Base;
 # ABSTRACT: Common object methods for processing R files
 
-use 5.012;
+use 5.010;
 
 use IO::File;
 use IO::Handle;

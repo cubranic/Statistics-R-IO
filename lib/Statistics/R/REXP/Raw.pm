@@ -1,7 +1,7 @@
 package Statistics::R::REXP::Raw;
 # ABSTRACT: an R raw vector
 
-use 5.012;
+use 5.010;
 
 use Scalar::Util qw(looks_like_number);
 

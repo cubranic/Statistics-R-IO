@@ -1,7 +1,7 @@
 package Statistics::R::IO;
 # ABSTRACT: Perl interface to serialized R data
 
-use 5.012;
+use 5.010;
 use strict;
 use warnings FATAL => 'all';
 
@@ -194,7 +194,7 @@ opened it itself, but not if the connection was passed as a HANDLE.
 
 =head1 DEPENDENCIES
 
-Requires perl 5.012 or newer.
+Requires perl 5.010 or newer.
 
 =head2 Core modules
 

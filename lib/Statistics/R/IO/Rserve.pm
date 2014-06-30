@@ -1,7 +1,7 @@
 package Statistics::R::IO::Rserve;
 # ABSTRACT: Supply object methods for Rserve communication
 
-use 5.012;
+use 5.010;
 
 use Moose;
 

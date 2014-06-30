@@ -1,7 +1,7 @@
 package Statistics::R::REXP::Language;
 # ABSTRACT: an R language vector
 
-use 5.012;
+use 5.010;
 
 use Scalar::Util qw(blessed);
 

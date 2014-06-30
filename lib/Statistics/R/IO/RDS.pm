@@ -1,7 +1,7 @@
 package Statistics::R::IO::RDS;
 # ABSTRACT: Supply object methods for RDS files
 
-use 5.012;
+use 5.010;
 
 use Moose;
 

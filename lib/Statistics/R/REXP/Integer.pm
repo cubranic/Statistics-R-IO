@@ -1,7 +1,7 @@
 package Statistics::R::REXP::Integer;
 # ABSTRACT: an R integer vector
 
-use 5.012;
+use 5.010;
 
 use Scalar::Util qw(looks_like_number);
 

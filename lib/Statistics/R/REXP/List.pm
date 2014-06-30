@@ -1,7 +1,7 @@
 package Statistics::R::REXP::List;
 # ABSTRACT: an R generic vector (list)
 
-use 5.012;
+use 5.010;
 
 use Scalar::Util qw(weaken);
 

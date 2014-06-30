@@ -1,7 +1,7 @@
 package Statistics::R::REXP::Symbol;
 # ABSTRACT: an R symbol
 
-use 5.012;
+use 5.010;
 
 use Scalar::Util qw(blessed);
 

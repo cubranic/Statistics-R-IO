@@ -1,7 +1,7 @@
 package Statistics::R::IO::ParserState;
 # ABSTRACT: Current state of the IO parser
 
-use 5.012;
+use 5.010;
 
 use Moose;
 use namespace::clean;

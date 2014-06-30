@@ -1,7 +1,7 @@
 package Statistics::R::IO::RData;
 # ABSTRACT: Supply object methods for RData files
 
-use 5.012;
+use 5.010;
 
 use Moose;
 

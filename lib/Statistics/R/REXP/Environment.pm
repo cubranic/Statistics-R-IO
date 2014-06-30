@@ -1,7 +1,7 @@
 package Statistics::R::REXP::Environment;
 # ABSTRACT: an R environment
 
-use 5.012;
+use 5.010;
 
 use Scalar::Util qw(refaddr blessed);
 

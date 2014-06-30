@@ -1,7 +1,7 @@
 package ShortDoubleVector;
 # ABSTRACT: numeric vector that compares elements using 
 
-use 5.012;
+use 5.010;
 
 use Scalar::Util qw(looks_like_number);
 

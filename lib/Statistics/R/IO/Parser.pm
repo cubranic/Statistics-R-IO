@@ -1,7 +1,7 @@
 package Statistics::R::IO::Parser;
 # ABSTRACT: Functions for parsing R data files
 
-use 5.012;
+use 5.010;
 use strict;
 use warnings FATAL => 'all';
 

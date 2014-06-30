@@ -1,7 +1,7 @@
 package Statistics::R::REXP::Logical;
 # ABSTRACT: an R logical vector
 
-use 5.012;
+use 5.010;
 
 use Moose;
 use namespace::clean;

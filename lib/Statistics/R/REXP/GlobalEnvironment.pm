@@ -1,7 +1,7 @@
 package Statistics::R::REXP::GlobalEnvironment;
 # ABSTRACT: the global R environment (C<.GlobalEnv>)
 
-use 5.012;
+use 5.010;
 
 use Moose;
 use namespace::clean;

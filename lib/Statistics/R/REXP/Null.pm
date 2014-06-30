@@ -1,7 +1,7 @@
 package Statistics::R::REXP::Null;
 # ABSTRACT: the R null object
 
-use 5.012;
+use 5.010;
 
 use Moose;
 use namespace::clean;

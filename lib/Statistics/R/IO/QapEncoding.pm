@@ -1,7 +1,7 @@
 package Statistics::R::IO::QapEncoding;
 # ABSTRACT: Functions for parsing Rserve packets
 
-use 5.012;
+use 5.010;
 
 use strict;
 use warnings FATAL => 'all';
