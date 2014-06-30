@@ -1,5 +1,8 @@
 Revision history for Statistics-R-IO
 
+0.091   30 June 2014
+        - Lower the minimum Perl version to 5.010
+        
 0.08    23 June 2014
         - Use scalars in Perl rep of list for atomic vectors of length 1
         - Switch from Moo to Moose (#22)
