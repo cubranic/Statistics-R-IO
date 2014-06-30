@@ -56,13 +56,13 @@ sub _read_and_uncompress {
     croak $! unless defined $rc;
     if (substr($data, 0, 2) eq "\x1f\x8b") {
         ## gzip-compressed file
-        $self->fh->seek(0, 0);
-        IO::Uncompress::Gunzip::gunzip $self->fh, \$data;
+        my $input = $data;
+        IO::Uncompress::Gunzip::gunzip \$input, \$data;
     }
     elsif (substr($data, 0, 3) eq 'BZh') {
         ## bzip2-compressed file
-        $self->fh->seek(0, 0);
-        IO::Uncompress::Bunzip2::bunzip2 $self->fh, \$data;
+        my $input = $data;
+        IO::Uncompress::Bunzip2::bunzip2 \$input, \$data;
     }
     elsif (substr($data, 0, 6) eq "\xfd7zXZ\0") {
         croak "xz-compressed R files are not supported";
