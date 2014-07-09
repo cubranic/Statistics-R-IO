@@ -6,12 +6,15 @@ use warnings FATAL => 'all';
 use IO::Socket::INET ();
 
 use Test::More;
-if (IO::Socket::INET->new(PeerAddr => 'localhost',
-                          PeerPort => 6311)) {
+
+my $rserve_host = $ENV{RSERVE_HOST} || 'localhost';
+my $rserve_port = $ENV{RSERVE_PORT} || 6311;
+if (IO::Socket::INET->new(PeerAddr => $rserve_host,
+                          PeerPort => $rserve_port)) {
     plan tests => 30;
 }
 else {
-    plan skip_all => "Cannot connect to Rserve server at localhost:6311";
+    plan skip_all => "Cannot connect to Rserve server at $rserve_host:$rserve_port";
 }
 use Test::Fatal;
 
@@ -25,12 +28,14 @@ use TestCases;
 
 ## integer vectors
 ## serialize 1:3, XDR: true
-is(evalRserve('1:3'),
+is(evalRserve('1:3',
+              "$rserve_host:$rserve_port"),
    Statistics::R::REXP::Integer->new([ 1, 2, 3 ]),
    'int vector no atts');
 
 ## serialize a=1L, b=2L, c=3L, XDR: true
-is(evalRserve('c(a=1L, b=2L, c=3L)'),
+is(evalRserve('c(a=1L, b=2L, c=3L)',
+              "$rserve_host:$rserve_port"),
    Statistics::R::REXP::Integer->new(
        elements => [ 1, 2, 3 ],
        attributes => {
@@ -42,7 +47,8 @@ is(evalRserve('c(a=1L, b=2L, c=3L)'),
 ## double vectors
 ## serialize 1234.56, XDR: true
 is(ShortDoubleVector->new([ 1234.56 ]),
-   evalRserve('1234.56'),
+   evalRserve('1234.56',
+              "$rserve_host:$rserve_port"),
    'double vector no atts');
 
 ## serialize foo=1234.56, XDR: true
@@ -51,18 +57,21 @@ is(ShortDoubleVector->new(
        attributes => {
            names => Statistics::R::REXP::Character->new(['foo'])
        }),
-   evalRserve('c(foo=1234.56)'),
+   evalRserve('c(foo=1234.56)',
+              "$rserve_host:$rserve_port"),
    'double vector names att');
 
 
 ## character vectors
 ## serialize letters[1:3], XDR: true
-is(evalRserve('letters[1:3]'),
+is(evalRserve('letters[1:3]',
+              "$rserve_host:$rserve_port"),
    Statistics::R::REXP::Character->new([ 'a', 'b', 'c' ]),
    'character vector no atts');
 
 ## serialize A='a', B='b', C='c', XDR: true
-is(evalRserve('c(A="a", B="b", C="c")'),
+is(evalRserve('c(A="a", B="b", C="c")',
+              "$rserve_host:$rserve_port"),
    Statistics::R::REXP::Character->new(
        elements => [ 'a', 'b', 'c' ],
        attributes => {
@@ -73,7 +82,8 @@ is(evalRserve('c(A="a", B="b", C="c")'),
 
 ## raw vectors
 ## serialize as.raw(c(1:3, 255, 0), XDR: true
-is(evalRserve('as.raw(c(1,2,3,255, 0))'),
+is(evalRserve('as.raw(c(1,2,3,255, 0))',
+              "$rserve_host:$rserve_port"),
    Statistics::R::REXP::Raw->new([ 1, 2, 3, 255, 0 ]),
    'raw vector');
 
@@ -87,11 +97,13 @@ is(Statistics::R::REXP::List->new([
            Statistics::R::REXP::Character->new(['b']),
            ShortDoubleVector->new([11]) ]),
        Statistics::R::REXP::Character->new(['foo']) ]),
-   evalRserve("list(1:3, list('a', 'b', 11), 'foo')"),
+   evalRserve("list(1:3, list('a', 'b', 11), 'foo')",
+              "$rserve_host:$rserve_port"),
    'generic vector no atts');
 
 ## serialize list(foo=1:3, list('a', 'b', 11), bar='foo'), XDR: true
-is(evalRserve("list(foo=1:3, list('a', 'b', 11), bar='foo')"),
+is(evalRserve("list(foo=1:3, list('a', 'b', 11), bar='foo')",
+              "$rserve_host:$rserve_port"),
    Statistics::R::REXP::List->new(
        elements => [
            Statistics::R::REXP::Integer->new([ 1, 2, 3]),
@@ -109,7 +121,8 @@ is(evalRserve("list(foo=1:3, list('a', 'b', 11), bar='foo')"),
 ## matrix
 
 ## serialize matrix(-1:4, 2, 3), XDR: true
-is(evalRserve('matrix(-1:4, 2, 3)'),
+is(evalRserve('matrix(-1:4, 2, 3)',
+              "$rserve_host:$rserve_port"),
    Statistics::R::REXP::Integer->new(
        elements => [ -1, 0, 1, 2, 3, 4 ],
        attributes => {
@@ -118,7 +131,8 @@ is(evalRserve('matrix(-1:4, 2, 3)'),
    'int matrix no atts');
 
 ## serialize matrix(-1:4, 2, 3, dimnames=list(c('a', 'b'))), XDR: true
-is(evalRserve("matrix(-1:4, 2, 3, dimnames=list(c('a', 'b')))"),
+is(evalRserve("matrix(-1:4, 2, 3, dimnames=list(c('a', 'b')))",
+              "$rserve_host:$rserve_port"),
    Statistics::R::REXP::Integer->new(
        elements => [ -1, 0, 1, 2, 3, 4 ],
        attributes => {
@@ -145,7 +159,8 @@ is(Statistics::R::REXP::List->new(
                1, 2, 3, 4, 5, 6
            ]),
        }),
-   evalRserve('head(cars)'),
+   evalRserve('head(cars)',
+              "$rserve_host:$rserve_port"),
    'the cars data frame');
 
 ## serialize head(mtcars)
@@ -173,7 +188,8 @@ is(Statistics::R::REXP::List->new(
                'Hornet 4 Drive', 'Hornet Sportabout', 'Valiant'
            ]),
        }),
-   evalRserve('head(mtcars)'),
+   evalRserve('head(mtcars)',
+              "$rserve_host:$rserve_port"),
    'the mtcars data frame');
 
 ## serialize head(iris)
@@ -200,12 +216,14 @@ is(Statistics::R::REXP::List->new(
                1, 2, 3, 4, 5, 6
            ]),
        }),
-   evalRserve('head(iris)'),
+   evalRserve('head(iris)',
+              "$rserve_host:$rserve_port"),
    'the iris data frame');
 
 
 ## Call lm(mpg ~ wt, data = head(mtcars))
-is(evalRserve('lm(mpg ~ wt, data = head(mtcars))$call'),
+is(evalRserve('lm(mpg ~ wt, data = head(mtcars))$call',
+              "$rserve_host:$rserve_port"),
    Statistics::R::REXP::Language->new(
        elements => [
            Statistics::R::REXP::Symbol->new('lm'),
@@ -447,7 +465,8 @@ is(Statistics::R::REXP::List->new(
                'xlevels', 'call', 'terms', 'model',
            ]),
            class => Statistics::R::REXP::Character->new(['lm']) }),
-   evalRserve('lm(mpg ~ wt, data = head(mtcars))'),
+   evalRserve('lm(mpg ~ wt, data = head(mtcars))',
+              "$rserve_host:$rserve_port"),
    'lm mpg~wt, head(mtcars)');
 
 
@@ -455,6 +474,7 @@ while ( my ($name, $value) = each %{TEST_CASES()} ) {
     ## NOTE: I'm switching the order of comparisons to ensure
     ## ShortDoubleVector's 'eq' overload is used
     is($value->{value},
-       evalRserve($value->{expr}),
+       evalRserve($value->{expr},
+                  "$rserve_host:$rserve_port"),
        $value->{desc});
 }

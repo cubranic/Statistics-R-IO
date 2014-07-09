@@ -26,7 +26,7 @@ sub mock_rserve_response {
     my $response = pack("VVA*", 0x10001, length($data), "\0"x8) .
         $data;
 
-    my $mock = Test::MockObject::Extends->new('IO::Socket');
+    my $mock = Test::MockObject::Extends->new('IO::Socket::INET');
     $mock->mock('print',
                 sub {
                     my ($self, $data) = (shift, shift);
@@ -43,7 +43,9 @@ sub mock_rserve_response {
                     $pos += $length; # advance the cursor
                     
                     $length     # return the amount read
-                })
+                });
+    $mock->set_always('peerhost', 'localhost');
+    $mock->set_always('peerport', 6311)
 }
 
 
@@ -53,7 +55,7 @@ sub parse_rserve_eval {
     my $filename = $file . '.qap';
     
     subtest 'mock ' . $message => sub {
-        plan tests => 9;
+        plan tests => 11;
         
         my $mock = mock_rserve_response($filename);
         ## NOTE: I'm switching the order of comparisons to ensure
@@ -62,7 +64,14 @@ sub parse_rserve_eval {
            evalRserve('testing, please ignore',
                       $mock),
            $message);
-
+        
+        is($mock->next_call(),
+           'peerhost',
+           'get server name');
+        is($mock->next_call(),
+           'peerport',
+           'get server port');
+        
         my ($request, $args) = $mock->next_call();
         
         is($request,
@@ -505,6 +514,8 @@ $error_mock->mock('read',
                       $_[1] = pack('VVA*', 123, 0, "\0"x8);
                       0
                   });
+$error_mock->set_always('peerhost', 'localhost');
+$error_mock->set_always('peerport', 6311);
 
 like(exception {
     evalRserve('testing, please ignore',

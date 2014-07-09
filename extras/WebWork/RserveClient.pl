@@ -95,7 +95,7 @@ ${pg}{modules}.
 =cut
 
 ## TODO: allow configuration
-my $Rserve_server  = 'localhost';
+my $Rserve_server  = $ENV{RSERVE_HOST} || 'localhost';
 
 my $rserve;                     # Statistics::R::IO::Rserve instance
 

@@ -10,8 +10,10 @@ use Test::More;
 
 ## Low level connections to the server used in tests
 my $s;
-my $rserve = IO::Socket::INET->new(PeerAddr => 'localhost',
-                                   PeerPort => 6311);
+my $rserve_host = $ENV{RSERVE_HOST} || 'localhost';
+my $rserve_port = $ENV{RSERVE_PORT} || 6311;
+my $rserve = IO::Socket::INET->new(PeerAddr => $rserve_host,
+                                   PeerPort => $rserve_port);
 if ($rserve) {
     plan tests => 3;
     $rserve->read(my $response, 32);
@@ -20,7 +22,7 @@ if ($rserve) {
 
     socket($s, PF_INET, SOCK_STREAM, getprotobyname('tcp')) ||
         die "socket: $!";
-    connect($s, sockaddr_in(6311, inet_aton('localhost'))) ||
+    connect($s, sockaddr_in($rserve_port, inet_aton($rserve_host))) ||
         die "connect: $!";
     $s->read($response, 32);
     die "Unrecognized server ID" unless
