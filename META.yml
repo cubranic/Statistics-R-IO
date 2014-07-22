@@ -25,4 +25,4 @@ requires:
 resources:
   homepage: https://github.com/cubranic/Statistics-R-IO
   repository: https://github.com/cubranic/Statistics-R-IO.git
-version: '0.091'
+version: '0.092'

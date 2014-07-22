@@ -1,6 +1,6 @@
 package Statistics::R::IO::Rserve;
 # ABSTRACT: Supply object methods for Rserve communication
-$Statistics::R::IO::Rserve::VERSION = '0.091';
+$Statistics::R::IO::Rserve::VERSION = '0.092';
 use 5.010;
 
 use Moose;
@@ -18,6 +18,7 @@ use namespace::clean;
 
 has fh => (
     is => 'ro',
+    lazy => 1,
     default => sub {
         my $self = shift;
         my $fh;
@@ -46,20 +47,12 @@ has fh => (
 
 has server => (
     is => 'ro',
-    lazy => 1,
-    default => sub {
-        my $self = shift;
-        $self->fh ? $self->fh->peerhost : 'localhost'
-    },
+    default => 'localhost',
 );
 
 has port => (
     is => 'ro',
-    lazy => 1,
-    default => sub {
-        my $self = shift;
-        $self->fh ? $self->fh->peerport : 6311
-    },
+    default => 6311,
     isa => 'Int',
 );
 
@@ -89,20 +82,24 @@ sub BUILDARGS {
     my $class = shift;
     
     if ( scalar @_ == 0 ) {
-        return { server => 'localhost',
-                 port => 6311,
-                 _autoclose => 1 }
+        return { _autoclose => 1 }
     } elsif ( scalar @_ == 1 ) {
         if ( ref $_[0] eq 'HASH' ) {
-            return { %{ $_[0] } }
+            my $args = { %{ $_[0] } };
+            if (my $fh = $args->{fh}) {
+                ($args->{server}, $args->{port}) = _fh_host_port($fh);
+            }
+            return $args
         } elsif (ref $_[0] eq '') {
             my $server = shift;
             return { server => $server,
-                     port => 6311,
                      _autoclose => 1  }
         } else {
             my $fh = shift;
+            my ($server, $port) = _fh_host_port($fh);
             return { fh => $fh,
+                     server => $server,
+                     port => $port,
                      _autoclose => 0,
                      _autoflush => ref($fh) eq 'GLOB' }
         }
@@ -112,9 +109,29 @@ sub BUILDARGS {
                 . " You passed an odd number of arguments\n";
     }
     else {
-        return {@_}
+        my $args = { @_ };
+        if (my $fh = $args->{fh}) {
+            ($args->{server}, $args->{port}) = _fh_host_port($fh);
+        }
+        return $args
     }
 }
+
+
+## Extracts host address and port from the given socket handle (either
+## as an object or a "classic" socket)
+sub _fh_host_port {
+    my $fh = shift or return;
+    if (ref($fh) eq 'GLOB') {
+        my ($port, $host) = unpack_sockaddr_in(getpeername($fh)) or return;
+        my $name = gethostbyaddr($host, AF_INET);
+        return ($name // inet_ntoa($host), $port)
+    } elsif (blessed($fh) && $fh->isa('IO::Socket')){
+        return ($fh->peerhost, $fh->peerport)
+    }
+    return undef
+}
+
 
 sub eval {
     my ($self, $expr) = (shift, shift);
@@ -249,7 +266,7 @@ Statistics::R::IO::Rserve - Supply object methods for Rserve communication
 
 =head1 VERSION
 
-version 0.091
+version 0.092
 
 =head1 SYNOPSIS
 

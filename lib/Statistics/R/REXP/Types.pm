@@ -1,6 +1,6 @@
 package Statistics::R::REXP::Types;
 # ABSTRACT: Moose type constraints for REXPs
-$Statistics::R::REXP::Types::VERSION = '0.091';
+$Statistics::R::REXP::Types::VERSION = '0.092';
 use 5.0.12;
 
 use Moose::Util::TypeConstraints;
@@ -208,7 +208,7 @@ Statistics::R::REXP::Types - Moose type constraints for REXPs
 
 =head1 VERSION
 
-version 0.091
+version 0.092
 
 =head1 AUTHOR
 

@@ -10,8 +10,10 @@ use Test::More;
 
 ## Low level connections to the server used in tests
 my $s;
-my $rserve = IO::Socket::INET->new(PeerAddr => 'localhost',
-                                   PeerPort => 6311);
+my $rserve_host = $ENV{RSERVE_HOST} || 'localhost';
+my $rserve_port = $ENV{RSERVE_PORT} || 6311;
+my $rserve = IO::Socket::INET->new(PeerAddr => $rserve_host,
+                                   PeerPort => $rserve_port);
 if ($rserve) {
     plan tests => 29;
     $rserve->read(my $response, 32);
@@ -20,7 +22,7 @@ if ($rserve) {
 
     socket($s, PF_INET, SOCK_STREAM, getprotobyname('tcp')) ||
         die "socket: $!";
-    connect($s, sockaddr_in(6311, inet_aton('localhost'))) ||
+    connect($s, sockaddr_in($rserve_port, inet_aton($rserve_host))) ||
         die "connect: $!";
     $s->read($response, 32);
     die "Unrecognized server ID" unless
@@ -43,16 +45,25 @@ sub check_rserve_eval_variants {
     my ($rexp, $expected, $message) = @_;
 
     subtest 'rserve eval ' . $message => sub {
-        plan tests => 5;
+        ## some tests can only be executed when Rserve's host and/or
+        ## port are at a default location, localhost:6311
+        plan tests => 5 - (
+            2*exists($ENV{RSERVE_HOST}) ||
+            3*exists($ENV{RSERVE_PORT}));
         
         ## NOTE: I'm switching the order of comparisons to ensure
         ## ShortDoubleVector's 'eq' overload is used
-        is($expected,
-           Statistics::R::IO::Rserve->new->eval($rexp),
-           $message . ' no arg constructor');
-        is($expected,
-           Statistics::R::IO::Rserve->new('localhost')->eval($rexp),
-           $message . ' localhost arg');
+        unless (exists($ENV{RSERVE_HOST}) || exists($ENV{RSERVE_PORT})) {
+            is($expected,
+               Statistics::R::IO::Rserve->new->eval($rexp),
+               $message . ' no arg constructor');
+        }
+        unless (exists $ENV{RSERVE_PORT}) {
+            is($expected,
+               Statistics::R::IO::Rserve->new($rserve_host)->eval($rexp),
+               $message . ' localhost arg');
+        }
+        
         is($expected,
            Statistics::R::IO::Rserve->new($rserve)->eval($rexp),
            $message . ' handle arg');
@@ -60,9 +71,12 @@ sub check_rserve_eval_variants {
         is($expected,
            Statistics::R::IO::Rserve->new($s)->eval($rexp),
            $message . ' socket arg');
-        is($expected,
-           Statistics::R::IO::Rserve->new(_usesocket => 1)->eval($rexp),
-           $message . ' usesocket arg');
+        
+        unless (exists($ENV{RSERVE_HOST}) || exists($ENV{RSERVE_PORT})) {
+            is($expected,
+               Statistics::R::IO::Rserve->new(_usesocket => 1)->eval($rexp),
+               $message . ' usesocket arg');
+        }
     }
 }
 

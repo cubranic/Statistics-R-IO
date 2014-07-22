@@ -6,11 +6,15 @@ use warnings FATAL => 'all';
 use IO::Socket::INET ();
 
 use Test::More;
-my $rserve = IO::Socket::INET->new(PeerAddr => 'localhost',
-                                   PeerPort => 6311);
+
+## Low level connections to the server used in tests
+my $rserve_host = $ENV{RSERVE_HOST} || 'localhost';
+my $rserve_port = $ENV{RSERVE_PORT} || 6311;
+my $rserve = IO::Socket::INET->new(PeerAddr => $rserve_host,
+                                   PeerPort => $rserve_port);
 if ($rserve) {
     plan tests => 30;
-    $rserve->sysread(my $response, 32);
+    $rserve->read(my $response, 32);
     die "Unrecognized server ID" unless
         substr($response, 0, 12) eq 'Rsrv0103QAP1';
 }
@@ -33,12 +37,22 @@ sub check_rserve_eval_variants {
     ## NOTE: I'm switching the order of comparisons to ensure
     ## ShortDoubleVector's 'eq' overload is used
     subtest 'rserve eval ' . $message => sub {
-        is($expected,
-           Statistics::R::IO::Rserve->new->ser_eval($rexp),
-            $message . ' no arg constructor');
-        is($expected,
-           Statistics::R::IO::Rserve->new('localhost')->ser_eval($rexp),
-           $message . ' localhost arg');
+        ## some tests can only be executed when Rserve's host and/or
+        ## port are at a default location, localhost:6311
+        plan tests => 3 - (
+            exists($ENV{RSERVE_HOST}) ||
+            2*exists($ENV{RSERVE_PORT}));
+        
+        unless (exists($ENV{RSERVE_HOST}) || exists($ENV{RSERVE_PORT})) {
+            is($expected,
+               Statistics::R::IO::Rserve->new->ser_eval($rexp),
+               $message . ' no arg constructor');
+        }
+        unless (exists($ENV{RSERVE_PORT})) {
+            is($expected,
+               Statistics::R::IO::Rserve->new($rserve_host)->ser_eval($rexp),
+               $message . ' localhost arg');
+        }
         is($expected,
            Statistics::R::IO::Rserve->new($rserve)->ser_eval($rexp),
            $message . ' handle arg');
