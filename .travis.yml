@@ -7,5 +7,5 @@ perl:
 
 branches:
   only:
-    - /^build/
+    - release
 
