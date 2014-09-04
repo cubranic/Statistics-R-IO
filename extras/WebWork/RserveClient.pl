@@ -20,8 +20,14 @@ RserveClient.pl - Macros for evaluating R code on an Rserve server
 The macros in this file provide access to facilities of L<R
 statistical computing environment|http://www.r-project.org>,
 optionally located on another server, by using the
-L<Rserve|http://www.rforge.net/Rserve/> protocol.
+L<Rserve|http://www.rforge.net/Rserve/> protocol. 
 
+B<IMPORTANT:> Before you can use these macros, you should configure
+the location of your Rserve host by adding it to
+C<$pg{specialPGEnvironmentVars}{Rserve}{host}>, for instance by
+appending the following line to F<webwork2/conf/localOverrides.conf>:
+
+    $pg{specialPGEnvironmentVars}{Rserve} = {host => "localhost"};
 
 =head1 MACROS
 
@@ -94,8 +100,7 @@ ${pg}{modules}.
 
 =cut
 
-## TODO: allow configuration
-my $Rserve_server  = $ENV{RSERVE_HOST} || 'localhost';
+my $Rserve_server  = $Rserve->{host} || 'localhost';
 
 my $rserve;                     # Statistics::R::IO::Rserve instance
 

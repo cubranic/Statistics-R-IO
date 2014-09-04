@@ -28,6 +28,7 @@ use TestCases;
 
 ## load the RserveClient macro
 my $problemSeed = 1234;         # var provided by WWk env
+my $Rserve = {host => $rserve_host}; # fake configuration
 
 use File::Spec;
 use File::Path;
