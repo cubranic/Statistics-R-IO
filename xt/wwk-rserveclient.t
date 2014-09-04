@@ -11,7 +11,7 @@ my $rserve_port = 6311;
 
 if (IO::Socket::INET->new(PeerAddr => $rserve_host,
                           PeerPort => $rserve_port)) {
-    plan tests => 32;
+    plan tests => 33;
 }
 else {
     plan skip_all => "Cannot connect to Rserve server at localhost:6311";
@@ -55,6 +55,13 @@ $PG->mock('surePathToTmpFile',
               File::Path::make_path($file_dir);
 
               File::Spec->catdir($file_dir, $file_path->basename)
+          });
+$PG->mock('warning_message',
+          sub {
+              state @WARNING_messages;
+              
+              my ($self, @messages) = @_;
+              push @WARNING_messages, @messages;
           });
 
 open(my $macrofile, 'extras/WebWork/RserveClient.pl') ||
@@ -547,3 +554,24 @@ $remote = (rserve_eval("file.path(system.file(package='base'), 'DESCRIPTION')"))
 $local = rserve_get_file($remote);
 ok(-e $local, 'rserve plot file');
 Path::Class::file($local)->remove;
+
+subtest 'missing configuration' => sub {
+    plan tests => 2;
+
+    undef $Rserve;
+    $PG->clear;
+    rserve_query('pi');
+    my ($request, $args) = $PG->next_call();
+
+    is($request,
+       'warning_message', 'call warning message');
+    like($args->[1], qr/Calling testing::function is disabled unless Rserve host is configured/,
+       'missing configuration message')
+};
+
+
+## mock for the Value::traceback function
+package Value;
+sub traceback {
+    return " in testing::function at line 123 of some_file"
+}
