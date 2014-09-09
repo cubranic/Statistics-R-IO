@@ -29,19 +29,84 @@ use Statistics::R::REXP::Unknown;
 
 use Carp;
 
+use constant {
+    DT_INT => 1, # int
+    DT_CHAR => 2, # char
+    DT_DOUBLE => 3, # double
+    DT_STRING => 4, # zero- terminated string
+    DT_BYTESTREAM => 5, # stream of bytes (unlike DT_STRING may
+                        # contain 0)
+    DT_SEXP => 10, # encoded SEXP
+    DT_ARRAY => 11, # array of objects (i.e. first 4 bytes specify how
+                    # many subsequent objects are part of the array; 0
+                    # is legitimate)
+    DT_CUSTOM => 32, # custom types not defined in the protocol but
+                     # used by applications
+    DT_LARGE => 64, # new in 0102: if this flag is set then the length
+                    # of the object is coded as 56-bit integer
+                    # enlarging the header by 4 bytes
+};
+
+# eXpression Types:  transport format of the encoded SEXPs:
+# [0] int type/len (1 byte type, 3 bytes len - same as SET_PAR)
+# [4] REXP attr (if bit 8 in type is set)
+# [4/8] data .. */
+# Expression type classification:
+#    P = primary type
+#    s = secondary type - its decoding is identical to
+#        a primary type and thus the client doesn't need to
+#        decode it separately.
+#    - = deprecated/removed. if a client doesn't need to
+#        support old Rserve versions, those can be safely skipped.
+# XT_* types:
+use constant {
+    XT_NULL => 0,   # P data: [0]
+    XT_INT => 1,    # - data: [4]int
+    XT_DOUBLE => 2, # - data: [8]double
+    XT_STR => 3,    # P data: [n]char null-term. strg.
+    XT_LANG => 4,   # - data: same as XT_LIST
+    XT_SYM => 5,    # - data: [n]char symbol name
+    XT_BOOL => 6,   # - data: [1]byte boolean (1=TRUE, 0=FALSE, 2=NA)
+    XT_S4 => 7,     # P data: [0]
+    XT_VECTOR => 16,     # P data: [?]REXP,REXP,...
+    XT_LIST => 17,       # - X head, X vals, X tag (since 0.1-5)
+    XT_CLOS => 18,       # P X formals, X body (closure; since 0.1-5)
+    XT_SYMNAME => 19,    # s same as XT_STR (since 0.5)
+    XT_LIST_NOTAG => 20, # s same as XT_VECTOR (since 0.5)
+    XT_LIST_TAG => 21, # P X tag, X val, Y tag, Y val, ... (since 0.5)
+    XT_LANG_NOTAG => 22,        # s same as XT_LIST_NOTAG (since 0.5)
+    XT_LANG_TAG => 23,          # s same as XT_LIST_TAG (since 0.5)
+    XT_VECTOR_EXP => 26,        # s same as XT_VECTOR (since 0.5)
+    XT_VECTOR_STR => 27, # - same as XT_VECTOR (since 0.5 but unused, use XT_ARRAY_STR instead)
+    XT_ARRAY_INT => 32,  # P data: [n*4]int,int,...
+    XT_ARRAY_DOUBLE => 33,      # P data: [n*8]double,double,...
+    XT_ARRAY_STR => 34, # P data: string,string,...
+                        # (string=byte,byte,...,0) padded with '\01'
+    XT_ARRAY_BOOL_UA => 35, # - data: [n]byte,byte,... (unaligned! NOT supported anymore)
+    XT_ARRAY_BOOL => 36,    # P data: int(n),byte,byte,...
+    XT_RAW => 37,           # P data: int(n),byte,byte,...
+    XT_ARRAY_CPLX => 38, # P data: [n*16]double,double,... (Re,Im,Re,Im,...)
+    XT_UNKNOWN => 48, # P data: [4]int - SEXP type (as from TYPEOF(x))
+
+    XT_LARGE => 64, # new in 0102: if this flag is set then the length
+                    # of the object is coded as 56-bit integer
+                    # enlarging the header by 4 bytes
+    XT_HAS_ATTR => 128,      # flag; if set, the following REXP is the
+                             # attribute
+};
 
 sub unpack_sexp_info {
     bind(\&any_uint32,
          sub {
              my $object_info = shift // return;
-             my $is_long = $object_info & 1<<6;
+             my $is_long = $object_info & XT_LARGE;
 
              if ($is_long) {
                  ## TODO: if `is_long`, then the next 4 bytes contain
                  ## the upper half of the length
                  error "Sorry, long packets aren't supported yet" 
              } else {
-                 mreturn { has_attributes => $object_info & 1<<7,
+                 mreturn { has_attributes => $object_info & XT_HAS_ATTR,
                            is_long => $is_long,
                            object_type => $object_info & 0x3F,
                            length => $object_info >> 8,
@@ -58,47 +123,47 @@ sub sexp_data {
          sub {
              my ($object_info, $attributes) = @{shift()};
              
-    if ($object_info->{object_type} == 0x00) {
+    if ($object_info->{object_type} == XT_NULL) {
         # encoded Nil
         mreturn(Statistics::R::REXP::Null->new)
-    } elsif ($object_info->{object_type} == 32) {
+    } elsif ($object_info->{object_type} == XT_ARRAY_INT) {
         # integer vector
         intsxp($object_info, $attributes)
-    } elsif ($object_info->{object_type} == 36) {
+    } elsif ($object_info->{object_type} == XT_ARRAY_BOOL) {
         # logical vector
         lglsxp($object_info, $attributes)
-    } elsif ($object_info->{object_type} == 33) {
+    } elsif ($object_info->{object_type} == XT_ARRAY_DOUBLE) {
         # numeric vector
         dblsxp($object_info, $attributes)
-    } elsif ($object_info->{object_type} == 34) {
+    } elsif ($object_info->{object_type} == XT_ARRAY_STR) {
         # character vector
         strsxp($object_info, $attributes)
-    } elsif ($object_info->{object_type} == 37) {
+    } elsif ($object_info->{object_type} == XT_RAW) {
         # raw vector
         rawsxp($object_info)
-    } elsif ($object_info->{object_type} == 16) {
+    } elsif ($object_info->{object_type} == XT_VECTOR) {
         # list (generic vector)
         vecsxp($object_info, $attributes)
-    } elsif ($object_info->{object_type} == 20) {
+    } elsif ($object_info->{object_type} == XT_LIST_NOTAG) {
         # pairlist
         die "not implemented: $object_info->{object_type}";
         listsxp($object_info)
-    } elsif ($object_info->{object_type} == 21) {
+    } elsif ($object_info->{object_type} == XT_LIST_TAG) {
         # pairlist with tags
         $object_info->{has_tags} = 1;
         tagged_pairlist($object_info)
-    } elsif ($object_info->{object_type} == 22) {
+    } elsif ($object_info->{object_type} == XT_LANG_NOTAG) {
         # language without tags
         $object_info->{has_tags} = 0;
         langsxp($object_info, $attributes)
-    } elsif ($object_info->{object_type} == 23) {
+    } elsif ($object_info->{object_type} == XT_LANG_TAG) {
         # language with tags
         $object_info->{has_tags} = 1;
         langsxp($object_info, $attributes)
-    } elsif ($object_info->{object_type} == 19) {
+    } elsif ($object_info->{object_type} == XT_SYMNAME) {
         # symbol
         symsxp($object_info)
-    } elsif ($object_info->{object_type} == 48) {
+    } elsif ($object_info->{object_type} == XT_UNKNOWN) {
         # unknown
         nosxp($object_info, $attributes)
     } else {
@@ -438,7 +503,7 @@ sub dt_sexp_data {
 
 
 sub decode_sexp {
-    bind(seq(uint8(10), \&any_uint24,
+    bind(seq(uint8(DT_SEXP), \&any_uint24,
              dt_sexp_data),
          sub {
              mreturn shift->[2]
