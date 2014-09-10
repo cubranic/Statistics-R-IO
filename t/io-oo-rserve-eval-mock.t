@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 31;
+use Test::More tests => 32;
 use Test::Fatal;
 use Test::MockObject::Extends;
 
@@ -554,4 +554,24 @@ while ( my ($name, $value) = each %{TEST_CASES()} ) {
     parse_rserve_eval('t/data/' . $name,
                       $value->{value},
                       $value->{desc});
+}
+
+
+subtest 'undef server' => sub {
+    plan tests => 3;
+    
+    like(exception {
+        Statistics::R::IO::Rserve->new(server => undef)
+         }, qr/server.*Validation failed for 'Str' with value undef/,
+         'explicit server argument');
+
+    like(exception {
+        Statistics::R::IO::Rserve->new(server => undef, _usesocket=>1)
+         }, qr/server.*Validation failed for 'Str' with value undef/,
+         'explicit with low-level sockets');
+
+    like(exception {
+        Statistics::R::IO::Rserve->new(undef)
+         }, qr/server.*Validation failed for 'Str' with value undef/,
+         'implicit server argument')
 }

@@ -47,6 +47,7 @@ has fh => (
 
 has server => (
     is => 'ro',
+    isa => 'Str',
     default => 'localhost',
 );
 
