@@ -144,6 +144,9 @@ sub sexp_data {
     } elsif ($object_info->{object_type} == XT_VECTOR) {
         # list (generic vector)
         vecsxp($object_info, $attributes)
+    } elsif ($object_info->{object_type} == XT_VECTOR_EXP) {
+        # expression vector
+        expsxp($object_info, $attributes)
     } elsif ($object_info->{object_type} == XT_LIST_NOTAG) {
         # pairlist
         die "not implemented: $object_info->{object_type}";
@@ -424,6 +427,19 @@ sub vecsxp {
 }
 
 
+sub expsxp {
+    bind(vecsxp(@_), sub {
+        my $list = shift;
+        my %args = (elements => $list->elements);
+        my $attributes = $list->attributes;
+        if ($attributes) {
+            $args{attributes} = $attributes
+        }
+        mreturn(Statistics::R::REXP::Expression->new(%args))
+    })
+}
+
+
 sub tagged_pairlist {
     my $object_info = shift;
 
@@ -605,7 +621,7 @@ the particular type.
 
 
 =item intsxp, langsxp, lglsxp, listsxp, rawsxp, dblsxp,
-strsxp, symsxp, vecsxp
+strsxp, symsxp, vecsxp, expsxp
 
 Parsers for the corresponding R SEXP-types.
 

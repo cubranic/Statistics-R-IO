@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 25;
+use Test::More tests => 30;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);

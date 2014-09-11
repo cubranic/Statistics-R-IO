@@ -98,6 +98,9 @@ sub object_data {
     } elsif ($object_info->{object_type} == 19) {
         # list (generic vector)
         vecsxp($object_info)
+    } elsif ($object_info->{object_type} == 20) {
+        # expression vector
+        expsxp($object_info)
     } elsif ($object_info->{object_type} == 9) {
         # internal character string
         charsxp($object_info)
@@ -329,6 +332,13 @@ sub vecsxp {
     my $object_info = shift;
     vector_and_attributes($object_info, object_content,
                           'Statistics::R::REXP::List')
+}
+
+
+sub expsxp {
+    my $object_info = shift;
+    vector_and_attributes($object_info, object_content,
+                          'Statistics::R::REXP::Expression')
 }
 
 
