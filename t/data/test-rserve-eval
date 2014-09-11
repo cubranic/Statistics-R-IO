@@ -33,6 +33,7 @@ tests <- list(
     `empty_list` = 'list()',
     `empty_raw` = 'raw()',
     `empty_sym` = 'bquote()',
+    `empty_expr` = 'expression()',
     `null` = 'NULL',
     `char_na` = 'c("foo", "", NA, 23)',
     `num_na` = 'c(11.3, NaN, -Inf, NA, 0)',
@@ -59,7 +60,11 @@ tests <- list(
     `mtcars`='head(mtcars)',
     `iris`='head(iris)',
     `lang-lm-mpgwt`='lm(mpg ~ wt, data = head(mtcars))$call',
-    `mtcars-lm-mpgwt`='lm(mpg ~ wt, data = head(mtcars))')
+    `mtcars-lm-mpgwt`='lm(mpg ~ wt, data = head(mtcars))',
+    `expr_null` = 'expression(NULL)',
+    `expr_int` = 'expression(42L)',
+    `expr_call` = 'expression(1+2)',
+    `expr_many` = 'expression(u, v, 1+0:9)')
 
 for (i in seq_along(tests)) {
     test_eval(c, names(tests)[i], tests[[i]])
