@@ -20,6 +20,7 @@ use Statistics::R::REXP::List;
 use Statistics::R::REXP::Logical;
 use Statistics::R::REXP::Raw;
 use Statistics::R::REXP::Language;
+use Statistics::R::REXP::Expression;
 use Statistics::R::REXP::Symbol;
 use Statistics::R::REXP::Null;
 use Statistics::R::REXP::GlobalEnvironment;
@@ -54,6 +55,10 @@ use constant TEST_CASES => {
         desc => 'empty symbol',
         expr => 'bquote()',
         value => Statistics::R::REXP::Symbol->new()},
+    'empty_expr' => {
+        desc => 'empty expr',
+        expr => 'expression()',
+        value => Statistics::R::REXP::Expression->new()},
     'null' => {
         desc => 'null',
         expr => 'NULL',
@@ -92,6 +97,42 @@ use constant TEST_CASES => {
         expr => 'list(NULL)',
         value => Statistics::R::REXP::List->new( [
             Statistics::R::REXP::Null->new() ]) },
+    'expr_null' => {
+        desc => 'expression(NULL)',
+        expr => 'expression(NULL)',
+        value => Statistics::R::REXP::Expression->new([
+            Statistics::R::REXP::Null->new()
+        ])},
+    'expr_int' => {
+        desc => 'expression(42L)',
+        expr => 'expression(42L)',
+        value => Statistics::R::REXP::Expression->new([
+            Statistics::R::REXP::Integer->new([42])
+        ])},
+    'expr_call' => {
+        desc => 'expression(1+2)',
+        expr => 'expression(1+2)',
+        value => Statistics::R::REXP::Expression->new([
+            Statistics::R::REXP::Language->new([
+                Statistics::R::REXP::Symbol->new('+'),
+                ShortDoubleVector->new([1]),
+                ShortDoubleVector->new([2]) ])
+        ])},
+    'expr_many' => {
+        desc => 'expression(u, v, 1+0:9)',
+        expr => 'expression(u, v, 1+0:9)',
+        value => Statistics::R::REXP::Expression->new([
+            Statistics::R::REXP::Symbol->new('u'),
+            Statistics::R::REXP::Symbol->new('v'),
+            Statistics::R::REXP::Language->new([
+                Statistics::R::REXP::Symbol->new('+'),
+                ShortDoubleVector->new([1]),
+                Statistics::R::REXP::Language->new([
+                    Statistics::R::REXP::Symbol->new(':'),
+                    ShortDoubleVector->new([0]),
+                    ShortDoubleVector->new([9]) ])
+            ])
+        ])},
 };
 
 1;
