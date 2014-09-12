@@ -230,6 +230,23 @@ Expressions:
 [151] 00 00 00 fe
 
 
+Closures:
+
+- `function() {}`
+
+- `function() NULL`
+
+- `function() 1L`
+
+- `function() 1+2`
+
+- `function(a, b) {a - b}`
+
+- `function(a=3, b) {a + b * pi}`
+
+- `function(x=3, y, ...) {x * log(y) }`
+
+
 Additional formats:
 
 - .rds: the object from the corresponding file serialized using

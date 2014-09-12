@@ -34,6 +34,7 @@ tests <- list(
     `empty_raw` = 'raw()',
     `empty_sym` = 'bquote()',
     `empty_expr` = 'expression()',
+    `empty_clos` = 'function() {}',
     `null` = 'NULL',
     `char_na` = 'c("foo", "", NA, 23)',
     `num_na` = 'c(11.3, NaN, -Inf, NA, 0)',
@@ -64,7 +65,14 @@ tests <- list(
     `expr_null` = 'expression(NULL)',
     `expr_int` = 'expression(42L)',
     `expr_call` = 'expression(1+2)',
-    `expr_many` = 'expression(u, v, 1+0:9)')
+    `expr_many` = 'expression(u, v, 1+0:9)',
+    `clos_null` = 'function() NULL',
+    `clos_int` = 'function() 1L',
+    `clos_add` = 'function() 1+2',
+    `clos_args` = 'function(a, b) {a - b}',
+    `clos_defaults` = 'function(a=3, b) {a + b * pi}',
+    `clos_dots` = 'function(x=3, y, ...) {x * log(y) }'
+    )
 
 for (i in seq_along(tests)) {
     test_eval(c, names(tests)[i], tests[[i]])
