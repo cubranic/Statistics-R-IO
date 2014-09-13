@@ -21,6 +21,7 @@ use Statistics::R::REXP::Logical;
 use Statistics::R::REXP::Raw;
 use Statistics::R::REXP::Language;
 use Statistics::R::REXP::Expression;
+use Statistics::R::REXP::Closure;
 use Statistics::R::REXP::Symbol;
 use Statistics::R::REXP::Null;
 use Statistics::R::REXP::GlobalEnvironment;
@@ -133,6 +134,88 @@ use constant TEST_CASES => {
                     ShortDoubleVector->new([9]) ])
             ])
         ])},
+    'empty_clos' => {
+        desc => 'function() {}',
+        expr => 'function() {}',
+        value => Statistics::R::REXP::Closure->new(
+            body => Statistics::R::REXP::Language->new([
+                Statistics::R::REXP::Symbol->new('{') ])
+        ),
+    },
+    'clos_null' => {
+        desc => 'function() NULL',
+        expr => 'function() NULL',
+        value => Statistics::R::REXP::Closure->new(
+            body => Statistics::R::REXP::Null->new
+        ),
+    },
+    'clos_int' => {
+        desc => 'function() 1L',
+        expr => 'function() 1L',
+        value => Statistics::R::REXP::Closure->new(
+            body => Statistics::R::REXP::Integer->new([1])
+        ),
+    },
+    'clos_add' => {
+        desc => 'function() 1+2',
+        expr => 'function() 1+2',
+        value => Statistics::R::REXP::Closure->new(
+            body => Statistics::R::REXP::Language->new([
+                Statistics::R::REXP::Symbol->new('+'),
+                ShortDoubleVector->new([1]),
+                ShortDoubleVector->new([2]) ])
+        ),
+    },
+    'clos_args' => {
+        desc => 'function(a, b) {a - b}',
+        expr => 'function(a, b) {a - b}',
+        value => Statistics::R::REXP::Closure->new(
+            args => ['a', 'b'],
+            body => Statistics::R::REXP::Language->new([
+                Statistics::R::REXP::Symbol->new('{'),
+                Statistics::R::REXP::Language->new([
+                    Statistics::R::REXP::Symbol->new('-'),
+                    Statistics::R::REXP::Symbol->new('a'),
+                    Statistics::R::REXP::Symbol->new('b') ])
+                ])
+            )
+    },
+    'clos_defaults' => {
+        desc => 'function(a=3, b) {a + b * pi}',
+        expr => 'function(a=3, b) {a + b * pi}',
+        value => Statistics::R::REXP::Closure->new(
+            args => ['a', 'b'],
+            defaults => [ShortDoubleVector->new([2]), undef],
+            body => Statistics::R::REXP::Language->new([
+                Statistics::R::REXP::Symbol->new('{'),
+                Statistics::R::REXP::Language->new([
+                    Statistics::R::REXP::Symbol->new('+'),
+                    Statistics::R::REXP::Symbol->new('a'),
+                    Statistics::R::REXP::Language->new([
+                        Statistics::R::REXP::Symbol->new('*'),
+                        Statistics::R::REXP::Symbol->new('b'),
+                        Statistics::R::REXP::Symbol->new('pi')])
+                    ])
+                ])
+            )
+    },
+    'clos_dots' => {
+        desc => 'function(x=3, y, ...) {x * log(y) }',
+        expr => 'function(x=3, y, ...) {x * log(y) }',
+        value => Statistics::R::REXP::Closure->new(
+            args => ['x', 'y', '...'],
+            defaults => [ShortDoubleVector->new([3]), undef, undef],
+            body => Statistics::R::REXP::Language->new([
+                Statistics::R::REXP::Symbol->new('{'),
+                Statistics::R::REXP::Language->new([
+                    Statistics::R::REXP::Symbol->new('*'),
+                    Statistics::R::REXP::Symbol->new('x'),
+                    Statistics::R::REXP::Language->new([
+                        Statistics::R::REXP::Symbol->new('log'),
+                        Statistics::R::REXP::Symbol->new('y')] ) ])
+                ])
+            )
+    },
 };
 
 1;
