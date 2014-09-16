@@ -2,14 +2,13 @@
 
 test_eval <- function(expr_name, expr_text) {
     expr <- parse(text = expr_text)
-    ## value <- eval(expr)
-    ## str(value)
+    value <- eval(expr, envir=globalenv())
 
-    save_serialize(expr_name, eval(expr))
-    save_serialize_noxdr(expr_name, eval(expr))
-    save_rds(expr_name, eval(expr))
-    save_xz_rds(expr_name, eval(expr))
-    save_bzip_rds(expr_name, eval(expr))
+    save_serialize(expr_name, value)
+    save_serialize_noxdr(expr_name, value)
+    save_rds(expr_name, value)
+    save_xz_rds(expr_name, value)
+    save_bzip_rds(expr_name, value)
 }
 
 
