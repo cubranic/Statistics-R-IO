@@ -43,6 +43,15 @@ use TestCases;
 
 sub check_rserve_eval_variants {
     my ($rexp, $expected, $message) = @_;
+    
+    if ($expected->isa('Statistics::R::REXP::Closure')) {
+        # QAP doesn't serialize the closure's environment, so we don't
+        # check it
+        $expected = Statistics::R::REXP::Closure->new(
+            args => $expected->args,
+            defaults => $expected->defaults,
+            body => $expected->body)
+    }
 
     subtest 'rserve eval ' . $message => sub {
         ## some tests can only be executed when Rserve's host and/or

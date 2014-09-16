@@ -139,22 +139,22 @@ use constant TEST_CASES => {
         expr => 'function() {}',
         value => Statistics::R::REXP::Closure->new(
             body => Statistics::R::REXP::Language->new([
-                Statistics::R::REXP::Symbol->new('{') ])
-        ),
+                Statistics::R::REXP::Symbol->new('{') ]),
+            environment => Statistics::R::REXP::GlobalEnvironment->new())
     },
     'clos_null' => {
         desc => 'function() NULL',
         expr => 'function() NULL',
         value => Statistics::R::REXP::Closure->new(
-            body => Statistics::R::REXP::Null->new
-        ),
+            body => Statistics::R::REXP::Null->new,
+            environment => Statistics::R::REXP::GlobalEnvironment->new())
     },
     'clos_int' => {
         desc => 'function() 1L',
         expr => 'function() 1L',
         value => Statistics::R::REXP::Closure->new(
-            body => Statistics::R::REXP::Integer->new([1])
-        ),
+            body => Statistics::R::REXP::Integer->new([1]),
+            environment => Statistics::R::REXP::GlobalEnvironment->new())
     },
     'clos_add' => {
         desc => 'function() 1+2',
@@ -163,8 +163,8 @@ use constant TEST_CASES => {
             body => Statistics::R::REXP::Language->new([
                 Statistics::R::REXP::Symbol->new('+'),
                 ShortDoubleVector->new([1]),
-                ShortDoubleVector->new([2]) ])
-        ),
+                ShortDoubleVector->new([2]) ]),
+            environment => Statistics::R::REXP::GlobalEnvironment->new())
     },
     'clos_args' => {
         desc => 'function(a, b) {a - b}',
@@ -177,8 +177,8 @@ use constant TEST_CASES => {
                     Statistics::R::REXP::Symbol->new('-'),
                     Statistics::R::REXP::Symbol->new('a'),
                     Statistics::R::REXP::Symbol->new('b') ])
-                ])
-            )
+                ]),
+            environment => Statistics::R::REXP::GlobalEnvironment->new())
     },
     'clos_defaults' => {
         desc => 'function(a=3, b) {a + b * pi}',
@@ -196,8 +196,8 @@ use constant TEST_CASES => {
                         Statistics::R::REXP::Symbol->new('b'),
                         Statistics::R::REXP::Symbol->new('pi')])
                     ])
-                ])
-            )
+                ]),
+            environment => Statistics::R::REXP::GlobalEnvironment->new())
     },
     'clos_dots' => {
         desc => 'function(x=3, y, ...) {x * log(y) }',
@@ -213,8 +213,8 @@ use constant TEST_CASES => {
                     Statistics::R::REXP::Language->new([
                         Statistics::R::REXP::Symbol->new('log'),
                         Statistics::R::REXP::Symbol->new('y')] ) ])
-                ])
-            )
+                ]),
+            environment => Statistics::R::REXP::GlobalEnvironment->new())
     },
 };
 
