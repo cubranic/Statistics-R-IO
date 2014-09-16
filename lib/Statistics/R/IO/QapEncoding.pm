@@ -166,6 +166,9 @@ sub sexp_data {
     } elsif ($object_info->{object_type} == XT_SYMNAME) {
         # symbol
         symsxp($object_info)
+    } elsif ($object_info->{object_type} == XT_CLOS) {
+        # closure
+        closxp($object_info, $attributes)
     } elsif ($object_info->{object_type} == XT_UNKNOWN) {
         # unknown
         nosxp($object_info, $attributes)
@@ -512,6 +515,36 @@ sub langsxp {
 }
 
 
+sub closxp {
+    my ($object_info, $attributes) = (shift, shift);
+    
+    my $length = $object_info->{length};
+    bind(count(2, dt_sexp_data()),
+         sub {
+             my ($args, $body) = @{(shift or return)};
+             my (@arg_names, @arg_values);
+             if (ref $args eq ref []) {
+                 foreach my $arg (@{$args}) {
+                     push @arg_names, $arg->{tag}->name;
+                     if (Statistics::R::REXP::Symbol->new('') eq $arg->{value}) {
+                         push @arg_values, undef
+                     }
+                     else {
+                         push @arg_values, $arg->{value}
+                     }
+                 }
+             }
+             
+             my %args = (body => $body,
+                         args => [@arg_names],
+                         defaults => [@arg_values]);
+             
+             $args{attributes} = $attributes if $attributes;
+             
+             mreturn(Statistics::R::REXP::Closure->new(%args))
+         })
+}
+
 sub dt_sexp_data {
     bind(unpack_sexp_info,
          \&sexp_data)
@@ -621,7 +654,7 @@ the particular type.
 
 
 =item intsxp, langsxp, lglsxp, listsxp, rawsxp, dblsxp,
-strsxp, symsxp, vecsxp, expsxp
+strsxp, symsxp, vecsxp, expsxp, closxp
 
 Parsers for the corresponding R SEXP-types.
 
