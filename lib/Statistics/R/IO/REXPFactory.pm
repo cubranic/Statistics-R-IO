@@ -116,6 +116,9 @@ sub object_data {
     } elsif ($object_info->{object_type} == 4) {
         # environment
         envsxp($object_info)
+    } elsif ($object_info->{object_type} == 3) {
+        # closure
+        closxp($object_info)
     } elsif ($object_info->{object_type} == 0xfb) {
         # encoded R_MissingArg, i.e., empty symbol
         mreturn(Statistics::R::REXP::Symbol->new)
@@ -419,6 +422,33 @@ sub envsxp {
                           mreturn(Statistics::R::REXP::Environment->new( %args ));
                       })
              }))
+}
+
+sub closxp {
+    my ($object_info, $attributes) = (shift, shift);
+    bind(count(3, object_content),
+         sub {
+             my ($environment, $args, $body) = @{$_[0]};
+
+             my (@arg_names, @arg_values);
+             if (ref $args eq ref []) {
+                 foreach my $arg (@{$args}) {
+                     push @arg_names, $arg->{tag}->name;
+                     if (Statistics::R::REXP::Symbol->new('') eq $arg->{value}) {
+                         push @arg_values, undef
+                     }
+                     else {
+                         push @arg_values, $arg->{value}
+                     }
+                 }
+             }
+             my %args = (
+                 body => $body,
+                 args => [@arg_names],
+                 defaults => [@arg_values],
+                 environment => $environment);
+             mreturn(Statistics::R::REXP::Closure->new( %args ));
+         })
 }
 
 
