@@ -54,15 +54,6 @@ sub parse_rserve_eval {
 
     my $filename = $file . '.qap';
     
-    if ($expected->isa('Statistics::R::REXP::Closure')) {
-        # QAP doesn't serialize the closure's environment, so we don't
-        # check it
-        $expected = Statistics::R::REXP::Closure->new(
-            args => $expected->args,
-            defaults => $expected->defaults,
-            body => $expected->body)
-    }
-    
     subtest 'mock ' . $message => sub {
         plan tests => 11;
         

@@ -10,6 +10,7 @@ use Exporter 'import';
 our @EXPORT = qw( TEST_CASES );
 
 use ShortDoubleVector;
+use ClosureLenientEnv;
 
 use Statistics::R::IO::Parser qw( :all );
 use Statistics::R::IO::ParserState;
@@ -137,7 +138,7 @@ use constant TEST_CASES => {
     'empty_clos' => {
         desc => 'function() {}',
         expr => 'function() {}',
-        value => Statistics::R::REXP::Closure->new(
+        value => ClosureLenientEnv->new(
             body => Statistics::R::REXP::Language->new([
                 Statistics::R::REXP::Symbol->new('{') ]),
             environment => Statistics::R::REXP::GlobalEnvironment->new())
@@ -145,21 +146,21 @@ use constant TEST_CASES => {
     'clos_null' => {
         desc => 'function() NULL',
         expr => 'function() NULL',
-        value => Statistics::R::REXP::Closure->new(
+        value => ClosureLenientEnv->new(
             body => Statistics::R::REXP::Null->new,
             environment => Statistics::R::REXP::GlobalEnvironment->new())
     },
     'clos_int' => {
         desc => 'function() 1L',
         expr => 'function() 1L',
-        value => Statistics::R::REXP::Closure->new(
+        value => ClosureLenientEnv->new(
             body => Statistics::R::REXP::Integer->new([1]),
             environment => Statistics::R::REXP::GlobalEnvironment->new())
     },
     'clos_add' => {
         desc => 'function() 1+2',
         expr => 'function() 1+2',
-        value => Statistics::R::REXP::Closure->new(
+        value => ClosureLenientEnv->new(
             body => Statistics::R::REXP::Language->new([
                 Statistics::R::REXP::Symbol->new('+'),
                 ShortDoubleVector->new([1]),
@@ -169,7 +170,7 @@ use constant TEST_CASES => {
     'clos_args' => {
         desc => 'function(a, b) {a - b}',
         expr => 'function(a, b) {a - b}',
-        value => Statistics::R::REXP::Closure->new(
+        value => ClosureLenientEnv->new(
             args => ['a', 'b'],
             body => Statistics::R::REXP::Language->new([
                 Statistics::R::REXP::Symbol->new('{'),
@@ -183,7 +184,7 @@ use constant TEST_CASES => {
     'clos_defaults' => {
         desc => 'function(a=3, b) {a + b * pi}',
         expr => 'function(a=3, b) {a + b * pi}',
-        value => Statistics::R::REXP::Closure->new(
+        value => ClosureLenientEnv->new(
             args => ['a', 'b'],
             defaults => [ShortDoubleVector->new([2]), undef],
             body => Statistics::R::REXP::Language->new([
@@ -202,7 +203,7 @@ use constant TEST_CASES => {
     'clos_dots' => {
         desc => 'function(x=3, y, ...) {x * log(y) }',
         expr => 'function(x=3, y, ...) {x * log(y) }',
-        value => Statistics::R::REXP::Closure->new(
+        value => ClosureLenientEnv->new(
             args => ['x', 'y', '...'],
             defaults => [ShortDoubleVector->new([3]), undef, undef],
             body => Statistics::R::REXP::Language->new([

@@ -25,15 +25,6 @@ sub check_qap {
     while ($rc = read($f, $data, 8192, length $data)) {}
     die $! unless defined $rc;
     
-    if ($expected->isa('Statistics::R::REXP::Closure')) {
-        # QAP doesn't serialize the closure's environment, so we don't
-        # check it
-        $expected = Statistics::R::REXP::Closure->new(
-            args => $expected->args,
-            defaults => $expected->defaults,
-            body => $expected->body)
-    }
-    
     subtest 'qap - ' . $message => sub {
         plan tests => 2;
         
