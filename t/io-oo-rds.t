@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 49;
+use Test::More tests => 52;
 use Test::Fatal;
 
 use Statistics::R::IO::RDS;

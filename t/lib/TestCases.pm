@@ -26,6 +26,8 @@ use Statistics::R::REXP::Closure;
 use Statistics::R::REXP::Symbol;
 use Statistics::R::REXP::Null;
 use Statistics::R::REXP::GlobalEnvironment;
+use Statistics::R::REXP::EmptyEnvironment;
+use Statistics::R::REXP::BaseEnvironment;
 use Statistics::R::REXP::Unknown;
 
 use constant TEST_CASES => {
@@ -216,6 +218,24 @@ use constant TEST_CASES => {
                         Statistics::R::REXP::Symbol->new('y')] ) ])
                 ]),
             environment => Statistics::R::REXP::GlobalEnvironment->new())
+    },
+    'baseenv' => {
+        desc => 'baseenv()',
+        expr => 'baseenv()',
+        value => Statistics::R::REXP::BaseEnvironment->new,
+        skip => 'rserve'
+    },
+    'emptyenv' => {
+        desc => 'emptyenv()',
+        expr => 'emptyenv()',
+        value => Statistics::R::REXP::EmptyEnvironment->new,
+        skip => 'rserve'
+    },
+    'globalenv' => {
+        desc => 'globalenv()',
+        expr => 'globalenv()',
+        value => Statistics::R::REXP::GlobalEnvironment->new,
+        skip => 'rserve'
     },
 };
 

@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 44;
+use Test::More tests => 47;
 use Test::Fatal;
 use Test::MockObject::Extends;
 
@@ -551,9 +551,12 @@ like(exception {
 
 
 while ( my ($name, $value) = each %{TEST_CASES()} ) {
+  SKIP: {
+    skip "not yet supported", 1 if ($value->{skip} || '' =~ 'rserve');
     parse_rserve_eval('t/data/' . $name,
                       $value->{value},
                       $value->{desc});
+  }
 }
 
 
