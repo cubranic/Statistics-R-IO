@@ -87,7 +87,10 @@ tests <- list(
     `clos_add` = 'function() 1+2',
     `clos_args` = 'function(a, b) {a - b}',
     `clos_defaults` = 'function(a=3, b) {a + b * pi}',
-    `clos_dots` = 'function(x=3, y, ...) {x * log(y) }')
+    `clos_dots` = 'function(x=3, y, ...) {x * log(y) }',
+    `baseenv` = 'baseenv()',
+    `emptyenv` = 'emptyenv()',
+    `globalenv` = 'globalenv()')
 
 for (i in seq_along(tests)) {
     test_eval(names(tests)[i], tests[[i]])
