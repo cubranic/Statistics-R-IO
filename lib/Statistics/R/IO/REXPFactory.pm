@@ -25,6 +25,8 @@ use Statistics::R::REXP::Language;
 use Statistics::R::REXP::Symbol;
 use Statistics::R::REXP::Null;
 use Statistics::R::REXP::GlobalEnvironment;
+use Statistics::R::REXP::EmptyEnvironment;
+use Statistics::R::REXP::BaseEnvironment;
 
 use Carp;
 
@@ -122,6 +124,12 @@ sub object_data {
     } elsif ($object_info->{object_type} == 0xfb) {
         # encoded R_MissingArg, i.e., empty symbol
         mreturn(Statistics::R::REXP::Symbol->new)
+    } elsif ($object_info->{object_type} == 0xf1) {
+        # encoded R_BaseEnv
+        mreturn(Statistics::R::REXP::BaseEnvironment->new)
+    } elsif ($object_info->{object_type} == 0xf2) {
+        # encoded R_EmptyEnv
+        mreturn(Statistics::R::REXP::EmptyEnvironment->new)
     } elsif ($object_info->{object_type} == 0xfd) {
         # encoded R_GlobalEnv
         mreturn(Statistics::R::REXP::GlobalEnvironment->new)
