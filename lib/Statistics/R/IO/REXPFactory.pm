@@ -438,28 +438,40 @@ sub envsxp {
 }
 
 sub closxp {
-    my ($object_info, $attributes) = (shift, shift);
-    bind(count(3, object_content),
+    my $object_info = $_[0];
+    
+    bind(listsxp(@_),
          sub {
-             my ($environment, $args, $body) = @{$_[0]};
-
-             my (@arg_names, @arg_values);
-             if (ref $args eq ref []) {
-                 foreach my $arg (@{$args}) {
+             my ($head, $body) = @{shift()};
+             
+             my $attributes = $head->{attributes};
+             my $environment = $head->{tag};
+             my $arguments = $head->{value};
+             
+             my (@arg_names, @arg_defaults);
+             if (ref $arguments eq ref []) {
+                 foreach my $arg (@{$arguments}) {
                      push @arg_names, $arg->{tag}->name;
-                     if (Statistics::R::REXP::Symbol->new('') eq $arg->{value}) {
-                         push @arg_values, undef
+                     
+                     my $default = $arg->{value};
+                     if (Statistics::R::REXP::Symbol->new('') eq $default) {
+                         push @arg_defaults, undef
                      }
                      else {
-                         push @arg_values, $arg->{value}
+                         push @arg_defaults, $default
                      }
                  }
              }
+             
              my %args = (
-                 body => $body,
+                 body => $body // Statistics::R::REXP::Null->new,
                  args => [@arg_names],
-                 defaults => [@arg_values],
+                 defaults => [@arg_defaults],
                  environment => $environment);
+             if ($object_info->{has_attributes}) {
+                 $args{attributes} = { tagged_pairlist_to_attribute_hash $attributes };
+             }
+             
              mreturn(Statistics::R::REXP::Closure->new( %args ));
          })
 }
