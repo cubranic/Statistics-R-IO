@@ -90,7 +90,8 @@ tests <- list(
     `clos_dots` = 'function(x=3, y, ...) {x * log(y) }',
     `baseenv` = 'baseenv()',
     `emptyenv` = 'emptyenv()',
-    `globalenv` = 'globalenv()')
+    `globalenv` = 'globalenv()',
+    `env_attr` = 'local({ e <- new.env(parent=globalenv()); attributes(e) <- list(foo = "bar", fred = 1:3); e })')
 
 for (i in seq_along(tests)) {
     test_eval(names(tests)[i], tests[[i]])
