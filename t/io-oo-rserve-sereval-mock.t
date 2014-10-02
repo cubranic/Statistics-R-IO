@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 46;
+use Test::More tests => 47;
 use Test::Fatal;
 use Test::MockObject::Extends;
 

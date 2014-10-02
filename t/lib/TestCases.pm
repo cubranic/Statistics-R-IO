@@ -237,6 +237,17 @@ use constant TEST_CASES => {
         value => Statistics::R::REXP::GlobalEnvironment->new,
         skip => 'rserve'
     },
+    'env_attr' => {
+        desc => 'environment with attributes',
+        expr => 'local({ e <- new.env(parent=globalenv()); attributes(e) <- list(foo = "bar", fred = 1:3); e })',
+        value => Statistics::R::REXP::Environment->new(
+            enclosure => Statistics::R::REXP::GlobalEnvironment->new,
+            attributes => {
+                foo => Statistics::R::REXP::Character->new(['bar']),
+                fred => Statistics::R::REXP::Integer->new([1, 2, 3]),
+            }),
+        skip => 'rserve'
+    },
 };
 
 1;
