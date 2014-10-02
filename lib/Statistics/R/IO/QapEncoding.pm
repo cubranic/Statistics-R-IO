@@ -236,16 +236,12 @@ sub tagged_pairlist_to_attribute_hash {
 sub symsxp {
     my $object_info = shift;
     
-    if ($object_info->{length}) {
-        bind(count($object_info->{length}, \&any_char),
-             sub {
-                 my @chars = @{shift or return};
-                 pop @chars while @chars && !ord($chars[-1]);
-                 mreturn(Statistics::R::REXP::Symbol->new(join('', @chars)))
-             })
-    } else {
-        error 'TODO: null-length symsxp';
-    }
+    bind(count($object_info->{length}, \&any_char),
+         sub {
+             my @chars = @{shift or return};
+             pop @chars while @chars && !ord($chars[-1]);
+             mreturn(Statistics::R::REXP::Symbol->new(join('', @chars)))
+         })
 }
 
 
