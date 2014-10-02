@@ -167,7 +167,12 @@ sub listsxp {
          sub {
              my ($car, $cdr) = @{shift or return};
              my @elements = ($car);
-             push( @elements, @{$cdr}) if ref $cdr eq ref []; # tail of list
+             if (ref $cdr eq ref []) {
+                 push( @elements, @{$cdr})
+             }
+             elsif (!$cdr->is_null) {
+                 push( @elements, $cdr)
+             }
              mreturn [ @elements ]
          })
 }
