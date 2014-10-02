@@ -425,7 +425,7 @@ sub envsxp {
                               enclosure => $enclosure,
                               );
                           if (ref $attributes eq ref []) {
-                              $args{attributes} = tagged_pairlist_to_attribute_hash $attributes;
+                              $args{attributes} = { tagged_pairlist_to_attribute_hash $attributes };
                           }
                           mreturn(Statistics::R::REXP::Environment->new( %args ));
                       })
