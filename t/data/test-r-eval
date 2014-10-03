@@ -1,7 +1,7 @@
 #!/usr/bin/Rscript
 
 test_eval <- function(expr_name, expr_text) {
-    expr <- parse(text = expr_text)
+    expr <- parse(text = expr_text, keep.source = TRUE)
     value <- eval(expr, envir=globalenv())
 
     save_serialize(expr_name, value)
