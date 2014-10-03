@@ -11,6 +11,7 @@ our @EXPORT = qw( TEST_CASES );
 
 use ShortDoubleVector;
 use ClosureLenientEnv;
+use RexpOrUnknown;
 
 use Statistics::R::IO::Parser qw( :all );
 use Statistics::R::IO::ParserState;
@@ -222,31 +223,27 @@ use constant TEST_CASES => {
     'baseenv' => {
         desc => 'baseenv()',
         expr => 'baseenv()',
-        value => Statistics::R::REXP::BaseEnvironment->new,
-        skip => 'rserve'
+        value => RexpOrUnknown->new(Statistics::R::REXP::BaseEnvironment->new),
     },
     'emptyenv' => {
         desc => 'emptyenv()',
         expr => 'emptyenv()',
-        value => Statistics::R::REXP::EmptyEnvironment->new,
-        skip => 'rserve'
+        value => RexpOrUnknown->new(Statistics::R::REXP::EmptyEnvironment->new),
     },
     'globalenv' => {
         desc => 'globalenv()',
         expr => 'globalenv()',
-        value => Statistics::R::REXP::GlobalEnvironment->new,
-        skip => 'rserve'
+        value => RexpOrUnknown->new(Statistics::R::REXP::GlobalEnvironment->new),
     },
     'env_attr' => {
         desc => 'environment with attributes',
         expr => 'local({ e <- new.env(parent=globalenv()); attributes(e) <- list(foo = "bar", fred = 1:3); e })',
-        value => Statistics::R::REXP::Environment->new(
+        value => RexpOrUnknown->new(Statistics::R::REXP::Environment->new(
             enclosure => Statistics::R::REXP::GlobalEnvironment->new,
             attributes => {
                 foo => Statistics::R::REXP::Character->new(['bar']),
                 fred => Statistics::R::REXP::Integer->new([1, 2, 3]),
-            }),
-        skip => 'rserve'
+            })),
     },
 };
 
