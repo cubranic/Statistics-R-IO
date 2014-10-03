@@ -1,9 +1,9 @@
 package ClosureLenientEnv;
-# ABSTRACT: closure that is equal to another closure if it only differs by undefined environment
+# ABSTRACT: closure that is equal to another closure if it only differs by undefined environment or srcrefs
 
 use 5.010;
 
-use Scalar::Util qw(looks_like_number);
+use Scalar::Util qw(blessed);
 
 use Moose;
 use namespace::clean;
@@ -15,15 +15,25 @@ extends 'Statistics::R::REXP::Closure';
 around _eq => sub {
     my $orig = shift;
 
-    return unless Statistics::R::REXP::_eq @_;
-    
     my ($self, $obj) = (shift, shift);
 
-    ## Duplicate from REXP::Closure, except for looser check on 'environment'
-    _compare_deeply($self->args, $obj->args) &&
-        ((scalar(grep {$_} @{$self->defaults}) == scalar(grep {$_} @{$obj->defaults})) ||
-         _compare_deeply($self->defaults, $obj->defaults)) &&
-         _compare_deeply($self->body, $obj->body) &&
+    ## if the other closure doesn't have attributes, compare
+    ## only the class
+    ( defined($obj->attributes) ?
+      Statistics::R::REXP::_eq($self, $obj) :
+      (blessed $obj && $obj->isa('Statistics::R::REXP::Closure')) ) &&
+
+      ## compare arguments and their default values exactly
+      _compare_deeply($self->args, $obj->args) &&
+      ((scalar(grep {$_} @{$self->defaults}) == scalar(grep {$_} @{$obj->defaults})) ||
+       _compare_deeply($self->defaults, $obj->defaults)) &&
+       
+       ## if the body is not a null and other closure doesn't have
+       ## body attributes, compare only the body elements
+       ( $self->body->is_null || defined($obj->body->attributes) ?
+         _compare_deeply($self->body, $obj->body) :
+         _compare_deeply($self->body->elements, $obj->body->elements)) &&
+         
          ## if the other closure has undefined environment, accept that as OK
          (defined($obj->environment) ?
           _compare_deeply($self->environment, $obj->environment) : 1)
@@ -33,7 +43,7 @@ around _eq => sub {
 ## we have to REXPs `_compare_deeply` this way because private methods
 ## aren't available in the subclass
 sub _compare_deeply {
-    Statistics::R::REXP::Double::_compare_deeply(@_)
+    Statistics::R::REXP::_compare_deeply(@_)
 }
 
 sub _type { 'shortdouble'; }
