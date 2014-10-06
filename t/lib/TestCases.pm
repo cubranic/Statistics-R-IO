@@ -33,33 +33,65 @@ use Statistics::R::REXP::BaseEnvironment;
 use Statistics::R::REXP::Unknown;
 
 use constant TEST_SRC_FILE => {
+    empty_clos => LenientSrcFile->new(
+        frame => {
+            Enc => Statistics::R::REXP::Character->new(['unknown']),
+            filename => Statistics::R::REXP::Character->new(['<text>']),
+            fixedNewlines => Statistics::R::REXP::Logical->new([1]),
+            isFile => Statistics::R::REXP::Logical->new([0]),
+            lines => Statistics::R::REXP::Character->new(['{function() {}}']),
+            parseData => Statistics::R::REXP::Integer->new(
+                elements => [
+                    1, 1, 1, 1, 1, 123, 1, 13, 1, 2, 1, 9, 1, 264, 2, 10, 1,
+                    10, 1, 10, 1, 40, 3, 10, 1, 11, 1, 11, 1, 41, 4, 10, 1, 13,
+                    1, 13, 1, 123, 5, 7, 1, 14, 1, 14, 1, 125, 6, 7, 1, 13, 1,
+                    14, 0, 77, 7, 10, 1, 15, 1, 15, 1, 125, 8, 13, 1, 2, 1, 14,
+                    0, 77, 10, 13, 1, 1, 1, 15, 0, 77, 13, 0],
+                attributes => {
+                    class => Statistics::R::REXP::Character->new(['parseData']),
+                    dim => Statistics::R::REXP::Integer->new([8, 10]),
+                    text => Statistics::R::REXP::Character->new([
+                        '{', 'function', '(', ')', '{', '}', '', '}', '', '']),
+                        tokens => Statistics::R::REXP::Character->new([
+                            "'{'", 'FUNCTION', "'('", "')'", "'{'", "'}'", 'expr', "'}'", 'expr', 'expr']),
+                }),
+            timestamp => Statistics::R::REXP::Double->new(
+                elements => [12345],
+                attributes => {
+                    class => Statistics::R::REXP::Character->new(['POSIXct', 'POSIXt']),
+                }),
+            wd => Statistics::R::REXP::Character->new(['abcd'])
+        },
+        attributes => {
+            class => Statistics::R::REXP::Character->new(['srcfilecopy', 'srcfile'])
+        },
+        enclosure => Statistics::R::REXP::EmptyEnvironment->new),
     clos_args => LenientSrcFile->new(
         frame => {
             Enc => Statistics::R::REXP::Character->new(['unknown']),
             filename => Statistics::R::REXP::Character->new(['<text>']),
             fixedNewlines => Statistics::R::REXP::Logical->new([1]),
             isFile => Statistics::R::REXP::Logical->new([0]),
-            lines => Statistics::R::REXP::Character->new(['function(a, b) {a - b}']),
+            lines => Statistics::R::REXP::Character->new(['{function(a, b) {a - b}}']),
             parseData => Statistics::R::REXP::Integer->new(
                 elements => [
-                    1, 1, 1, 8, 1, 264, 1, 22, 1, 9, 1, 9, 1, 40,
-                    2, 22, 1, 10, 1, 10, 1, 292, 3, 22, 1, 11, 1,
-                    11, 1, 44, 4, 22, 1, 13, 1, 13, 1, 292, 6, 22,
-                    1, 14, 1, 14, 1, 41, 7, 22, 1, 16, 1, 16, 1,
-                    123, 9, 19, 1, 17, 1, 17, 1, 263, 10, 12, 1,
-                    19, 1, 19, 1, 45, 11, 16, 1, 17, 1, 17, 0, 77,
-                    12, 16, 1, 21, 1, 21, 1, 263, 13, 15, 1, 22,
-                    1, 22, 1, 125, 14, 19, 1, 21, 1, 21, 0, 77,
-                    15, 16, 1, 17, 1, 21, 0, 77, 16, 19, 1, 16, 1,
-                    22, 0, 77, 19, 22, 1, 1, 1, 22, 0, 77, 22, 0],
+                    1, 1, 1, 1, 1, 123, 1, 26, 1, 2, 1, 9, 1, 264, 2, 23, 1, 10, 1,
+                    10, 1, 40, 3, 23, 1, 11, 1, 11, 1, 292, 4, 23, 1, 12, 1, 12, 1,
+                    44, 5, 23, 1, 14, 1, 14, 1, 292, 7, 23, 1, 15, 1, 15, 1, 41, 8,
+                    23, 1, 17, 1, 17, 1, 123, 10, 20, 1, 18, 1, 18, 1, 263, 11, 13,
+                    1, 20, 1, 20, 1, 45, 12, 17, 1, 18, 1, 18, 0, 77, 13, 17, 1, 22,
+                    1, 22, 1, 263, 14, 16, 1, 23, 1, 23, 1, 125, 15, 20, 1, 22, 1,
+                    22, 0, 77, 16, 17, 1, 18, 1, 22, 0, 77, 17, 20, 1, 17, 1, 23, 0,
+                    77, 20, 23, 1, 24, 1, 24, 1, 125, 21, 26, 1, 2, 1, 23, 0, 77,
+                    23, 26, 1, 1, 1, 24, 0, 77, 26, 0],
                 attributes => {
                     class => Statistics::R::REXP::Character->new(['parseData']),
-                    dim => Statistics::R::REXP::Integer->new([8, 16]),
+                    dim => Statistics::R::REXP::Integer->new([8, 19]),
                     text => Statistics::R::REXP::Character->new([
-                        'function', '(', 'a', ',', 'b', ')', '{', 'a', '-', '', 'b', '}', '', '', '', '']),
+                        '{', 'function', '(', 'a', ',', 'b', ')', '{', 'a', '-', '', 'b', '}', '', '', '', '}', '', '']),
                     tokens => Statistics::R::REXP::Character->new([
-                        'FUNCTION', "'('", 'SYMBOL_FORMALS', "','", 'SYMBOL_FORMALS', "')'",
-                        "'{'", 'SYMBOL', "'-'", 'expr', 'SYMBOL', "'}'", 'expr', 'expr', 'expr', 'expr']),
+                        "'{'", 'FUNCTION', "'('", 'SYMBOL_FORMALS', "','", 'SYMBOL_FORMALS', "')'",
+                        "'{'", 'SYMBOL', "'-'", 'expr', 'SYMBOL', "'}'", 'expr', 'expr', 'expr', "'}'", 'expr', 'expr']),
                 }),
             timestamp => Statistics::R::REXP::Double->new(
                 elements => [12345],
@@ -78,34 +110,30 @@ use constant TEST_SRC_FILE => {
             filename => Statistics::R::REXP::Character->new(['<text>']),
             fixedNewlines => Statistics::R::REXP::Logical->new([1]),
             isFile => Statistics::R::REXP::Logical->new([0]),
-            lines => Statistics::R::REXP::Character->new(['function(a=3, b) {a + b * pi}']),
+            lines => Statistics::R::REXP::Character->new(['{function(a=3, b) {a + b * pi}}']),
             parseData => Statistics::R::REXP::Integer->new(
                 elements => [
-                    1, 1, 1, 8, 1, 264, 1, 29, 1, 9, 1, 9,
-                    1, 40, 2, 29, 1, 10, 1, 10, 1, 292, 3,
-                    29, 1, 11, 1, 11, 1, 293, 4, 29, 1, 12,
-                    1, 12, 1, 261, 5, 6, 1, 12, 1, 12, 0,
-                    77, 6, 29, 1, 13, 1, 13, 1, 44, 7, 29,
-                    1, 15, 1, 15, 1, 292, 9, 29, 1, 16, 1,
-                    16, 1, 41, 10, 29, 1, 18, 1, 18, 1, 123,
-                    12, 26, 1, 19, 1, 19, 1, 263, 13, 15, 1,
-                    21, 1, 21, 1, 43, 14, 23, 1, 19, 1, 19,
-                    0, 77, 15, 23, 1, 23, 1, 23, 1, 263, 16,
-                    18, 1, 25, 1, 25, 1, 42, 17, 22, 1, 23,
-                    1, 23, 0, 77, 18, 22, 1, 27, 1, 28, 1,
-                    263, 19, 21, 1, 29, 1, 29, 1, 125, 20,
-                    26, 1, 27, 1, 28, 0, 77, 21, 22, 1, 23,
-                    1, 28, 0, 77, 22, 23, 1, 19, 1, 28, 0,
-                    77, 23, 26, 1, 18, 1, 29, 0, 77, 26, 29,
-                    1, 1, 1, 29, 0, 77, 29, 0],
+                    1, 1, 1, 1, 1, 123, 1, 33, 1, 2, 1, 9, 1, 264, 2, 30, 1, 10,
+                    1, 10, 1, 40, 3, 30, 1, 11, 1, 11, 1, 292, 4, 30, 1, 12, 1,
+                    12, 1, 293, 5, 30, 1, 13, 1, 13, 1, 261, 6, 7, 1, 13, 1, 13,
+                    0, 77, 7, 30, 1, 14, 1, 14, 1, 44, 8, 30, 1, 16, 1, 16, 1,
+                    292, 10, 30, 1, 17, 1, 17, 1, 41, 11, 30, 1, 19, 1, 19, 1,
+                    123, 13, 27, 1, 20, 1, 20, 1, 263, 14, 16, 1, 22, 1, 22, 1,
+                    43, 15, 24, 1, 20, 1, 20, 0, 77, 16, 24, 1, 24, 1, 24, 1,
+                    263, 17, 19, 1, 26, 1, 26, 1, 42, 18, 23, 1, 24, 1, 24, 0,
+                    77, 19, 23, 1, 28, 1, 29, 1, 263, 20, 22, 1, 30, 1, 30, 1,
+                    125, 21, 27, 1, 28, 1, 29, 0, 77, 22, 23, 1, 24, 1, 29, 0,
+                    77, 23, 24, 1, 20, 1, 29, 0, 77, 24, 27, 1, 19, 1, 30, 0, 77,
+                    27, 30, 1, 31, 1, 31, 1, 125, 28, 33, 1, 2, 1, 30, 0, 77, 30,
+                    33, 1, 1, 1, 31, 0, 77, 33, 0],
                 attributes => {
                     class => Statistics::R::REXP::Character->new(['parseData']),
-                    dim => Statistics::R::REXP::Integer->new([8, 23]),
+                    dim => Statistics::R::REXP::Integer->new([8, 26]),
                     text => Statistics::R::REXP::Character->new([
-                        'function', '(', 'a', '=', '3', '', ',', 'b', ')', '{', 'a', '+', '', 'b', '*', '', 'pi', '}', '', '', '', '', '']),
+                        '{', 'function', '(', 'a', '=', '3', '', ',', 'b', ')', '{', 'a', '+', '', 'b', '*', '', 'pi', '}', '', '', '', '', '}', '', '']),
                     tokens => Statistics::R::REXP::Character->new([
-                        'FUNCTION', "'('", 'SYMBOL_FORMALS', 'EQ_FORMALS', 'NUM_CONST', 'expr', "','", 'SYMBOL_FORMALS', "')'",
-                        "'{'", 'SYMBOL', "'+'", 'expr', 'SYMBOL', "'*'", 'expr', 'SYMBOL', "'}'", 'expr', 'expr', 'expr', 'expr', 'expr']),
+                        "'{'", 'FUNCTION', "'('", 'SYMBOL_FORMALS', 'EQ_FORMALS', 'NUM_CONST', 'expr', "','", 'SYMBOL_FORMALS', "')'",
+                        "'{'", 'SYMBOL', "'+'", 'expr', 'SYMBOL', "'*'", 'expr', 'SYMBOL', "'}'", 'expr', 'expr', 'expr', 'expr', "'}'", 'expr', 'expr']),
                 }),
             timestamp => Statistics::R::REXP::Double->new(
                 elements => [12345],
@@ -124,35 +152,31 @@ use constant TEST_SRC_FILE => {
             filename => Statistics::R::REXP::Character->new(['<text>']),
             fixedNewlines => Statistics::R::REXP::Logical->new([1]),
             isFile => Statistics::R::REXP::Logical->new([0]),
-            lines => Statistics::R::REXP::Character->new(['function(x=3, y, ...) {x * log(y) }']),
+            lines => Statistics::R::REXP::Character->new(['{function(x=3, y, ...) {x * log(y) }}']),
             parseData => Statistics::R::REXP::Integer->new(
                 elements => [
-                    1, 1, 1, 8, 1, 264, 1, 35, 1, 9, 1, 9, 1,
-                    40, 2, 35, 1, 10, 1, 10, 1, 292, 3, 35, 1,
-                    11, 1, 11, 1, 293, 4, 35, 1, 12, 1, 12, 1,
-                    261, 5, 6, 1, 12, 1, 12, 0, 77, 6, 35, 1,
-                    13, 1, 13, 1, 44, 7, 35, 1, 15, 1, 15, 1,
-                    292, 9, 35, 1, 16, 1, 16, 1, 44, 10, 35, 1,
-                    18, 1, 20, 1, 292, 12, 35, 1, 21, 1, 21, 1,
-                    41, 13, 35, 1, 23, 1, 23, 1, 123, 15, 32,
-                    1, 24, 1, 24, 1, 263, 16, 18, 1, 26, 1, 26,
-                    1, 42, 17, 29, 1, 24, 1, 24, 0, 77, 18, 29,
-                    1, 28, 1, 30, 1, 296, 19, 21, 1, 31, 1, 31,
-                    1, 40, 20, 27, 1, 28, 1, 30, 0, 77, 21, 27,
-                    1, 32, 1, 32, 1, 263, 22, 24, 1, 33, 1, 33,
-                    1, 41, 23, 27, 1, 32, 1, 32, 0, 77, 24, 27,
-                    1, 28, 1, 33, 0, 77, 27, 29, 1, 35, 1, 35,
-                    1, 125, 28, 32, 1, 24, 1, 33, 0, 77, 29,
-                    32, 1, 23, 1, 35, 0, 77, 32, 35, 1, 1, 1,
-                    35, 0, 77, 35, 0],
+                    1, 1, 1, 1, 1, 123, 1, 39, 1, 2, 1, 9, 1, 264, 2, 36, 1, 10,
+                    1, 10, 1, 40, 3, 36, 1, 11, 1, 11, 1, 292, 4, 36, 1, 12, 1,
+                    12, 1, 293, 5, 36, 1, 13, 1, 13, 1, 261, 6, 7, 1, 13, 1, 13,
+                    0, 77, 7, 36, 1, 14, 1, 14, 1, 44, 8, 36, 1, 16, 1, 16, 1,
+                    292, 10, 36, 1, 17, 1, 17, 1, 44, 11, 36, 1, 19, 1, 21, 1,
+                    292, 13, 36, 1, 22, 1, 22, 1, 41, 14, 36, 1, 24, 1, 24, 1,
+                    123, 16, 33, 1, 25, 1, 25, 1, 263, 17, 19, 1, 27, 1, 27, 1,
+                    42, 18, 30, 1, 25, 1, 25, 0, 77, 19, 30, 1, 29, 1, 31, 1,
+                    296, 20, 22, 1, 32, 1, 32, 1, 40, 21, 28, 1, 29, 1, 31, 0,
+                    77, 22, 28, 1, 33, 1, 33, 1, 263, 23, 25, 1, 34, 1, 34, 1,
+                    41, 24, 28, 1, 33, 1, 33, 0, 77, 25, 28, 1, 29, 1, 34, 0, 77,
+                    28, 30, 1, 36, 1, 36, 1, 125, 29, 33, 1, 25, 1, 34, 0, 77, 30,
+                    33, 1, 24, 1, 36, 0, 77, 33, 36, 1, 37, 1, 37, 1, 125, 34, 39,
+                    1, 2, 1, 36, 0, 77, 36, 39, 1, 1, 1, 37, 0, 77, 39, 0],
                 attributes => {
                     class => Statistics::R::REXP::Character->new(['parseData']),
-                    dim => Statistics::R::REXP::Integer->new([8, 26]),
+                    dim => Statistics::R::REXP::Integer->new([8, 29]),
                     text => Statistics::R::REXP::Character->new([
-                        'function', '(', 'x', '=', '3', '', ',', 'y', ',', '...', ')', '{', 'x', '*', '', 'log', '(', '', 'y', ')', '', '', '}', '', '', '']),
+                        '{', 'function', '(', 'x', '=', '3', '', ',', 'y', ',', '...', ')', '{', 'x', '*', '', 'log', '(', '', 'y', ')', '', '', '}', '', '', '}', '', '']),
                     tokens => Statistics::R::REXP::Character->new([
-                        'FUNCTION', "'('", 'SYMBOL_FORMALS', 'EQ_FORMALS', 'NUM_CONST', 'expr', "','", 'SYMBOL_FORMALS', "','", 'SYMBOL_FORMALS', "')'",
-                        "'{'", 'SYMBOL', "'*'", 'expr', 'SYMBOL_FUNCTION_CALL', "'('", 'expr', 'SYMBOL', "')'", 'expr', 'expr', "'}'", 'expr', 'expr', 'expr']),
+                        "'{'", 'FUNCTION', "'('", 'SYMBOL_FORMALS', 'EQ_FORMALS', 'NUM_CONST', 'expr', "','", 'SYMBOL_FORMALS', "','", 'SYMBOL_FORMALS', "')'",
+                        "'{'", 'SYMBOL', "'*'", 'expr', 'SYMBOL_FUNCTION_CALL', "'('", 'expr', 'SYMBOL', "')'", 'expr', 'expr', "'}'", 'expr', 'expr', "'}'", 'expr', 'expr']),
                 }),
             timestamp => Statistics::R::REXP::Double->new(
                 elements => [12345],
@@ -278,9 +302,32 @@ use constant TEST_CASES => {
         desc => 'function() {}',
         expr => 'function() {}',
         value => ClosureLenientEnv->new(
-            body => Statistics::R::REXP::Language->new([
-                Statistics::R::REXP::Symbol->new('{') ]),
-            environment => Statistics::R::REXP::GlobalEnvironment->new())
+            body => Statistics::R::REXP::Language->new(
+                elements => [
+                    Statistics::R::REXP::Symbol->new('{') ],
+                attributes => {
+                    srcfile => TEST_SRC_FILE->{empty_clos},
+                    wholeSrcref => Statistics::R::REXP::Integer->new(
+                        elements => [1, 0, 1, 14, 0, 14, 1, 1],
+                        attributes => {
+                            class => Statistics::R::REXP::Character->new(['srcref']),
+                            srcfile => TEST_SRC_FILE->{empty_clos}}),
+                    srcref => Statistics::R::REXP::List->new([
+                        Statistics::R::REXP::Integer->new(
+                            elements => [1, 13, 1, 13, 13, 13, 1, 1],
+                            attributes => {
+                                class => Statistics::R::REXP::Character->new(['srcref']),
+                                srcfile => TEST_SRC_FILE->{empty_clos}}),
+                    ])
+                }),
+            environment => Statistics::R::REXP::GlobalEnvironment->new(),
+            attributes => {
+                srcref => Statistics::R::REXP::Integer->new(
+                    elements => [1, 2, 1, 14, 2, 14, 1, 1],
+                    attributes => {
+                        class => Statistics::R::REXP::Character->new(['srcref']),
+                        srcfile => TEST_SRC_FILE->{empty_clos}})
+            })
     },
     'clos_null' => {
         desc => 'function() NULL',
@@ -290,7 +337,7 @@ use constant TEST_CASES => {
             environment => Statistics::R::REXP::GlobalEnvironment->new(),
             attributes => {
                 srcref => Statistics::R::REXP::Integer->new(
-                    elements => [1, 1, 1, 15, 1, 15, 1, 1],
+                    elements => [1, 2, 1, 16, 2, 16, 1, 1],
                     attributes => {
                         class => Statistics::R::REXP::Character->new(['srcref']),
                         srcfile => LenientSrcFile->new(
@@ -299,20 +346,21 @@ use constant TEST_CASES => {
                                 filename => Statistics::R::REXP::Character->new(['<text>']),
                                 fixedNewlines => Statistics::R::REXP::Logical->new([1]),
                                 isFile => Statistics::R::REXP::Logical->new([0]),
-                                lines => Statistics::R::REXP::Character->new(['function() NULL']),
+                                lines => Statistics::R::REXP::Character->new(['{function() NULL}']),
                                 parseData => Statistics::R::REXP::Integer->new(
                                     elements => [
-                                        1, 1, 1, 8, 1, 264, 1, 8, 1, 9, 1, 9, 1,
-                                        40, 2, 8, 1, 10, 1, 10, 1, 41, 3, 8, 1,
-                                        12, 1, 15, 1, 262, 4, 5, 1, 12, 1, 15, 0,
-                                        77, 5, 8, 1, 1, 1, 15, 0, 77, 8, 0],
+                                        1, 1, 1, 1, 1, 123, 1, 12, 1, 2, 1, 9, 1, 264,
+                                        2, 9, 1, 10, 1, 10, 1, 40, 3, 9, 1, 11, 1, 11,
+                                        1, 41, 4, 9, 1, 13, 1, 16, 1, 262, 5, 6, 1, 13,
+                                        1, 16, 0, 77, 6, 9, 1, 17, 1, 17, 1, 125, 7, 12,
+                                        1, 2, 1, 16, 0, 77, 9, 12, 1, 1, 1, 17, 0, 77, 12, 0],
                                     attributes => {
                                         class => Statistics::R::REXP::Character->new(['parseData']),
-                                        dim => Statistics::R::REXP::Integer->new([8, 6]),
+                                        dim => Statistics::R::REXP::Integer->new([8, 9]),
                                         text => Statistics::R::REXP::Character->new([
-                                            'function', '(', ')', 'NULL', '', '']),
+                                            '{', 'function', '(', ')', 'NULL', '', '}', '', '']),
                                         tokens => Statistics::R::REXP::Character->new([
-                                            'FUNCTION', "'('", "')'", 'NULL_CONST', 'expr', 'expr']),
+                                            "'{'", 'FUNCTION', "'('", "')'", 'NULL_CONST', 'expr', "'}'", 'expr', 'expr']),
                                     }),
                                 timestamp => Statistics::R::REXP::Double->new(
                                     elements => [12345],
@@ -335,7 +383,7 @@ use constant TEST_CASES => {
             environment => Statistics::R::REXP::GlobalEnvironment->new(),
             attributes => {
                 srcref => Statistics::R::REXP::Integer->new(
-                    elements => [1, 1, 1, 13, 1, 13, 1, 1],
+                    elements => [1, 2, 1, 14, 2, 14, 1, 1],
                     attributes => {
                         class => Statistics::R::REXP::Character->new(['srcref']),
                         srcfile => LenientSrcFile->new(
@@ -344,20 +392,21 @@ use constant TEST_CASES => {
                                 filename => Statistics::R::REXP::Character->new(['<text>']),
                                 fixedNewlines => Statistics::R::REXP::Logical->new([1]),
                                 isFile => Statistics::R::REXP::Logical->new([0]),
-                                lines => Statistics::R::REXP::Character->new(['function() 1L']),
+                                lines => Statistics::R::REXP::Character->new(['{function() 1L}']),
                                 parseData => Statistics::R::REXP::Integer->new(
                                     elements => [
-                                        1, 1, 1, 8, 1, 264, 1, 8, 1, 9, 1, 9, 1,
-                                        40, 2, 8, 1, 10, 1, 10, 1, 41, 3, 8, 1,
-                                        12, 1, 13, 1, 261, 4, 5, 1, 12, 1, 13, 0,
-                                        77, 5, 8, 1, 1, 1, 13, 0, 77, 8, 0],
+                                        1, 1, 1, 1, 1, 123, 1, 12, 1, 2, 1, 9, 1, 264,
+                                        2, 9, 1, 10, 1, 10, 1, 40, 3, 9, 1, 11, 1, 11,
+                                        1, 41, 4, 9, 1, 13, 1, 14, 1, 261, 5, 6, 1, 13,
+                                        1, 14, 0, 77, 6, 9, 1, 15, 1, 15, 1, 125, 7, 12,
+                                        1, 2, 1, 14, 0, 77, 9, 12, 1, 1, 1, 15, 0, 77, 12, 0],
                                     attributes => {
                                         class => Statistics::R::REXP::Character->new(['parseData']),
-                                        dim => Statistics::R::REXP::Integer->new([8, 6]),
+                                        dim => Statistics::R::REXP::Integer->new([8, 9]),
                                         text => Statistics::R::REXP::Character->new([
-                                            'function', '(', ')', '1L', '', '']),
+                                            '{', 'function', '(', ')', '1L', '', '}', '', '']),
                                         tokens => Statistics::R::REXP::Character->new([
-                                            'FUNCTION', "'('", "')'", 'NUM_CONST', 'expr', 'expr']),
+                                            "'{'", 'FUNCTION', "'('", "')'", 'NUM_CONST', 'expr', "'}'", 'expr', 'expr']),
                                     }),
                                 timestamp => Statistics::R::REXP::Double->new(
                                     elements => [12345],
@@ -383,7 +432,7 @@ use constant TEST_CASES => {
             environment => Statistics::R::REXP::GlobalEnvironment->new(),
             attributes => {
                 srcref => Statistics::R::REXP::Integer->new(
-                    elements => [1, 1, 1, 14, 1, 14, 1, 1],
+                    elements => [1, 2, 1, 15, 2, 15, 1, 1],
                     attributes => {
                         class => Statistics::R::REXP::Character->new(['srcref']),
                         srcfile => LenientSrcFile->new(
@@ -392,23 +441,25 @@ use constant TEST_CASES => {
                                 filename => Statistics::R::REXP::Character->new(['<text>']),
                                 fixedNewlines => Statistics::R::REXP::Logical->new([1]),
                                 isFile => Statistics::R::REXP::Logical->new([0]),
-                                lines => Statistics::R::REXP::Character->new(['function() 1+2']),
+                                lines => Statistics::R::REXP::Character->new(['{function() 1+2}']),
                                 parseData => Statistics::R::REXP::Integer->new(
                                     elements => [
-                                        1, 1, 1, 8, 1, 264, 1, 12, 1, 9, 1, 9, 1, 40,
-                                        2, 12, 1, 10, 1, 10, 1, 41, 3, 12, 1, 12, 1,
-                                        12, 1, 261, 4, 5, 1, 12, 1, 12, 0, 77, 5, 10,
-                                        1, 13, 1, 13, 1, 43, 6, 10, 1, 14, 1, 14, 1,
-                                        261, 7, 8, 1, 14, 1, 14, 0, 77, 8, 10, 1, 12,
-                                        1, 14, 0, 77, 10, 12, 1, 1, 1, 14, 0, 77, 12, 0 ],
+                                        1, 1, 1, 1, 1, 123, 1, 16, 1, 2, 1, 9, 1, 264,
+                                        2, 13, 1, 10, 1, 10, 1, 40, 3, 13, 1, 11, 1, 11,
+                                        1, 41, 4, 13, 1, 13, 1, 13, 1, 261, 5, 6, 1, 13,
+                                        1, 13, 0, 77, 6, 11, 1, 14, 1, 14, 1, 43, 7, 11,
+                                        1, 15, 1, 15, 1, 261, 8, 9, 1, 15, 1, 15, 0, 77,
+                                        9, 11, 1, 16, 1, 16, 1, 125, 10, 16, 1, 13, 1, 15,
+                                        0, 77, 11, 13, 1, 2, 1, 15, 0, 77, 13, 16, 1, 1,
+                                        1, 16, 0, 77, 16, 0 ],
                                     attributes => {
                                         class => Statistics::R::REXP::Character->new(['parseData']),
-                                        dim => Statistics::R::REXP::Integer->new([8, 10]),
+                                        dim => Statistics::R::REXP::Integer->new([8, 13]),
                                         text => Statistics::R::REXP::Character->new([
-                                            'function', '(', ')', '1', '', '+', '2', '', '', '']),
+                                            '{', 'function', '(', ')', '1', '', '+', '2', '', '}', '', '', '']),
                                         tokens => Statistics::R::REXP::Character->new([
-                                            'FUNCTION', "'('", "')'", 'NUM_CONST', 'expr',
-                                            "'+'", 'NUM_CONST', 'expr', 'expr', 'expr']),
+                                            "'{'", 'FUNCTION', "'('", "')'", 'NUM_CONST', 'expr',
+                                            "'+'", 'NUM_CONST', 'expr', "'}'", 'expr', 'expr', 'expr']),
                                     }),
                                 timestamp => Statistics::R::REXP::Double->new(
                                     elements => [12345],
@@ -439,18 +490,18 @@ use constant TEST_CASES => {
                 attributes => {
                     srcfile => TEST_SRC_FILE->{clos_args},
                     wholeSrcref => Statistics::R::REXP::Integer->new(
-                        elements => [1, 0, 1, 22, 0, 22, 1, 1],
+                        elements => [1, 0, 1, 23, 0, 23, 1, 1],
                         attributes => {
                             class => Statistics::R::REXP::Character->new(['srcref']),
                             srcfile => TEST_SRC_FILE->{clos_args}}),
                     srcref => Statistics::R::REXP::List->new([
                         Statistics::R::REXP::Integer->new(
-                            elements => [1, 16, 1, 16, 16, 16, 1, 1],
+                            elements => [1, 17, 1, 17, 17, 17, 1, 1],
                             attributes => {
                                 class => Statistics::R::REXP::Character->new(['srcref']),
                                 srcfile => TEST_SRC_FILE->{clos_args}}),
                         Statistics::R::REXP::Integer->new(
-                            elements => [1, 17, 1, 21, 17, 21, 1, 1],
+                            elements => [1, 18, 1, 22, 18, 22, 1, 1],
                             attributes => {
                                 class => Statistics::R::REXP::Character->new(['srcref']),
                                 srcfile => TEST_SRC_FILE->{clos_args}}),
@@ -459,7 +510,7 @@ use constant TEST_CASES => {
             environment => Statistics::R::REXP::GlobalEnvironment->new(),
             attributes => {
                 srcref => Statistics::R::REXP::Integer->new(
-                    elements => [1, 1, 1, 22, 1, 22, 1, 1],
+                    elements => [1, 2, 1, 23, 2, 23, 1, 1],
                     attributes => {
                         class => Statistics::R::REXP::Character->new(['srcref']),
                         srcfile => TEST_SRC_FILE->{clos_args}})
@@ -486,18 +537,18 @@ use constant TEST_CASES => {
                 attributes => {
                     srcfile => TEST_SRC_FILE->{clos_defaults},
                     wholeSrcref => Statistics::R::REXP::Integer->new(
-                        elements => [1, 0, 1, 29, 0, 29, 1, 1],
+                        elements => [1, 0, 1, 30, 0, 30, 1, 1],
                         attributes => {
                             class => Statistics::R::REXP::Character->new(['srcref']),
                             srcfile => TEST_SRC_FILE->{clos_defaults}}),
                     srcref => Statistics::R::REXP::List->new([
                         Statistics::R::REXP::Integer->new(
-                            elements => [1, 18, 1, 18, 18, 18, 1, 1],
+                            elements => [1, 19, 1, 19, 19, 19, 1, 1],
                             attributes => {
                                 class => Statistics::R::REXP::Character->new(['srcref']),
                                 srcfile => TEST_SRC_FILE->{clos_defaults}}),
                         Statistics::R::REXP::Integer->new(
-                            elements => [1, 19, 1, 28, 19, 28, 1, 1],
+                            elements => [1, 20, 1, 29, 20, 29, 1, 1],
                             attributes => {
                                 class => Statistics::R::REXP::Character->new(['srcref']),
                                 srcfile => TEST_SRC_FILE->{clos_defaults}}),
@@ -506,7 +557,7 @@ use constant TEST_CASES => {
             environment => Statistics::R::REXP::GlobalEnvironment->new(),
             attributes => {
                 srcref => Statistics::R::REXP::Integer->new(
-                    elements => [1, 1, 1, 29, 1, 29, 1, 1],
+                    elements => [1, 2, 1, 30, 2, 30, 1, 1],
                     attributes => {
                         class => Statistics::R::REXP::Character->new(['srcref']),
                         srcfile => TEST_SRC_FILE->{clos_defaults}})
@@ -531,18 +582,18 @@ use constant TEST_CASES => {
                 attributes => {
                     srcfile => TEST_SRC_FILE->{clos_dots},
                     wholeSrcref => Statistics::R::REXP::Integer->new(
-                        elements => [1, 0, 1, 35, 0, 35, 1, 1],
+                        elements => [1, 0, 1, 36, 0, 36, 1, 1],
                         attributes => {
                             class => Statistics::R::REXP::Character->new(['srcref']),
                             srcfile => TEST_SRC_FILE->{clos_dots}}),
                     srcref => Statistics::R::REXP::List->new([
                         Statistics::R::REXP::Integer->new(
-                            elements => [1, 23, 1, 23, 23, 23, 1, 1],
+                            elements => [1, 24, 1, 24, 24, 24, 1, 1],
                             attributes => {
                                 class => Statistics::R::REXP::Character->new(['srcref']),
                                 srcfile => TEST_SRC_FILE->{clos_dots}}),
                         Statistics::R::REXP::Integer->new(
-                            elements => [1, 24, 1, 33, 24, 33, 1, 1],
+                            elements => [1, 25, 1, 34, 25, 34, 1, 1],
                             attributes => {
                                 class => Statistics::R::REXP::Character->new(['srcref']),
                                 srcfile => TEST_SRC_FILE->{clos_dots}}),
@@ -551,7 +602,7 @@ use constant TEST_CASES => {
             environment => Statistics::R::REXP::GlobalEnvironment->new(),
             attributes => {
                 srcref => Statistics::R::REXP::Integer->new(
-                    elements => [1, 1, 1, 35, 1, 35, 1, 1],
+                    elements => [1, 2, 1, 36, 2, 36, 1, 1],
                     attributes => {
                         class => Statistics::R::REXP::Character->new(['srcref']),
                         srcfile => TEST_SRC_FILE->{clos_dots}})
