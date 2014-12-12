@@ -24,6 +24,7 @@ use Statistics::R::REXP::Raw;
 use Statistics::R::REXP::Language;
 use Statistics::R::REXP::Symbol;
 use Statistics::R::REXP::Null;
+use Statistics::R::REXP::Closure;
 use Statistics::R::REXP::GlobalEnvironment;
 use Statistics::R::REXP::EmptyEnvironment;
 use Statistics::R::REXP::BaseEnvironment;
