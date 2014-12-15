@@ -17,6 +17,7 @@ use LenientSrcFile;
 use Statistics::R::IO::Parser qw( :all );
 use Statistics::R::IO::ParserState;
 use Statistics::R::REXP::Character;
+use Statistics::R::REXP::Complex;
 use Statistics::R::REXP::Double;
 use Statistics::R::REXP::Integer;
 use Statistics::R::REXP::List;
@@ -31,6 +32,8 @@ use Statistics::R::REXP::GlobalEnvironment;
 use Statistics::R::REXP::EmptyEnvironment;
 use Statistics::R::REXP::BaseEnvironment;
 use Statistics::R::REXP::Unknown;
+
+use Math::Complex qw(cplx);
 
 use constant TEST_SRC_FILE => {
     empty_clos => LenientSrcFile->new(
@@ -633,6 +636,39 @@ use constant TEST_CASES => {
                 fred => Statistics::R::REXP::Integer->new([1, 2, 3]),
             })),
     },
+    'empty_cpx' => {
+        desc => 'empty complex vector',
+        expr => 'complex()',
+        value => Statistics::R::REXP::Complex->new()},
+    'cpx_na' => {
+        desc => 'complex vector with NAs',
+        expr => 'c(1, NA_complex_, 3i, 0)',
+        value => Statistics::R::REXP::Complex->new([1, undef, cplx(0, 3), 0])},
+    'noatt-cpx' => {
+        desc => 'scalar complex vector',
+        expr => '3+2i',
+        value => Statistics::R::REXP::Complex->new([cplx(3, 2)])},
+    'foo-cpx' => {
+        desc => 'complex vector with a name attribute',
+        expr => 'c(foo=3+2i)',
+        value => Statistics::R::REXP::Complex->new(
+            elements => [ cplx(3, 2) ],
+            attributes => {
+                names => Statistics::R::REXP::Character->new(['foo'])
+            },
+        )},
+    'cpx-1i' => {
+        desc => 'imaginary-only complex vector',
+        expr => '1i',
+        value => Statistics::R::REXP::Complex->new([cplx(0, 1)])},
+    'cpx-0i' => {
+        desc => 'real-only empty complex vector',
+        expr => '5+0i',
+        value => Statistics::R::REXP::Complex->new([cplx(5)])},
+    'cpx-vector' => {
+        desc => 'simple complex vector',
+        expr => 'complex(real=1:3, imaginary=4:6)',
+        value => Statistics::R::REXP::Complex->new([cplx(1,4), cplx(2, 5), cplx(3, 6)])},
 };
 
 1;
