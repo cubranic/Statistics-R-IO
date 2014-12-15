@@ -16,6 +16,7 @@ our %EXPORT_TAGS = ( all => [ @EXPORT_OK ], );
 use Statistics::R::IO::Parser qw( :all );
 use Statistics::R::IO::ParserState;
 use Statistics::R::REXP::Character;
+use Statistics::R::REXP::Complex;
 use Statistics::R::REXP::Double;
 use Statistics::R::REXP::Integer;
 use Statistics::R::REXP::List;
@@ -135,6 +136,9 @@ sub sexp_data {
     } elsif ($object_info->{object_type} == XT_ARRAY_DOUBLE) {
         # numeric vector
         dblsxp($object_info, $attributes)
+    } elsif ($object_info->{object_type} == XT_ARRAY_CPLX) {
+        # complex vector
+        cplxsxp($object_info, $attributes)
     } elsif ($object_info->{object_type} == XT_ARRAY_STR) {
         # character vector
         strsxp($object_info, $attributes)
@@ -299,6 +303,36 @@ sub dblsxp {
              })
     } else {
         error "TODO: dblsxp length doesn't align by 8: " .
+            $object_info->{length}
+    }
+}
+
+
+sub cplxsxp {
+    my ($object_info, $attributes) = (shift, shift);
+    
+    if ($object_info->{length} % 16 == 0) {
+        bind(count($object_info->{length}/8,
+                   any_real64_na),
+             sub {
+                 my @dbls = @{shift or return};
+                 my @cplx;
+                 while (my ($re, $im) = splice(@dbls, 0, 2)) {
+                     if (defined($re) && defined($im)) {
+                         push(@cplx, Math::Complex::cplx($re, $im))
+                     }
+                     else {
+                         push(@cplx, undef)
+                     }
+                 }
+                 my %args = (elements => [@cplx]);
+                 if ($attributes) {
+                     $args{attributes} = $attributes
+                 }
+                 mreturn(Statistics::R::REXP::Complex->new(%args));
+             })
+    } else {
+        error "TODO: cplxsxp length doesn't align by 16: " .
             $object_info->{length}
     }
 }

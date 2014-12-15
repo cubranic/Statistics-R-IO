@@ -92,6 +92,9 @@ sub object_data {
     } elsif ($object_info->{object_type} == 14) {
         # numeric vector
         realsxp($object_info)
+    } elsif ($object_info->{object_type} == 15) {
+        # complex vector
+        cplxsxp($object_info)
     } elsif ($object_info->{object_type} == 16) {
         # character vector
         strsxp($object_info)
@@ -323,6 +326,37 @@ sub realsxp {
     vector_and_attributes($object_info,
                           any_real64_na,
                           'Statistics::R::REXP::Double')
+}
+
+
+sub cplxsxp {
+    my $object_info = shift;
+    
+    my @parsers = ( with_count(maybe_long_length, count(2, any_real64_na)) );
+    if ($object_info->{has_attributes}) {
+        push @parsers, object_content
+    }
+
+    bind(seq(@parsers),
+         sub {
+             my @args = @{shift or return};
+             my @elements = @{shift(@args) || []};
+             my @cplx;
+             foreach my $element (@elements) {
+                 my ($re, $im) = @{$element};
+                 if (defined($re) && defined($im)) {
+                     push(@cplx, Math::Complex::cplx($re, $im))
+                 }
+                 else {
+                     push(@cplx, undef)
+                 }
+             }
+             my %args = (elements => [ @cplx ]);
+             if ($object_info->{has_attributes}) {
+                 $args{attributes} = { tagged_pairlist_to_attribute_hash(shift @args) };
+             }
+             mreturn(Statistics::R::REXP::Complex->new(%args))
+         })
 }
 
 
