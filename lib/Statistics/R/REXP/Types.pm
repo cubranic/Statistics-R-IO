@@ -6,7 +6,7 @@ use 5.0.12;
 use Moose::Util::TypeConstraints;
 
 sub _flatten {
-    map { ref $_ ? _flatten(@{$_}) : $_ } @_
+    map { ref $_ eq ref [] ? _flatten(@{$_}) : $_ } @_
 }
 
 role_type 'Statistics::R::REXP::Vector';
@@ -118,6 +118,39 @@ coerce 'DoubleElements',
     from 'Statistics::R::REXP::Vector',
     via {
         [ _flatten_numberize $_->elements ]
+    };
+
+
+## Used by Complex
+type 'ComplexElement',
+    where {
+        require Scalar::Util;
+        !defined($_) || (Scalar::Util::blessed($_) && $_->isa('Math::Complex')) || Scalar::Util::looks_like_number($_);
+    },
+    inline_as {
+        '!defined(' . $_[1] . ') || (Scalar::Util::blessed(' . $_[1] . ') && ' . $_[1] . '->isa("Math::Complex"))'
+    };
+
+subtype 'ComplexElements',
+    as 'ArrayRef[ComplexElement]';
+
+sub _flatten_complexize {
+    require Scalar::Util;
+    require Math::Complex;
+    map { (Scalar::Util::blessed($_) && $_->isa('Math::Complex')) ? $_ :
+              Scalar::Util::looks_like_number $_ ? Math::Complex::cplx($_) :
+                  undef }
+    _flatten @_
+}
+
+coerce 'ComplexElements',
+    from 'ArrayRef',
+    via {
+        [ _flatten_complexize $_ ]
+    },
+    from 'Statistics::R::REXP::Vector',
+    via {
+        [ _flatten_complexize $_->elements ]
     };
 
 
