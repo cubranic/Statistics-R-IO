@@ -10,6 +10,10 @@ with 'Statistics::R::REXP::Vector';
 use overload;
 
 
+has '+sexptype' => (
+    default => 'LGLSXP'
+);
+
 has '+elements' => (
     isa => 'LogicalElements',
     );

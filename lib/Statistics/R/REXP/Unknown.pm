@@ -6,14 +6,15 @@ use 5.010;
 use Scalar::Util qw(looks_like_number);
 
 use Moose;
-use Statistics::R::REXP::Types;
+use Moose::Util::TypeConstraints qw(subtype where);
+
 use namespace::clean;
 
 with 'Statistics::R::REXP';
 
 has sexptype => (
     is => 'ro',
-    isa => 'SexpType',
+    isa => subtype( 'Int' => where {($_ >= 0) && ($_ <= 255) }),
     required => 1,
 );
 

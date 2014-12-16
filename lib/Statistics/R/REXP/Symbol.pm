@@ -11,6 +11,11 @@ use namespace::clean;
 
 with 'Statistics::R::REXP';
 
+
+has '+sexptype' => (
+    default => 'SYMSXP'
+);
+
 has name => (
     is => 'ro',
     isa => 'SymbolName',

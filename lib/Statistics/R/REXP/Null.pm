@@ -9,6 +9,11 @@ use namespace::clean;
 with 'Statistics::R::REXP';
 
 
+has '+sexptype' => (
+    default => 'NILSXP'
+);
+
+
 sub BUILDARGS {
     my $class = shift;
     die 'Null cannot have attributes' if scalar @_;

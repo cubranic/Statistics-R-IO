@@ -11,6 +11,12 @@ use namespace::clean;
 with 'Statistics::R::REXP::Vector';
 use overload;
 
+
+has '+sexptype' => (
+    default => 'VECSXP'
+);
+
+
 sub _to_s {
     my $self = shift;
     

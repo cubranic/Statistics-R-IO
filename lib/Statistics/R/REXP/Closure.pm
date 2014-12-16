@@ -10,6 +10,11 @@ use namespace::clean;
 
 with 'Statistics::R::REXP';
 
+
+has '+sexptype' => (
+    default => 'CLOSXP'
+);
+
 has args => (
     is => 'ro',
     default => sub { [] },

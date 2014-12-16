@@ -12,6 +12,10 @@ with 'Statistics::R::REXP::Vector';
 use overload;
 
 
+has '+sexptype' => (
+    default => 'RAWSXP'
+);
+
 has '+attributes' => (
     trigger => sub {
         die 'Raw vectors cannot have attributes'
