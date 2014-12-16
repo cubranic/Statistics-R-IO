@@ -82,7 +82,9 @@ tests <- list(
     `baseenv` = 'baseenv()',
     `emptyenv` = 'emptyenv()',
     `globalenv` = 'globalenv()',
-    `env_attr` = 'local({ e <- new.env(parent=globalenv()); attributes(e) <- list(foo = "bar", fred = 1:3); e })')
+    `env_attr` = 'local({ e <- new.env(parent=globalenv()); attributes(e) <- list(foo = "bar", fred = 1:3); e })',
+    `df_auto_rownames` = 'data.frame(a=1:3, b=c("x", "y", "z"), stringsAsFactors=FALSE)',
+    `df_expl_rownames` = 'data.frame(a=1:3, b=c("x", "y", "z"), stringsAsFactors=FALSE)[1:3,]')
 
 for (i in seq_along(tests)) {
     test_eval(c, names(tests)[i], tests[[i]])

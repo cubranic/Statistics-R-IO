@@ -249,9 +249,10 @@ sub tagged_pairlist_to_attribute_hash {
     my $row_names = $rexp_hash{'row.names'};
     if ($row_names && $row_names->type eq 'integer' &&
         ! defined $row_names->elements->[0]) {
-        ## compact encoding when rownames are integers 1..n
-        ## the length n is in the second element
-        my $n = $row_names->elements->[1];
+        ## compact encoding when rownames are integers 1..n: the
+        ## length n is in the second element, but can be negative to
+        ## denote "automatic" rownames
+        my $n = abs($row_names->elements->[1]);
         $rexp_hash{'row.names'} = Statistics::R::REXP::Integer->new([1..$n]);
     }
 

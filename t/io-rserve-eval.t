@@ -11,7 +11,7 @@ my $rserve_host = $ENV{RSERVE_HOST} || 'localhost';
 my $rserve_port = $ENV{RSERVE_PORT} || 6311;
 if (IO::Socket::INET->new(PeerAddr => $rserve_host,
                           PeerPort => $rserve_port)) {
-    plan tests => 53;
+    plan tests => 55;
 }
 else {
     plan skip_all => "Cannot connect to Rserve server at $rserve_host:$rserve_port";

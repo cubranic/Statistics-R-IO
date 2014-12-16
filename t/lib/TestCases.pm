@@ -669,6 +669,34 @@ use constant TEST_CASES => {
         desc => 'simple complex vector',
         expr => 'complex(real=1:3, imaginary=4:6)',
         value => Statistics::R::REXP::Complex->new([cplx(1,4), cplx(2, 5), cplx(3, 6)])},
+    'df_auto_rownames' => {
+        desc => 'automatic compact rownames',
+        expr => 'data.frame(a=1:3, b=c("x", "y", "z"), stringsAsFactors=FALSE)',
+        value => Statistics::R::REXP::List->new(
+            elements => [
+                Statistics::R::REXP::Integer->new([ 1, 2, 3 ]),
+                Statistics::R::REXP::Character->new([ 'x', 'y', 'z' ]),
+            ],
+            attributes => {
+                names => Statistics::R::REXP::Character->new(['a', 'b']),
+                class => Statistics::R::REXP::Character->new(['data.frame']),
+                'row.names' => Statistics::R::REXP::Integer->new([1, 2, 3]),
+            }
+        )},
+    'df_expl_rownames' => {
+        desc => 'explicit compact rownames',
+        expr => 'data.frame(a=1:3, b=c("x", "y", "z"), stringsAsFactors=FALSE)[1:3,]',
+        value => Statistics::R::REXP::List->new(
+            elements => [
+                Statistics::R::REXP::Integer->new([ 1, 2, 3 ]),
+                Statistics::R::REXP::Character->new([ 'x', 'y', 'z' ]),
+            ],
+            attributes => {
+                names => Statistics::R::REXP::Character->new(['a', 'b']),
+                class => Statistics::R::REXP::Character->new(['data.frame']),
+                'row.names' => Statistics::R::REXP::Integer->new([1, 2, 3]),
+            }
+        )},
 };
 
 1;
