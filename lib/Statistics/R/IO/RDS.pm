@@ -1,6 +1,6 @@
 package Statistics::R::IO::RDS;
 # ABSTRACT: Supply object methods for RDS files
-$Statistics::R::IO::RDS::VERSION = '0.092';
+$Statistics::R::IO::RDS::VERSION = '0.10';
 use 5.010;
 
 use Moose;
@@ -41,7 +41,7 @@ Statistics::R::IO::RDS - Supply object methods for RDS files
 
 =head1 VERSION
 
-version 0.092
+version 0.10
 
 =head1 SYNOPSIS
 

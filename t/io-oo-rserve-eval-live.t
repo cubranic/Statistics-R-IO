@@ -15,7 +15,7 @@ my $rserve_port = $ENV{RSERVE_PORT} || 6311;
 my $rserve = IO::Socket::INET->new(PeerAddr => $rserve_host,
                                    PeerPort => $rserve_port);
 if ($rserve) {
-    plan tests => 29;
+    plan tests => 54;
     $rserve->read(my $response, 32);
     die "Unrecognized server ID" unless
         substr($response, 0, 12) eq 'Rsrv0103QAP1';
@@ -43,7 +43,7 @@ use TestCases;
 
 sub check_rserve_eval_variants {
     my ($rexp, $expected, $message) = @_;
-
+    
     subtest 'rserve eval ' . $message => sub {
         ## some tests can only be executed when Rserve's host and/or
         ## port are at a default location, localhost:6311
@@ -485,7 +485,10 @@ check_rserve_eval_variants('lm(mpg ~ wt, data = head(mtcars))',
 
 
 while ( my ($name, $value) = each %{TEST_CASES()} ) {
+  SKIP: {
+    skip "not yet supported", 1 if ($value->{skip} || '' =~ 'rserve');
     check_rserve_eval_variants($value->{expr},
                                $value->{value},
                                $value->{desc});
+  }
 }

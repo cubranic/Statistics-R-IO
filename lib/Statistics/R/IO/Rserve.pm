@@ -1,6 +1,6 @@
 package Statistics::R::IO::Rserve;
 # ABSTRACT: Supply object methods for Rserve communication
-$Statistics::R::IO::Rserve::VERSION = '0.092';
+$Statistics::R::IO::Rserve::VERSION = '0.10';
 use 5.010;
 
 use Moose;
@@ -47,6 +47,7 @@ has fh => (
 
 has server => (
     is => 'ro',
+    isa => 'Str',
     default => 'localhost',
 );
 
@@ -76,6 +77,78 @@ has _usesocket => (
     is => 'ro',
     default => 0
 );
+
+
+use constant {
+    CMD_login => 0x001, # "name\npwd" : -
+    CMD_voidEval => 0x002, # string : -
+    CMD_eval => 0x003, # string | encoded SEXP : encoded SEXP
+    CMD_shutdown => 0x004, # [admin-pwd] : -
+
+    # security/encryption - all since 1.7-0
+    CMD_switch => 0x005, # string (protocol) : -
+    CMD_keyReq => 0x006, # string (request) : bytestream (key)
+    CMD_secLogin => 0x007, # bytestream (encrypted auth) : -
+    CMD_OCcall => 0x00f, # SEXP : SEXP -- it is the only command
+                         # supported in object-capability mode and it
+                         # requires that the SEXP is a language
+                         # construct with OC reference in the first
+                         # position
+    CMD_OCinit => 0x434f7352, # SEXP -- 'RsOC' - command sent from the
+                              # server in OC mode with the packet of
+                              # initial capabilities. file I/O
+                              # routines. server may answe
+    CMD_openFile => 0x010, # fn : -
+    CMD_createFile => 0x011, # fn : -
+    CMD_closeFile => 0x012, # - : -
+    CMD_readFile => 0x013, # [int size] : data... ; if size not
+                           # present, server is free to choose any
+                           # value - usually it uses the size of its
+                           # static buffer
+    CMD_writeFile => 0x014, # data : -
+    CMD_removeFile => 0x015, # fn : -
+
+    # object manipulation
+    CMD_setSEXP => 0x020, # string(name), REXP : -
+    CMD_assignSEXP => 0x021, # string(name), REXP : - ; same as
+                             # setSEXP except that the name is parsed
+
+    # session management (since 0.4-0)
+    CMD_detachSession => 0x030, # : session key
+    CMD_detachedVoidEval => 0x031, # string : session key; doesn't
+    CMD_attachSession => 0x032, # session key : -
+
+    # control commands (since 0.6-0) - passed on to the master process */
+    # Note: currently all control commands are asychronous, i.e. RESP_OK
+    # indicates that the command was enqueued in the master pipe, but there
+    # is no guarantee that it will be processed. Moreover non-forked
+    # connections (e.g. the default debug setup) don't process any
+    # control commands until the current client connection is closed so
+    # the connection issuing the control command will never see its
+    # result.
+    CMD_ctrl => 0x40, # -- not a command - just a constant --
+    CMD_ctrlEval => 0x42, # string : -
+    CMD_ctrlSource => 0x45, # string : -
+    CMD_ctrlShutdown => 0x44, # - : -
+
+    # 'internal' commands (since 0.1-9)
+    CMD_setBufferSize => 0x081, # [int sendBufSize] this commad allow
+                                # clients to request bigger buffer
+                                # sizes if large data is to be
+                                # transported from Rserve to the
+                                # client. (incoming buffer is resized
+                                # automatically)
+    CMD_setEncoding => 0x082, # string (one of "native","latin1","utf8") : -; since 0.5-3
+
+    # special commands - the payload of packages with this mask does not contain defined parameters
+    CMD_SPECIAL_MASK => 0xf0,
+    CMD_serEval => 0xf5, # serialized eval - the packets are raw
+                         # serialized data without data header
+    CMD_serAssign => 0xf6, # serialized assign - serialized list with
+                           # [[1]]=name, [[2]]=value
+    CMD_serEEval => 0xf7, # serialized expression eval - like serEval
+                          # with one additional evaluation round
+};
 
 
 sub BUILDARGS {
@@ -141,8 +214,7 @@ sub eval {
                          ((length($expr)+1) << 8) + 4,
                          $expr);
 
-    ## CMD_eval is 0x03
-    my $data = $self->_send_command(0x03, $parameter);
+    my $data = $self->_send_command(CMD_eval, $parameter);
 
     my ($value, $state) = @{Statistics::R::IO::QapEncoding::decode($data)};
     croak 'Could not parse Rserve value' unless $state;
@@ -168,7 +240,7 @@ sub ser_eval {
     ## request is:
     ## - command (0xf5, CMD_serEval,
     ##       means raw serialized data without data header)
-    my $data = $self->_send_command(0xf5, $parameter);
+    my $data = $self->_send_command(CMD_serEval, $parameter);
     
     my ($value, $state) = @{Statistics::R::IO::REXPFactory::unserialize($data)};
     croak 'Could not parse Rserve value' unless $state;
@@ -195,6 +267,30 @@ sub get_file {
 }
 
 
+use constant {
+    CMD_RESP => 0x10000, # all responses have this flag set
+    CMD_OOB => 0x20000, # out-of-band data - i.e. unsolicited messages
+};
+
+use constant {
+    RESP_OK => (CMD_RESP|0x0001), # command succeeded; returned
+                                  # parameters depend on the command
+                                  # issued
+    RESP_ERR => (CMD_RESP|0x0002), # command failed, check stats code
+                                   # attached string may describe the
+                                   # error
+    OOB_SEND => (CMD_OOB | 0x1000), # OOB send - unsolicited SEXP sent
+                                    # from the R instance to the
+                                    # client. 12 LSB are reserved for
+                                    # application-specific code
+    OOB_MSG => (CMD_OOB | 0x2000), # OOB message - unsolicited message
+                                   # sent from the R instance to the
+                                   # client requiring a response. 12
+                                   # LSB are reserved for
+                                   # application-specific code
+};
+
+
 ## Sends a request to Rserve and receives the response, checking for
 ## any errors.
 ## 
@@ -217,10 +313,18 @@ sub _send_command {
     ## - the second one is length
     ## - the third and fourth are ??
     my ($status, $length) = unpack VV => substr($response, 0, 8);
-    unless ($status == 65537) {
-        croak 'Server returned an error: ' . $status;
+    if ($status & CMD_RESP) {
+        unless ($status == RESP_OK) {
+            croak 'Server returned an error: ' . $status
+        }
     }
-
+    elsif ($status & CMD_OOB) {
+        croak 'OOB messages are not supported yet'
+    }
+    else {
+        croak 'Unrecognized response type: ' . $status
+    }
+    
     $self->_receive_response($length)
 }
 
@@ -266,7 +370,7 @@ Statistics::R::IO::Rserve - Supply object methods for Rserve communication
 
 =head1 VERSION
 
-version 0.092
+version 0.10
 
 =head1 SYNOPSIS
 
@@ -382,6 +486,16 @@ constructor, but not if it was passed in as a pre-opened handle.
 =back
 
 =for Pod::Coverage BUILDARGS DEMOLISH
+=for Pod::Coverage CMD_OCcall CMD_OCinit CMD_OOB CMD_RESP CMD_SPECIAL_MASK CMD_assignSEXP
+CMD_attachSession CMD_closeFile CMD_createFile CMD_ctrl CMD_ctrlEval
+CMD_ctrlShutdown CMD_ctrlSource CMD_detachSession CMD_detachedVoidEval
+CMD_eval CMD_keyReq CMD_login CMD_openFile CMD_readFile CMD_removeFile
+CMD_secLogin CMD_serAssign CMD_serEEval CMD_serEval CMD_setBufferSize
+CMD_setEncoding CMD_setSEXP CMD_shutdown CMD_switch CMD_voidEval
+CMD_writeFile
+
+=for Pod::Coverage OOB_MSG OOB_SEND
+=for Pod::Coverage RESP_ERR RESP_OK
 
 =head1 BUGS AND LIMITATIONS
 

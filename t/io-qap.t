@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 25;
+use Test::More tests => 50;
 use Test::Fatal;
 
 use Statistics::R::IO::Parser qw(:all);
@@ -573,7 +573,10 @@ check_qap('t/data/mtcars-lm-mpgwt',
 
 
 while ( my ($name, $value) = each %{TEST_CASES()} ) {
+  SKIP: {
+    skip "not yet supported", 1 if ($value->{skip} || '' =~ 'rserve');
     check_qap('t/data/' . $name,
               $value->{value},
               $value->{desc});
+  }
 }

@@ -1,6 +1,6 @@
 package Statistics::R::IO::REXPFactory;
 # ABSTRACT: Functions for parsing R data files
-$Statistics::R::IO::REXPFactory::VERSION = '0.092';
+$Statistics::R::IO::REXPFactory::VERSION = '0.10';
 use 5.010;
 
 use strict;
@@ -24,7 +24,10 @@ use Statistics::R::REXP::Raw;
 use Statistics::R::REXP::Language;
 use Statistics::R::REXP::Symbol;
 use Statistics::R::REXP::Null;
+use Statistics::R::REXP::Closure;
 use Statistics::R::REXP::GlobalEnvironment;
+use Statistics::R::REXP::EmptyEnvironment;
+use Statistics::R::REXP::BaseEnvironment;
 
 use Carp;
 
@@ -89,6 +92,9 @@ sub object_data {
     } elsif ($object_info->{object_type} == 14) {
         # numeric vector
         realsxp($object_info)
+    } elsif ($object_info->{object_type} == 15) {
+        # complex vector
+        cplxsxp($object_info)
     } elsif ($object_info->{object_type} == 16) {
         # character vector
         strsxp($object_info)
@@ -98,6 +104,9 @@ sub object_data {
     } elsif ($object_info->{object_type} == 19) {
         # list (generic vector)
         vecsxp($object_info)
+    } elsif ($object_info->{object_type} == 20) {
+        # expression vector
+        expsxp($object_info)
     } elsif ($object_info->{object_type} == 9) {
         # internal character string
         charsxp($object_info)
@@ -113,9 +122,18 @@ sub object_data {
     } elsif ($object_info->{object_type} == 4) {
         # environment
         envsxp($object_info)
+    } elsif ($object_info->{object_type} == 3) {
+        # closure
+        closxp($object_info)
     } elsif ($object_info->{object_type} == 0xfb) {
         # encoded R_MissingArg, i.e., empty symbol
         mreturn(Statistics::R::REXP::Symbol->new)
+    } elsif ($object_info->{object_type} == 0xf1) {
+        # encoded R_BaseEnv
+        mreturn(Statistics::R::REXP::BaseEnvironment->new)
+    } elsif ($object_info->{object_type} == 0xf2) {
+        # encoded R_EmptyEnv
+        mreturn(Statistics::R::REXP::EmptyEnvironment->new)
     } elsif ($object_info->{object_type} == 0xfd) {
         # encoded R_GlobalEnv
         mreturn(Statistics::R::REXP::GlobalEnvironment->new)
@@ -153,7 +171,12 @@ sub listsxp {
          sub {
              my ($car, $cdr) = @{shift or return};
              my @elements = ($car);
-             push( @elements, @{$cdr}) if ref $cdr eq ref []; # tail of list
+             if (ref $cdr eq ref []) {
+                 push( @elements, @{$cdr})
+             }
+             elsif (!$cdr->is_null) {
+                 push( @elements, $cdr)
+             }
              mreturn [ @elements ]
          })
 }
@@ -226,9 +249,10 @@ sub tagged_pairlist_to_attribute_hash {
     my $row_names = $rexp_hash{'row.names'};
     if ($row_names && $row_names->type eq 'integer' &&
         ! defined $row_names->elements->[0]) {
-        ## compact encoding when rownames are integers 1..n
-        ## the length n is in the second element
-        my $n = $row_names->elements->[1];
+        ## compact encoding when rownames are integers 1..n: the
+        ## length n is in the second element, but can be negative to
+        ## denote "automatic" rownames
+        my $n = abs($row_names->elements->[1]);
         $rexp_hash{'row.names'} = Statistics::R::REXP::Integer->new([1..$n]);
     }
 
@@ -306,6 +330,37 @@ sub realsxp {
 }
 
 
+sub cplxsxp {
+    my $object_info = shift;
+    
+    my @parsers = ( with_count(maybe_long_length, count(2, any_real64_na)) );
+    if ($object_info->{has_attributes}) {
+        push @parsers, object_content
+    }
+
+    bind(seq(@parsers),
+         sub {
+             my @args = @{shift or return};
+             my @elements = @{shift(@args) || []};
+             my @cplx;
+             foreach my $element (@elements) {
+                 my ($re, $im) = @{$element};
+                 if (defined($re) && defined($im)) {
+                     push(@cplx, Math::Complex::cplx($re, $im))
+                 }
+                 else {
+                     push(@cplx, undef)
+                 }
+             }
+             my %args = (elements => [ @cplx ]);
+             if ($object_info->{has_attributes}) {
+                 $args{attributes} = { tagged_pairlist_to_attribute_hash(shift @args) };
+             }
+             mreturn(Statistics::R::REXP::Complex->new(%args))
+         })
+}
+
+
 sub strsxp {
     my $object_info = shift;
     vector_and_attributes($object_info, object_content,
@@ -329,6 +384,13 @@ sub vecsxp {
     my $object_info = shift;
     vector_and_attributes($object_info, object_content,
                           'Statistics::R::REXP::List')
+}
+
+
+sub expsxp {
+    my $object_info = shift;
+    vector_and_attributes($object_info, object_content,
+                          'Statistics::R::REXP::Expression')
 }
 
 
@@ -404,11 +466,50 @@ sub envsxp {
                               enclosure => $enclosure,
                               );
                           if (ref $attributes eq ref []) {
-                              $args{attributes} = tagged_pairlist_to_attribute_hash $attributes;
+                              $args{attributes} = { tagged_pairlist_to_attribute_hash $attributes };
                           }
                           mreturn(Statistics::R::REXP::Environment->new( %args ));
                       })
              }))
+}
+
+sub closxp {
+    my $object_info = $_[0];
+    
+    bind(listsxp(@_),
+         sub {
+             my ($head, $body) = @{shift()};
+             
+             my $attributes = $head->{attributes};
+             my $environment = $head->{tag};
+             my $arguments = $head->{value};
+             
+             my (@arg_names, @arg_defaults);
+             if (ref $arguments eq ref []) {
+                 foreach my $arg (@{$arguments}) {
+                     push @arg_names, $arg->{tag}->name;
+                     
+                     my $default = $arg->{value};
+                     if (Statistics::R::REXP::Symbol->new('') eq $default) {
+                         push @arg_defaults, undef
+                     }
+                     else {
+                         push @arg_defaults, $default
+                     }
+                 }
+             }
+             
+             my %args = (
+                 body => $body // Statistics::R::REXP::Null->new,
+                 args => [@arg_names],
+                 defaults => [@arg_defaults],
+                 environment => $environment);
+             if ($object_info->{has_attributes}) {
+                 $args{attributes} = { tagged_pairlist_to_attribute_hash $attributes };
+             }
+             
+             mreturn(Statistics::R::REXP::Closure->new( %args ));
+         })
 }
 
 
@@ -445,7 +546,7 @@ Statistics::R::IO::REXPFactory - Functions for parsing R data files
 
 =head1 VERSION
 
-version 0.092
+version 0.10
 
 =head1 SYNOPSIS
 
@@ -483,7 +584,7 @@ C<$data>. Returns a pair of the object and the
 L<Statistics::R::IO::ParserState> at the end of serialization.
 
 =item intsxp, langsxp, lglsxp, listsxp, rawsxp, realsxp, refsxp,
-strsxp, symsxp, vecsxp, envsxp, charsxp
+strsxp, symsxp, vecsxp, envsxp, charsxp, cplxsxp, closxp, expsxp
 
 Parsers for the corresponding R SEXP-types.
 

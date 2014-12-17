@@ -1,6 +1,6 @@
 package Statistics::R::REXP::Unknown;
 # ABSTRACT: R object not representable in Rserve
-$Statistics::R::REXP::Unknown::VERSION = '0.092';
+$Statistics::R::REXP::Unknown::VERSION = '0.10';
 use 5.010;
 
 use Scalar::Util qw(looks_like_number);
@@ -41,7 +41,7 @@ Statistics::R::REXP::Unknown - R object not representable in Rserve
 
 =head1 VERSION
 
-version 0.092
+version 0.10
 
 =head1 SYNOPSIS
 

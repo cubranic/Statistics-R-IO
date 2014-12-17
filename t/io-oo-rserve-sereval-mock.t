@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 31;
+use Test::More tests => 56;
 use Test::Fatal;
 use Test::MockObject::Extends;
 
@@ -537,7 +537,7 @@ $error_mock->mock('print',
 $error_mock->mock('read',
                   sub {
                       # args: self, $data, length
-                      $_[1] = pack('VVA*', 123, 0, "\0"x8);
+                      $_[1] = pack('VVA*', 0x10002, 0, "\0"x8);
                       0
                   });
 $error_mock->set_always('peerhost', 'localhost');
@@ -546,7 +546,7 @@ my $rserve = Statistics::R::IO::Rserve->new(fh => $error_mock);
 
 like(exception {
     $rserve->ser_eval('testing, please ignore')
-     }, qr/Server returned an error: 123/,
+     }, qr/Server returned an error: 65538/,
     'server error');
 
 

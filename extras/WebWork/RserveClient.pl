@@ -20,8 +20,17 @@ RserveClient.pl - Macros for evaluating R code on an Rserve server
 The macros in this file provide access to facilities of L<R
 statistical computing environment|http://www.r-project.org>,
 optionally located on another server, by using the
-L<Rserve|http://www.rforge.net/Rserve/> protocol.
+L<Rserve|http://www.rforge.net/Rserve/> protocol. 
 
+B<IMPORTANT:> Before you can use these macros, you will need to
+configure the location of your Rserve host by adding it to
+C<$pg{specialPGEnvironmentVars}{Rserve}{host}>, for instance by
+appending the following line to F<webwork2/conf/localOverrides.conf>:
+
+    $pg{specialPGEnvironmentVars}{Rserve} = {host => "localhost"};
+
+Without this configuration in place, Rserve macros will only print out
+a warning about missing configuration and return C<undef>.
 
 =head1 MACROS
 
@@ -94,13 +103,23 @@ ${pg}{modules}.
 
 =cut
 
-## TODO: allow configuration
-my $Rserve_server  = $ENV{RSERVE_HOST} || 'localhost';
 
 my $rserve;                     # Statistics::R::IO::Rserve instance
 
+
+sub _rserve_warn_no_config {
+    my @trace = split /\n/, Value::traceback();
+    my ($function, $line, $file) = $trace[0] =~ /^\s*in ([^ ]+) at line (\d+) of (.*)/;
+    
+    $PG->warning_message('Calling ' . $function .
+                         ' is disabled unless Rserve host is configured in $pg{specialPGEnvironmentVars}{Rserve}{host}')
+}
+
+
 sub rserve_start {
-    $rserve = Statistics::R::IO::Rserve->new(server => $Rserve_server, _usesocket => 1);
+    _rserve_warn_no_config && return unless $Rserve->{host};
+    
+    $rserve = Statistics::R::IO::Rserve->new(server => $Rserve->{host}, _usesocket => 1);
 
     # Keep R's RNG reproducible for this problem
     $rserve->eval("set.seed($problemSeed)")
@@ -114,6 +133,8 @@ sub rserve_finish {
 
 
 sub rserve_eval {
+    _rserve_warn_no_config && return unless $Rserve->{host};
+    
     my $query = shift;
     
     rserve_start unless $rserve;
@@ -124,9 +145,11 @@ sub rserve_eval {
 
 
 sub rserve_query {
+    _rserve_warn_no_config && return unless $Rserve->{host};
+    
     my $query = shift;
     $query = "set.seed($problemSeed)\n" . $query;
-    my $rserve_client = Statistics::R::IO::Rserve->new(server => $Rserve_server, _usesocket => 1);
+    my $rserve_client = Statistics::R::IO::Rserve->new(server => $Rserve->{host}, _usesocket => 1);
     my $result = $rserve_client->eval($query);
     $rserve_client->close;
     _unref_rexp($result)
@@ -153,6 +176,8 @@ sub _unref_rexp {
 }
 
 sub rserve_start_plot {
+    _rserve_warn_no_config && return unless $Rserve->{host};
+    
     my $device = shift // 'png';
 
     die "Unsupported image type $device" unless $device =~ /^(png|pdf|jpg)$/;
@@ -166,6 +191,8 @@ sub rserve_start_plot {
 
 
 sub rserve_finish_plot {
+    _rserve_warn_no_config && return unless $Rserve->{host};
+    
     my $remote_image = shift or die "Missing remote image name";
 
     rserve_eval("dev.off()");
@@ -175,6 +202,8 @@ sub rserve_finish_plot {
 
 
 sub rserve_get_file {
+    _rserve_warn_no_config && return unless $Rserve->{host};
+    
     my $remote = shift or die "Missing remote file name";
     my $local = shift // $PG->fileFromPath($remote);
 

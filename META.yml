@@ -18,6 +18,7 @@ meta-spec:
 name: Statistics-R-IO
 requires:
   Carp: '0'
+  Math::Complex: '0'
   Moose: '2.0'
   Scalar::Util: '0'
   namespace::clean: '0.24'
@@ -25,4 +26,4 @@ requires:
 resources:
   homepage: https://github.com/cubranic/Statistics-R-IO
   repository: https://github.com/cubranic/Statistics-R-IO.git
-version: '0.092'
+version: '0.10'

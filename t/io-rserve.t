@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 30;
+use Test::More tests => 55;
 use Test::Fatal;
 use Test::MockObject::Extends;
 
@@ -511,7 +511,7 @@ $error_mock->mock('print',
 $error_mock->mock('read',
                   sub {
                       # args: self, $data, length
-                      $_[1] = pack('VVA*', 123, 0, "\0"x8);
+                      $_[1] = pack('VVA*', 0x10002, 0, "\0"x8);
                       0
                   });
 $error_mock->set_always('peerhost', 'localhost');
@@ -520,12 +520,15 @@ $error_mock->set_always('peerport', 6311);
 like(exception {
     evalRserve('testing, please ignore',
                $error_mock),
-     }, qr/Server returned an error: 123/,
+     }, qr/Server returned an error: 65538/,
     'server error');
 
 
 while ( my ($name, $value) = each %{TEST_CASES()} ) {
+  SKIP: {
+    skip "not yet supported", 1 if ($value->{skip} || '' =~ 'rserve');
     parse_rserve_eval('t/data/' . $name,
                       $value->{value},
                       $value->{desc});
+  }
 }

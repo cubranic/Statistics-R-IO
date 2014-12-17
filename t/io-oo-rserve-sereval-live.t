@@ -13,7 +13,7 @@ my $rserve_port = $ENV{RSERVE_PORT} || 6311;
 my $rserve = IO::Socket::INET->new(PeerAddr => $rserve_host,
                                    PeerPort => $rserve_port);
 if ($rserve) {
-    plan tests => 30;
+    plan tests => 55;
     $rserve->read(my $response, 32);
     die "Unrecognized server ID" unless
         substr($response, 0, 12) eq 'Rsrv0103QAP1';

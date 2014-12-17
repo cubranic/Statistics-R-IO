@@ -1,6 +1,6 @@
 package Statistics::R::IO::QapEncoding;
 # ABSTRACT: Functions for parsing Rserve packets
-$Statistics::R::IO::QapEncoding::VERSION = '0.092';
+$Statistics::R::IO::QapEncoding::VERSION = '0.10';
 use 5.010;
 
 use strict;
@@ -16,6 +16,7 @@ our %EXPORT_TAGS = ( all => [ @EXPORT_OK ], );
 use Statistics::R::IO::Parser qw( :all );
 use Statistics::R::IO::ParserState;
 use Statistics::R::REXP::Character;
+use Statistics::R::REXP::Complex;
 use Statistics::R::REXP::Double;
 use Statistics::R::REXP::Integer;
 use Statistics::R::REXP::List;
@@ -29,19 +30,84 @@ use Statistics::R::REXP::Unknown;
 
 use Carp;
 
+use constant {
+    DT_INT => 1, # int
+    DT_CHAR => 2, # char
+    DT_DOUBLE => 3, # double
+    DT_STRING => 4, # zero- terminated string
+    DT_BYTESTREAM => 5, # stream of bytes (unlike DT_STRING may
+                        # contain 0)
+    DT_SEXP => 10, # encoded SEXP
+    DT_ARRAY => 11, # array of objects (i.e. first 4 bytes specify how
+                    # many subsequent objects are part of the array; 0
+                    # is legitimate)
+    DT_CUSTOM => 32, # custom types not defined in the protocol but
+                     # used by applications
+    DT_LARGE => 64, # new in 0102: if this flag is set then the length
+                    # of the object is coded as 56-bit integer
+                    # enlarging the header by 4 bytes
+};
+
+# eXpression Types:  transport format of the encoded SEXPs:
+# [0] int type/len (1 byte type, 3 bytes len - same as SET_PAR)
+# [4] REXP attr (if bit 8 in type is set)
+# [4/8] data .. */
+# Expression type classification:
+#    P = primary type
+#    s = secondary type - its decoding is identical to
+#        a primary type and thus the client doesn't need to
+#        decode it separately.
+#    - = deprecated/removed. if a client doesn't need to
+#        support old Rserve versions, those can be safely skipped.
+# XT_* types:
+use constant {
+    XT_NULL => 0,   # P data: [0]
+    XT_INT => 1,    # - data: [4]int
+    XT_DOUBLE => 2, # - data: [8]double
+    XT_STR => 3,    # P data: [n]char null-term. strg.
+    XT_LANG => 4,   # - data: same as XT_LIST
+    XT_SYM => 5,    # - data: [n]char symbol name
+    XT_BOOL => 6,   # - data: [1]byte boolean (1=TRUE, 0=FALSE, 2=NA)
+    XT_S4 => 7,     # P data: [0]
+    XT_VECTOR => 16,     # P data: [?]REXP,REXP,...
+    XT_LIST => 17,       # - X head, X vals, X tag (since 0.1-5)
+    XT_CLOS => 18,       # P X formals, X body (closure; since 0.1-5)
+    XT_SYMNAME => 19,    # s same as XT_STR (since 0.5)
+    XT_LIST_NOTAG => 20, # s same as XT_VECTOR (since 0.5)
+    XT_LIST_TAG => 21, # P X tag, X val, Y tag, Y val, ... (since 0.5)
+    XT_LANG_NOTAG => 22,        # s same as XT_LIST_NOTAG (since 0.5)
+    XT_LANG_TAG => 23,          # s same as XT_LIST_TAG (since 0.5)
+    XT_VECTOR_EXP => 26,        # s same as XT_VECTOR (since 0.5)
+    XT_VECTOR_STR => 27, # - same as XT_VECTOR (since 0.5 but unused, use XT_ARRAY_STR instead)
+    XT_ARRAY_INT => 32,  # P data: [n*4]int,int,...
+    XT_ARRAY_DOUBLE => 33,      # P data: [n*8]double,double,...
+    XT_ARRAY_STR => 34, # P data: string,string,...
+                        # (string=byte,byte,...,0) padded with '\01'
+    XT_ARRAY_BOOL_UA => 35, # - data: [n]byte,byte,... (unaligned! NOT supported anymore)
+    XT_ARRAY_BOOL => 36,    # P data: int(n),byte,byte,...
+    XT_RAW => 37,           # P data: int(n),byte,byte,...
+    XT_ARRAY_CPLX => 38, # P data: [n*16]double,double,... (Re,Im,Re,Im,...)
+    XT_UNKNOWN => 48, # P data: [4]int - SEXP type (as from TYPEOF(x))
+
+    XT_LARGE => 64, # new in 0102: if this flag is set then the length
+                    # of the object is coded as 56-bit integer
+                    # enlarging the header by 4 bytes
+    XT_HAS_ATTR => 128,      # flag; if set, the following REXP is the
+                             # attribute
+};
 
 sub unpack_sexp_info {
     bind(\&any_uint32,
          sub {
              my $object_info = shift // return;
-             my $is_long = $object_info & 1<<6;
+             my $is_long = $object_info & XT_LARGE;
 
              if ($is_long) {
                  ## TODO: if `is_long`, then the next 4 bytes contain
                  ## the upper half of the length
                  error "Sorry, long packets aren't supported yet" 
              } else {
-                 mreturn { has_attributes => $object_info & 1<<7,
+                 mreturn { has_attributes => $object_info & XT_HAS_ATTR,
                            is_long => $is_long,
                            object_type => $object_info & 0x3F,
                            length => $object_info >> 8,
@@ -58,47 +124,56 @@ sub sexp_data {
          sub {
              my ($object_info, $attributes) = @{shift()};
              
-    if ($object_info->{object_type} == 0x00) {
+    if ($object_info->{object_type} == XT_NULL) {
         # encoded Nil
         mreturn(Statistics::R::REXP::Null->new)
-    } elsif ($object_info->{object_type} == 32) {
+    } elsif ($object_info->{object_type} == XT_ARRAY_INT) {
         # integer vector
         intsxp($object_info, $attributes)
-    } elsif ($object_info->{object_type} == 36) {
+    } elsif ($object_info->{object_type} == XT_ARRAY_BOOL) {
         # logical vector
         lglsxp($object_info, $attributes)
-    } elsif ($object_info->{object_type} == 33) {
+    } elsif ($object_info->{object_type} == XT_ARRAY_DOUBLE) {
         # numeric vector
         dblsxp($object_info, $attributes)
-    } elsif ($object_info->{object_type} == 34) {
+    } elsif ($object_info->{object_type} == XT_ARRAY_CPLX) {
+        # complex vector
+        cplxsxp($object_info, $attributes)
+    } elsif ($object_info->{object_type} == XT_ARRAY_STR) {
         # character vector
         strsxp($object_info, $attributes)
-    } elsif ($object_info->{object_type} == 37) {
+    } elsif ($object_info->{object_type} == XT_RAW) {
         # raw vector
         rawsxp($object_info)
-    } elsif ($object_info->{object_type} == 16) {
+    } elsif ($object_info->{object_type} == XT_VECTOR) {
         # list (generic vector)
         vecsxp($object_info, $attributes)
-    } elsif ($object_info->{object_type} == 20) {
+    } elsif ($object_info->{object_type} == XT_VECTOR_EXP) {
+        # expression vector
+        expsxp($object_info, $attributes)
+    } elsif ($object_info->{object_type} == XT_LIST_NOTAG) {
         # pairlist
         die "not implemented: $object_info->{object_type}";
         listsxp($object_info)
-    } elsif ($object_info->{object_type} == 21) {
+    } elsif ($object_info->{object_type} == XT_LIST_TAG) {
         # pairlist with tags
         $object_info->{has_tags} = 1;
         tagged_pairlist($object_info)
-    } elsif ($object_info->{object_type} == 22) {
+    } elsif ($object_info->{object_type} == XT_LANG_NOTAG) {
         # language without tags
         $object_info->{has_tags} = 0;
         langsxp($object_info, $attributes)
-    } elsif ($object_info->{object_type} == 23) {
+    } elsif ($object_info->{object_type} == XT_LANG_TAG) {
         # language with tags
         $object_info->{has_tags} = 1;
         langsxp($object_info, $attributes)
-    } elsif ($object_info->{object_type} == 19) {
+    } elsif ($object_info->{object_type} == XT_SYMNAME) {
         # symbol
         symsxp($object_info)
-    } elsif ($object_info->{object_type} == 48) {
+    } elsif ($object_info->{object_type} == XT_CLOS) {
+        # closure
+        closxp($object_info, $attributes)
+    } elsif ($object_info->{object_type} == XT_UNKNOWN) {
         # unknown
         nosxp($object_info, $attributes)
     } else {
@@ -152,9 +227,10 @@ sub tagged_pairlist_to_attribute_hash {
     my $row_names = $rexp_hash{'row.names'};
     if ($row_names && $row_names->type eq 'integer' &&
         ! defined $row_names->elements->[0]) {
-        ## compact encoding when rownames are integers 1..n
-        ## the length n is in the second element
-        my $n = $row_names->elements->[1];
+        ## compact encoding when rownames are integers 1..n: the
+        ## length n is in the second element, but can be negative to
+        ## denote "automatic" rownames
+        my $n = abs($row_names->elements->[1]);
         $rexp_hash{'row.names'} = Statistics::R::REXP::Integer->new([1..$n]);
     }
 
@@ -165,16 +241,12 @@ sub tagged_pairlist_to_attribute_hash {
 sub symsxp {
     my $object_info = shift;
     
-    if ($object_info->{length}) {
-        bind(count($object_info->{length}, \&any_char),
-             sub {
-                 my @chars = @{shift or return};
-                 pop @chars while @chars && !ord($chars[-1]);
-                 mreturn(Statistics::R::REXP::Symbol->new(join('', @chars)))
-             })
-    } else {
-        error 'TODO: null-length symsxp';
-    }
+    bind(count($object_info->{length}, \&any_char),
+         sub {
+             my @chars = @{shift or return};
+             pop @chars while @chars && !ord($chars[-1]);
+             mreturn(Statistics::R::REXP::Symbol->new(join('', @chars)))
+         })
 }
 
 
@@ -232,6 +304,36 @@ sub dblsxp {
              })
     } else {
         error "TODO: dblsxp length doesn't align by 8: " .
+            $object_info->{length}
+    }
+}
+
+
+sub cplxsxp {
+    my ($object_info, $attributes) = (shift, shift);
+    
+    if ($object_info->{length} % 16 == 0) {
+        bind(count($object_info->{length}/8,
+                   any_real64_na),
+             sub {
+                 my @dbls = @{shift or return};
+                 my @cplx;
+                 while (my ($re, $im) = splice(@dbls, 0, 2)) {
+                     if (defined($re) && defined($im)) {
+                         push(@cplx, Math::Complex::cplx($re, $im))
+                     }
+                     else {
+                         push(@cplx, undef)
+                     }
+                 }
+                 my %args = (elements => [@cplx]);
+                 if ($attributes) {
+                     $args{attributes} = $attributes
+                 }
+                 mreturn(Statistics::R::REXP::Complex->new(%args));
+             })
+    } else {
+        error "TODO: cplxsxp length doesn't align by 16: " .
             $object_info->{length}
     }
 }
@@ -359,6 +461,19 @@ sub vecsxp {
 }
 
 
+sub expsxp {
+    bind(vecsxp(@_), sub {
+        my $list = shift;
+        my %args = (elements => $list->elements);
+        my $attributes = $list->attributes;
+        if ($attributes) {
+            $args{attributes} = $attributes
+        }
+        mreturn(Statistics::R::REXP::Expression->new(%args))
+    })
+}
+
+
 sub tagged_pairlist {
     my $object_info = shift;
 
@@ -431,6 +546,36 @@ sub langsxp {
 }
 
 
+sub closxp {
+    my ($object_info, $attributes) = (shift, shift);
+    
+    my $length = $object_info->{length};
+    bind(count(2, dt_sexp_data()),
+         sub {
+             my ($args, $body) = @{(shift or return)};
+             my (@arg_names, @arg_values);
+             if (ref $args eq ref []) {
+                 foreach my $arg (@{$args}) {
+                     push @arg_names, $arg->{tag}->name;
+                     if (Statistics::R::REXP::Symbol->new('') eq $arg->{value}) {
+                         push @arg_values, undef
+                     }
+                     else {
+                         push @arg_values, $arg->{value}
+                     }
+                 }
+             }
+             
+             my %args = (body => $body,
+                         args => [@arg_names],
+                         defaults => [@arg_values]);
+             
+             $args{attributes} = $attributes if $attributes;
+             
+             mreturn(Statistics::R::REXP::Closure->new(%args))
+         })
+}
+
 sub dt_sexp_data {
     bind(unpack_sexp_info,
          \&sexp_data)
@@ -438,7 +583,7 @@ sub dt_sexp_data {
 
 
 sub decode_sexp {
-    bind(seq(uint8(10), \&any_uint24,
+    bind(seq(uint8(DT_SEXP), \&any_uint24,
              dt_sexp_data),
          sub {
              mreturn shift->[2]
@@ -484,7 +629,7 @@ Statistics::R::IO::QapEncoding - Functions for parsing Rserve packets
 
 =head1 VERSION
 
-version 0.092
+version 0.10
 
 =head1 SYNOPSIS
 
@@ -546,8 +691,8 @@ Parser for a QAP-serialized R object, using the object type stored in
 C<$obj_info> hash's "object_type" key to use the correct parser for
 the particular type.
 
-=item intsxp, langsxp, lglsxp, listsxp, rawsxp, dblsxp,
-strsxp, symsxp, vecsxp
+=item intsxp, langsxp, lglsxp, listsxp, rawsxp, dblsxp, cplxsxp,
+strsxp, symsxp, vecsxp, expsxp, closxp
 
 Parsers for the corresponding R SEXP-types.
 

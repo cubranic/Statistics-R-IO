@@ -11,7 +11,7 @@ my $rserve_port = 6311;
 
 if (IO::Socket::INET->new(PeerAddr => $rserve_host,
                           PeerPort => $rserve_port)) {
-    plan tests => 32;
+    plan tests => 58;
 }
 else {
     plan skip_all => "Cannot connect to Rserve server at localhost:6311";
@@ -28,6 +28,7 @@ use TestCases;
 
 ## load the RserveClient macro
 my $problemSeed = 1234;         # var provided by WWk env
+my $Rserve = {host => $rserve_host}; # fake configuration
 
 use File::Spec;
 use File::Path;
@@ -54,6 +55,13 @@ $PG->mock('surePathToTmpFile',
               File::Path::make_path($file_dir);
 
               File::Spec->catdir($file_dir, $file_path->basename)
+          });
+$PG->mock('warning_message',
+          sub {
+              state @WARNING_messages;
+              
+              my ($self, @messages) = @_;
+              push @WARNING_messages, @messages;
           });
 
 open(my $macrofile, 'extras/WebWork/RserveClient.pl') ||
@@ -530,9 +538,18 @@ check_rserve_eval(
 
 
 while ( my ($name, $value) = each %{TEST_CASES()} ) {
-    check_rserve_eval($value->{expr},
-                      $value->{value}->to_pl,
-                      $value->{desc});
+  SKIP: {
+      skip "not applicable in WebWork macros", 1 if ($value->{skip} || '' =~ 'webwork');
+
+      ## If the expected value is wrapped in 'RexpOrUnknown', it will
+      ## be XT_UNKNOWN over Rserve
+      my $expected = $value->{value}->isa('RexpOrUnknown') ?
+          undef : $value->{value}->to_pl;
+      
+      check_rserve_eval($value->{expr},
+                        $expected,
+                        $value->{desc});
+    }
 }
 
 
@@ -546,3 +563,24 @@ $remote = (rserve_eval("file.path(system.file(package='base'), 'DESCRIPTION')"))
 $local = rserve_get_file($remote);
 ok(-e $local, 'rserve plot file');
 Path::Class::file($local)->remove;
+
+subtest 'missing configuration' => sub {
+    plan tests => 2;
+
+    undef $Rserve;
+    $PG->clear;
+    rserve_query('pi');
+    my ($request, $args) = $PG->next_call();
+
+    is($request,
+       'warning_message', 'call warning message');
+    like($args->[1], qr/Calling testing::function is disabled unless Rserve host is configured/,
+       'missing configuration message')
+};
+
+
+## mock for the Value::traceback function
+package Value;
+sub traceback {
+    return " in testing::function at line 123 of some_file"
+}

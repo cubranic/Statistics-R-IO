@@ -1,6 +1,6 @@
 package Statistics::R::REXP::Symbol;
 # ABSTRACT: an R symbol
-$Statistics::R::REXP::Symbol::VERSION = '0.092';
+$Statistics::R::REXP::Symbol::VERSION = '0.10';
 use 5.010;
 
 use Scalar::Util qw(blessed);
@@ -69,7 +69,7 @@ Statistics::R::REXP::Symbol - an R symbol
 
 =head1 VERSION
 
-version 0.092
+version 0.10
 
 =head1 SYNOPSIS
 

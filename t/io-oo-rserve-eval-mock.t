@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 31;
+use Test::More tests => 57;
 use Test::Fatal;
 use Test::MockObject::Extends;
 
@@ -537,7 +537,7 @@ $error_mock->mock('print',
 $error_mock->mock('read',
                   sub {
                       # args: self, $data, length
-                      $_[1] = pack('VVA*', 123, 0, "\0"x8);
+                      $_[1] = pack('VVA*', 0x10002, 0, "\0"x8);
                       0
                   });
 $error_mock->set_always('peerhost', 'localhost');
@@ -546,12 +546,35 @@ my $rserve = Statistics::R::IO::Rserve->new(fh => $error_mock);
 
 like(exception {
     $rserve->eval('testing, please ignore')
-     }, qr/Server returned an error: 123/,
+     }, qr/Server returned an error: 65538/,
     'server error');
 
 
 while ( my ($name, $value) = each %{TEST_CASES()} ) {
+  SKIP: {
+    skip "not yet supported", 1 if ($value->{skip} || '' =~ 'rserve');
     parse_rserve_eval('t/data/' . $name,
                       $value->{value},
                       $value->{desc});
+  }
+}
+
+
+subtest 'undef server' => sub {
+    plan tests => 3;
+    
+    like(exception {
+        Statistics::R::IO::Rserve->new(server => undef)
+         }, qr/server.*Validation failed for 'Str' with value undef/,
+         'explicit server argument');
+
+    like(exception {
+        Statistics::R::IO::Rserve->new(server => undef, _usesocket=>1)
+         }, qr/server.*Validation failed for 'Str' with value undef/,
+         'explicit with low-level sockets');
+
+    like(exception {
+        Statistics::R::IO::Rserve->new(undef)
+         }, qr/server.*Validation failed for 'Str' with value undef/,
+         'implicit server argument')
 }

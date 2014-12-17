@@ -25,6 +25,7 @@ my %WriteMakefileArgs = (
   "NAME" => "Statistics::R::IO",
   "PREREQ_PM" => {
     "Carp" => 0,
+    "Math::Complex" => 0,
     "Moose" => "2.0",
     "Scalar::Util" => 0,
     "namespace::clean" => "0.24"
@@ -34,7 +35,7 @@ my %WriteMakefileArgs = (
     "Test::MockObject" => 0,
     "Test::More" => "0.96"
   },
-  "VERSION" => "0.092",
+  "VERSION" => "0.10",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -43,6 +44,7 @@ my %WriteMakefileArgs = (
 
 my %FallbackPrereqs = (
   "Carp" => 0,
+  "Math::Complex" => 0,
   "Moose" => "2.0",
   "Scalar::Util" => 0,
   "Test::Fatal" => 0,

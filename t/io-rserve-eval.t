@@ -11,7 +11,7 @@ my $rserve_host = $ENV{RSERVE_HOST} || 'localhost';
 my $rserve_port = $ENV{RSERVE_PORT} || 6311;
 if (IO::Socket::INET->new(PeerAddr => $rserve_host,
                           PeerPort => $rserve_port)) {
-    plan tests => 30;
+    plan tests => 55;
 }
 else {
     plan skip_all => "Cannot connect to Rserve server at $rserve_host:$rserve_port";
@@ -471,10 +471,15 @@ is(Statistics::R::REXP::List->new(
 
 
 while ( my ($name, $value) = each %{TEST_CASES()} ) {
+    my $expected = $value->{value};
+    
+  SKIP: {
+    skip "not yet supported", 1 if ($value->{skip} || '' =~ 'rserve');
     ## NOTE: I'm switching the order of comparisons to ensure
     ## ShortDoubleVector's 'eq' overload is used
-    is($value->{value},
+    is($expected,
        evalRserve($value->{expr},
                   "$rserve_host:$rserve_port"),
        $value->{desc});
+  }
 }

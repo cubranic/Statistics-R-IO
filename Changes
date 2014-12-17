@@ -1,5 +1,16 @@
 Revision history for Statistics-R-IO
 
+0.10    17 December 2014
+        - Implement complex vector SEXPs (#30)
+        - Implement closure SEXPs (#29, #32, #34, #35, #36, #38)
+        - Implement expression SEXPs (#26)
+        - Implement special environments global, base, and empty (#31,
+          #33)
+        - Allow configuring Rserve host from WebWork settings
+        - Add graceful failure in WWk macros if Rserve host is not
+          configured
+        - Fix parsing of special row names (#39)
+
 0.092   21 July 2014
         - fix setting custom Rserve host and port
         - allow specifying Rserve host for unit tests with RSERVE_HOST
