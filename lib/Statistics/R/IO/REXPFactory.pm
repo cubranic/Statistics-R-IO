@@ -573,7 +573,7 @@ L<Statistics::R::IO::ParserState> at the end of serialization.
 
 
 =item intsxp, langsxp, lglsxp, listsxp, rawsxp, realsxp, refsxp,
-strsxp, symsxp, vecsxp, envsxp, charsxp
+strsxp, symsxp, vecsxp, envsxp, charsxp, cplxsxp, closxp, expsxp
 
 Parsers for the corresponding R SEXP-types.
 

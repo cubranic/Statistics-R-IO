@@ -684,7 +684,7 @@ C<$obj_info> hash's "object_type" key to use the correct parser for
 the particular type.
 
 
-=item intsxp, langsxp, lglsxp, listsxp, rawsxp, dblsxp,
+=item intsxp, langsxp, lglsxp, listsxp, rawsxp, dblsxp, cplxsxp,
 strsxp, symsxp, vecsxp, expsxp, closxp
 
 Parsers for the corresponding R SEXP-types.

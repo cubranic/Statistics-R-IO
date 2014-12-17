@@ -479,6 +479,17 @@ constructor, but not if it was passed in as a pre-opened handle.
 =back
 
 =for Pod::Coverage BUILDARGS DEMOLISH
+=for Pod::Coverage CMD_OCcall CMD_OCinit CMD_OOB CMD_RESP CMD_SPECIAL_MASK CMD_assignSEXP
+CMD_attachSession CMD_closeFile CMD_createFile CMD_ctrl CMD_ctrlEval
+CMD_ctrlShutdown CMD_ctrlSource CMD_detachSession CMD_detachedVoidEval
+CMD_eval CMD_keyReq CMD_login CMD_openFile CMD_readFile CMD_removeFile
+CMD_secLogin CMD_serAssign CMD_serEEval CMD_serEval CMD_setBufferSize
+CMD_setEncoding CMD_setSEXP CMD_shutdown CMD_switch CMD_voidEval
+CMD_writeFile
+
+=for Pod::Coverage OOB_MSG OOB_SEND
+=for Pod::Coverage RESP_ERR RESP_OK
+
 
 
 =head1 BUGS AND LIMITATIONS
