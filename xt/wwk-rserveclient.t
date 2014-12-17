@@ -11,7 +11,7 @@ my $rserve_port = 6311;
 
 if (IO::Socket::INET->new(PeerAddr => $rserve_host,
                           PeerPort => $rserve_port)) {
-    plan tests => 33;
+    plan tests => 58;
 }
 else {
     plan skip_all => "Cannot connect to Rserve server at localhost:6311";
@@ -538,9 +538,18 @@ check_rserve_eval(
 
 
 while ( my ($name, $value) = each %{TEST_CASES()} ) {
-    check_rserve_eval($value->{expr},
-                      $value->{value}->to_pl,
-                      $value->{desc});
+  SKIP: {
+      skip "not applicable in WebWork macros", 1 if ($value->{skip} || '' =~ 'webwork');
+
+      ## If the expected value is wrapped in 'RexpOrUnknown', it will
+      ## be XT_UNKNOWN over Rserve
+      my $expected = $value->{value}->isa('RexpOrUnknown') ?
+          undef : $value->{value}->to_pl;
+      
+      check_rserve_eval($value->{expr},
+                        $expected,
+                        $value->{desc});
+    }
 }
 
 

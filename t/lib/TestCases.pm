@@ -304,6 +304,7 @@ use constant TEST_CASES => {
     'empty_clos' => {
         desc => 'function() {}',
         expr => 'function() {}',
+        skip => 'webwork',
         value => ClosureLenientEnv->new(
             body => Statistics::R::REXP::Language->new(
                 elements => [
@@ -335,6 +336,7 @@ use constant TEST_CASES => {
     'clos_null' => {
         desc => 'function() NULL',
         expr => 'function() NULL',
+        skip => 'webwork',
         value => ClosureLenientEnv->new(
             body => Statistics::R::REXP::Null->new,
             environment => Statistics::R::REXP::GlobalEnvironment->new(),
@@ -381,6 +383,7 @@ use constant TEST_CASES => {
     'clos_int' => {
         desc => 'function() 1L',
         expr => 'function() 1L',
+        skip => 'webwork',
         value => ClosureLenientEnv->new(
             body => Statistics::R::REXP::Integer->new([1]),
             environment => Statistics::R::REXP::GlobalEnvironment->new(),
@@ -427,6 +430,7 @@ use constant TEST_CASES => {
     'clos_add' => {
         desc => 'function() 1+2',
         expr => 'function() 1+2',
+        skip => 'webwork',
         value => ClosureLenientEnv->new(
             body => Statistics::R::REXP::Language->new([
                 Statistics::R::REXP::Symbol->new('+'),
@@ -480,6 +484,7 @@ use constant TEST_CASES => {
     'clos_args' => {
         desc => 'function(a, b) {a - b}',
         expr => 'function(a, b) {a - b}',
+        skip => 'webwork',
         value => ClosureLenientEnv->new(
             args => ['a', 'b'],
             body => Statistics::R::REXP::Language->new(
@@ -522,6 +527,7 @@ use constant TEST_CASES => {
     'clos_defaults' => {
         desc => 'function(a=3, b) {a + b * pi}',
         expr => 'function(a=3, b) {a + b * pi}',
+        skip => 'webwork',
         value => ClosureLenientEnv->new(
             args => ['a', 'b'],
             defaults => [ShortDoubleVector->new([2]), undef],
@@ -569,6 +575,7 @@ use constant TEST_CASES => {
     'clos_dots' => {
         desc => 'function(x=3, y, ...) {x * log(y) }',
         expr => 'function(x=3, y, ...) {x * log(y) }',
+        skip => 'webwork',
         value => ClosureLenientEnv->new(
             args => ['x', 'y', '...'],
             defaults => [ShortDoubleVector->new([3]), undef, undef],
