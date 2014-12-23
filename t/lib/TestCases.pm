@@ -35,6 +35,9 @@ use Statistics::R::REXP::Unknown;
 
 use Math::Complex qw(cplx);
 
+use constant nan => -sin(9**9**9);
+use constant ninf => -9**9**9;
+
 use constant TEST_SRC_FILE => {
     empty_clos => LenientSrcFile->new(
         frame => {
@@ -238,7 +241,7 @@ use constant TEST_CASES => {
     'num_na' => {
         desc => 'double vector with NAs',
         expr => 'c(11.3, NaN, -Inf, NA, 0)',
-        value => ShortDoubleVector->new([ 11.3, 'nan', '-inf', undef, 0 ]) },
+        value => ShortDoubleVector->new([ 11.3, nan, ninf, undef, 0 ]) },
     'int_na' => {
         desc => 'int vector with NAs',
         expr => 'c(11L, 0L, NA, 0L)',
