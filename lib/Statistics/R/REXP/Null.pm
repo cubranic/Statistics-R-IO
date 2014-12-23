@@ -1,6 +1,6 @@
 package Statistics::R::REXP::Null;
 # ABSTRACT: the R null object
-$Statistics::R::REXP::Null::VERSION = '0.10';
+$Statistics::R::REXP::Null::VERSION = '0.101';
 use 5.010;
 
 use Moose;
@@ -44,7 +44,7 @@ Statistics::R::REXP::Null - the R null object
 
 =head1 VERSION
 
-version 0.10
+version 0.101
 
 =head1 SYNOPSIS
 

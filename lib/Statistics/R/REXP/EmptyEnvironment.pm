@@ -1,6 +1,6 @@
 package Statistics::R::REXP::EmptyEnvironment;
 # ABSTRACT: the empty R environment (C<emptyenv()>)
-$Statistics::R::REXP::EmptyEnvironment::VERSION = '0.10';
+$Statistics::R::REXP::EmptyEnvironment::VERSION = '0.101';
 use 5.010;
 
 use Moose;
@@ -46,7 +46,7 @@ Statistics::R::REXP::EmptyEnvironment - the empty R environment (C<emptyenv()>)
 
 =head1 VERSION
 
-version 0.10
+version 0.101
 
 =head1 SYNOPSIS
 

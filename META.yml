@@ -5,6 +5,7 @@ author:
 build_requires:
   Test::Fatal: '0'
   Test::MockObject: '0'
+  Test::MockObject::Extends: '0'
   Test::More: '0.96'
 configure_requires:
   ExtUtils::MakeMaker: '6.30'
@@ -26,4 +27,4 @@ requires:
 resources:
   homepage: https://github.com/cubranic/Statistics-R-IO
   repository: https://github.com/cubranic/Statistics-R-IO.git
-version: '0.10'
+version: '0.101'

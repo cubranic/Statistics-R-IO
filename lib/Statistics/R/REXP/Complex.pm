@@ -1,6 +1,6 @@
 package Statistics::R::REXP::Complex;
 # ABSTRACT: an R numeric vector
-$Statistics::R::REXP::Complex::VERSION = '0.10';
+$Statistics::R::REXP::Complex::VERSION = '0.101';
 use 5.010;
 
 use Moose;
@@ -59,7 +59,7 @@ Statistics::R::REXP::Complex - an R numeric vector
 
 =head1 VERSION
 
-version 0.10
+version 0.101
 
 =head1 SYNOPSIS
 

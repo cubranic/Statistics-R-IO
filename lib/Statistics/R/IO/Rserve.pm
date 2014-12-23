@@ -1,6 +1,6 @@
 package Statistics::R::IO::Rserve;
 # ABSTRACT: Supply object methods for Rserve communication
-$Statistics::R::IO::Rserve::VERSION = '0.10';
+$Statistics::R::IO::Rserve::VERSION = '0.101';
 use 5.010;
 
 use Moose;
@@ -33,6 +33,7 @@ has fh => (
                                         PeerPort => $self->port) or
                                             croak $!
         }
+        $self->_set_autoclose(1) unless defined($self->_autoclose);
         my ($response, $rc) = '';
         while ($rc = $fh->read($response, 32 - length $response,
                                length $response)) {}
@@ -60,7 +61,7 @@ has port => (
 
 has _autoclose => (
     is => 'ro',
-    default => 0
+    writer => "_set_autoclose",
 );
 
 
@@ -155,7 +156,7 @@ sub BUILDARGS {
     my $class = shift;
     
     if ( scalar @_ == 0 ) {
-        return { _autoclose => 1 }
+        return { }
     } elsif ( scalar @_ == 1 ) {
         if ( ref $_[0] eq 'HASH' ) {
             my $args = { %{ $_[0] } };
@@ -165,8 +166,7 @@ sub BUILDARGS {
             return $args
         } elsif (ref $_[0] eq '') {
             my $server = shift;
-            return { server => $server,
-                     _autoclose => 1  }
+            return { server => $server }
         } else {
             my $fh = shift;
             my ($server, $port) = _fh_host_port($fh);
@@ -370,7 +370,7 @@ Statistics::R::IO::Rserve - Supply object methods for Rserve communication
 
 =head1 VERSION
 
-version 0.10
+version 0.101
 
 =head1 SYNOPSIS
 

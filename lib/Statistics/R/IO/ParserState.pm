@@ -1,6 +1,6 @@
 package Statistics::R::IO::ParserState;
 # ABSTRACT: Current state of the IO parser
-$Statistics::R::IO::ParserState::VERSION = '0.10';
+$Statistics::R::IO::ParserState::VERSION = '0.101';
 use 5.010;
 
 use Moose;
@@ -82,7 +82,7 @@ Statistics::R::IO::ParserState - Current state of the IO parser
 
 =head1 VERSION
 
-version 0.10
+version 0.101
 
 =head1 SYNOPSIS
 

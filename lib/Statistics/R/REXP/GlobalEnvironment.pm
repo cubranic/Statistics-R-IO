@@ -1,6 +1,6 @@
 package Statistics::R::REXP::GlobalEnvironment;
 # ABSTRACT: the global R environment (C<.GlobalEnv>)
-$Statistics::R::REXP::GlobalEnvironment::VERSION = '0.10';
+$Statistics::R::REXP::GlobalEnvironment::VERSION = '0.101';
 use 5.010;
 
 use Moose;
@@ -41,7 +41,7 @@ Statistics::R::REXP::GlobalEnvironment - the global R environment (C<.GlobalEnv>
 
 =head1 VERSION
 
-version 0.10
+version 0.101
 
 =head1 SYNOPSIS
 

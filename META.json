@@ -41,6 +41,7 @@
          "requires" : {
             "Test::Fatal" : "0",
             "Test::MockObject" : "0",
+            "Test::MockObject::Extends" : "0",
             "Test::More" : "0.96"
          },
          "suggests" : {
@@ -59,6 +60,6 @@
          "web" : "https://github.com/cubranic/Statistics-R-IO"
       }
    },
-   "version" : "0.10"
+   "version" : "0.101"
 }
 

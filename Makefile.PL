@@ -33,9 +33,10 @@ my %WriteMakefileArgs = (
   "TEST_REQUIRES" => {
     "Test::Fatal" => 0,
     "Test::MockObject" => 0,
+    "Test::MockObject::Extends" => 0,
     "Test::More" => "0.96"
   },
-  "VERSION" => "0.10",
+  "VERSION" => "0.101",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -49,6 +50,7 @@ my %FallbackPrereqs = (
   "Scalar::Util" => 0,
   "Test::Fatal" => 0,
   "Test::MockObject" => 0,
+  "Test::MockObject::Extends" => 0,
   "Test::More" => "0.96",
   "namespace::clean" => "0.24"
 );
