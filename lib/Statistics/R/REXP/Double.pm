@@ -52,6 +52,14 @@ L<Statistics::R::REXP::Vector>, with the added restriction that its
 elements are real numbers. Elements that are not numbers have value
 C<undef>, as do elements with R value C<NA>.
 
+=over
+
+=item sexptype
+
+SEXPTYPE of complex vectors is C<REALSXP>.
+
+=back
+
 
 =head1 BUGS AND LIMITATIONS
 

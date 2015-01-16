@@ -65,8 +65,8 @@ __END__
 
 =head1 DESCRIPTION
 
-An object of this class represents an R numeric (aka double) vector
-(C<REALSXP>).
+An object of this class represents an R complex vector
+(C<CPLXSXP>).
 
 
 =head1 METHODS
@@ -75,6 +75,14 @@ C<Statistics::R::REXP:Complex> inherits from
 L<Statistics::R::REXP::Vector>, with the added restriction that its
 elements are complex numbers. Elements that are not numbers have value
 C<undef>, as do elements with R value C<NA>.
+
+=over
+
+=item sexptype
+
+SEXPTYPE of complex vectors is C<CPLXSXP>.
+
+=back
 
 
 =head1 BUGS AND LIMITATIONS

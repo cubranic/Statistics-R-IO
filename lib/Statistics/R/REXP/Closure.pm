@@ -171,6 +171,10 @@ variables. This attribute is optional because some serialization
 mechanisms (notably Rserve's QAP), do not save the closure's
 environment.
 
+=item sexptype
+
+SEXPTYPE of closures is C<CLOSSXP>.
+
 =item to_pl
 
 Closures do not have a native Perl representation and trying to call

@@ -126,6 +126,11 @@ method, although individual subclasses will typically have one.
 
 Returns a hash reference to the object's attributes.
 
+=item sexptype
+
+Returns the I<name> of the corresponding R SEXP type, as listed in
+L<SEXPTYPE|http://cran.r-project.org/doc/manuals/r-release/R-ints.html#SEXPTYPEs>.
+
 =item to_pl
 
 Returns I<Perl> representation of the object's value. This is an

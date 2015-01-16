@@ -85,6 +85,10 @@ of its elements. Missing values (C<NA> in R) have value C<undef>.
 
 =over
 
+=item sexptype
+
+SEXPTYPE of generic vectors is C<VECSXP>.
+
 =item to_pl
 
 Perl value of the list is an array reference to the Perl values of its

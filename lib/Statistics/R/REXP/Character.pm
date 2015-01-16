@@ -52,6 +52,14 @@ elements are scalar values. Elements that are not scalars (i.e.,
 numbers or strings) have value C<undef>, as do elements with R value
 C<NA>.
 
+=over
+
+=item sexptype
+
+SEXPTYPE of character vectors is C<STRSXP>.
+
+=back
+
 
 =head1 BUGS AND LIMITATIONS
 

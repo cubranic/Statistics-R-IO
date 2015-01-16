@@ -62,6 +62,10 @@ adds no methods of its own.
 
 =over
 
+=item sexptype
+
+SEXPTYPE of null objects is C<NILSXP>.
+
 =item to_pl
 
 The Perl value of C<NULL> is C<undef>.

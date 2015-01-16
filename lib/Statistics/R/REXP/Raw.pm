@@ -58,6 +58,14 @@ elements are byte values and cannot have missing values. Trying to
 create a raw vectors with elements that are not numbers in range 0-255
 will raise an exception.
 
+=over
+
+=item sexptype
+
+SEXPTYPE of raw vectors is C<RAWSXP>.
+
+=back
+
 
 =head1 BUGS AND LIMITATIONS
 

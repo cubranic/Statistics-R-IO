@@ -56,6 +56,10 @@ of its elements.
 
 =over
 
+=item sexptype
+
+SEXPTYPE of expressions is C<EXPRSXP>.
+
 =item to_pl
 
 Perl value of the expression vector is an array reference to the Perl

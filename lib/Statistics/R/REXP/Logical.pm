@@ -51,6 +51,15 @@ corresponding to C<TRUE> and C<FALSE>, respectively, while missing
 values (C<NA> in R) have value C<undef>.
 
 
+=over
+
+=item sexptype
+
+SEXPTYPE of logical vectors is C<LGLSXP>.
+
+=back
+
+
 =head1 BUGS AND LIMITATIONS
 
 Classes in the C<REXP> hierarchy are intended to be immutable. Please

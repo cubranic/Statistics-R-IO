@@ -140,6 +140,10 @@ Environments can be named, although this is not normally settable from
 R code. Typically, only the system environments (such as namespaces),
 and environments created by C<attach>-ing an object, have a name.
 
+=item sexptype
+
+SEXPTYPE of environments is C<ENVSXP>.
+
 =item to_pl
 
 Environments do not have a native Perl representation and trying to

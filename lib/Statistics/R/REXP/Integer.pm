@@ -51,6 +51,15 @@ elements are truncated to integer values. Elements that are not
 numbers have value C<undef>, as do elements with R value C<NA>.
 
 
+=over
+
+=item sexptype
+
+SEXPTYPE of integer vectors is C<INTSXP>.
+
+=back
+
+
 =head1 BUGS AND LIMITATIONS
 
 Classes in the C<REXP> hierarchy are intended to be immutable. Please

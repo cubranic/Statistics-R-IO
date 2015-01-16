@@ -64,6 +64,10 @@ doesn't follow this restriction will raise an exception.
 
 =over
 
+=item sexptype
+
+SEXPTYPE of language vectors is C<LANGSXP>.
+
 =item to_pl
 
 Perl value of the language vector is an array reference to the Perl

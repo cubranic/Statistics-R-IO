@@ -88,6 +88,10 @@ C<Statistics::R::REXP::Symbol> inherits from L<Statistics::R::REXP>.
 
 String value of the symbol.
 
+=item sexptype
+
+SEXPTYPE of symbols is C<SYMSXP>.
+
 =item to_pl
 
 Perl value of the symbol is just its C<name>.
