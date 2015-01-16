@@ -12,9 +12,7 @@ with 'Statistics::R::REXP::Vector';
 use overload;
 
 
-has '+sexptype' => (
-    default => 'STRSXP'
-);
+use constant sexptype => 'STRSXP';
 
 has '+elements' => (
     isa => 'CharacterElements',

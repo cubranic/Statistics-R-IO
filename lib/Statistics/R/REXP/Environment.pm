@@ -10,9 +10,7 @@ use namespace::clean;
 
 with 'Statistics::R::REXP';
 
-has '+sexptype' => (
-    default => 'ENVSXP'
-);
+use constant sexptype => 'ENVSXP';
 
 has frame => (
     is => 'ro',

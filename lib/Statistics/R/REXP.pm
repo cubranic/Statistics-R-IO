@@ -6,16 +6,8 @@ use 5.010;
 use Scalar::Util qw( blessed );
 
 use Moose::Role;
-use Statistics::R::REXP::Types;
 
-requires qw( to_pl );
-
-
-has sexptype => (
-    is => 'ro',
-    isa => 'SexpType',
-    required => 1
-);
+requires qw( sexptype to_pl );
 
 has attributes => (
     is => 'ro',

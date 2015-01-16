@@ -10,9 +10,7 @@ use namespace::clean;
 
 extends 'Statistics::R::REXP::List';
 
-has '+sexptype' => (
-    default => 'LANGSXP'
-);
+use constant sexptype => 'LANGSXP';
 
 has '+elements' => (
     isa => 'LanguageElements',

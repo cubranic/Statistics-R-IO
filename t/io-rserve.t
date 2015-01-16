@@ -421,7 +421,7 @@ parse_rserve_eval('t/data/mtcars-lm-mpgwt',
                    class => Statistics::R::REXP::Character->new([
                        'terms', 'formula'
                    ]),
-                   '.Environment' => Statistics::R::REXP::Unknown->new(sexptype => 4),
+                   '.Environment' => Statistics::R::REXP::Unknown->new(_sexptype => 4),
                    predvars => Statistics::R::REXP::Language->new(
                        elements => [
                            Statistics::R::REXP::Symbol->new('list'),
@@ -476,7 +476,7 @@ parse_rserve_eval('t/data/mtcars-lm-mpgwt',
                            class => Statistics::R::REXP::Character->new([
                                'terms', 'formula'
                            ]),
-                           '.Environment' => Statistics::R::REXP::Unknown->new(sexptype => 4),
+                           '.Environment' => Statistics::R::REXP::Unknown->new(_sexptype => 4),
                            predvars => Statistics::R::REXP::Language->new(
                                elements => [
                                    Statistics::R::REXP::Symbol->new('list'),

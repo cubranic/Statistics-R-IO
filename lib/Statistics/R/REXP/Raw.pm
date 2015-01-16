@@ -12,9 +12,7 @@ with 'Statistics::R::REXP::Vector';
 use overload;
 
 
-has '+sexptype' => (
-    default => 'RAWSXP'
-);
+use constant sexptype => 'RAWSXP';
 
 has '+attributes' => (
     trigger => sub {

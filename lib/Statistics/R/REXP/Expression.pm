@@ -10,9 +10,7 @@ use namespace::clean;
 
 extends 'Statistics::R::REXP::List';
 
-has '+sexptype' => (
-    default => 'EXPRSXP'
-);
+use constant sexptype => 'EXPRSXP';
 
 sub to_pl {
     Statistics::R::REXP::Vector::to_pl(@_)

@@ -12,9 +12,7 @@ use namespace::clean;
 with 'Statistics::R::REXP';
 
 
-has '+sexptype' => (
-    default => 'SYMSXP'
-);
+use constant sexptype => 'SYMSXP';
 
 has name => (
     is => 'ro',

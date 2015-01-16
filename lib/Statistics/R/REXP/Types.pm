@@ -9,36 +9,6 @@ sub _flatten {
     map { ref $_ eq ref [] ? _flatten(@{$_}) : $_ } @_
 }
 
-enum 'SexpType', [qw(
-    NILSXP
-    SYMSXP
-    LISTSXP
-    CLOSXP
-    ENVSXP
-    PROMSXP
-    LANGSXP
-    SPECIALSXP
-    BUILTINSXP
-    CHARSXP
-    LGLSXP
-    INTSXP
-    REALSXP
-    CPLXSXP
-    STRSXP
-    DOTSXP
-    ANYSXP
-    VECSXP
-    EXPRSXP
-    BCODESXP
-    EXTPTRSXP
-    WEAKREFSXP
-    RAWSXP
-    S4SXP
-    NEWSXP
-    FREESXP
-    FUNSXP
-)];
-
 role_type 'Statistics::R::REXP::Vector';
 
 subtype 'VectorElements',
@@ -245,3 +215,16 @@ subtype 'SymbolName',
 coerce 'SymbolName',
     from 'Statistics::R::REXP::Symbol',
     via { $_->name };
+
+
+## Used by Unknown
+subtype 'SexpType',
+    as 'Int',
+    where {
+        ($_ >= 0) && ($_ <= 255)
+    },
+    inline_as {
+        $_[0]->parent()->_inline_check($_[1]) . " && " .
+            $_[1] . " >= 0 && " . $_[1] . " <= 255";
+    },
+    message { "SEXP type must be a number in range 0-255" };

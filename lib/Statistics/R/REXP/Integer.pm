@@ -12,9 +12,7 @@ with 'Statistics::R::REXP::Vector';
 use overload;
 
 
-has '+sexptype' => (
-    default => 'INTSXP'
-);
+use constant sexptype => 'INTSXP';
 
 has '+elements' => (
     isa => 'IntegerElements',

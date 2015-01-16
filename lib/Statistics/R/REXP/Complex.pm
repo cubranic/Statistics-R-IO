@@ -10,9 +10,7 @@ with 'Statistics::R::REXP::Vector';
 use overload;
 
 
-has '+sexptype' => (
-    default => 'CPLXSXP'
-);
+use constant sexptype => 'CPLXSXP';
 
 has '+elements' => (
     isa => 'ComplexElements',

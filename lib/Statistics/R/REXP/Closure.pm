@@ -11,9 +11,7 @@ use namespace::clean;
 with 'Statistics::R::REXP';
 
 
-has '+sexptype' => (
-    default => 'CLOSXP'
-);
+use constant sexptype => 'CLOSXP';
 
 has args => (
     is => 'ro',

@@ -9,10 +9,7 @@ use namespace::clean;
 with 'Statistics::R::REXP';
 
 
-has '+sexptype' => (
-    default => 'NILSXP'
-);
-
+use constant sexptype => 'NILSXP';
 
 sub BUILDARGS {
     my $class = shift;
