@@ -77,6 +77,14 @@ sub is_vector {
 }
 
 
+sub inherits {
+    my ($self, $class) = @_;
+    my $attributes = $self->attributes;
+    return unless $attributes && $attributes->{'class'};
+    
+    grep {/^$class$/} @{$attributes->{'class'}->to_pl}
+}
+
 1; # End of Statistics::R::REXP
 
 __END__
@@ -136,6 +144,11 @@ class hierarchy, this is the case only for C<Statistics::REXP::Null>.
 Returns TRUE if the object is an R vector object. In C<REXP>'s class
 hierarchy, this is the case only for C<Statistics::REXP::Vector> and
 its descendants.
+
+=item inherits CLASS_NAME
+
+Returns TRUE if the object is an instance of R S3-style class
+C<CLASS_NAME>, in the same fashion as the R function C<L<base::inherits|http://stat.ethz.ch/R-manual/R-patched/library/base/html/class.html>>.
 
 =back
 
