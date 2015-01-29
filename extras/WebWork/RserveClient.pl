@@ -139,7 +139,7 @@ sub rserve_eval {
     
     rserve_start unless $rserve;
     
-    my $result = $rserve->eval($query);
+    my $result = _try_eval($rserve, $query);
     _unref_rexp($result)
 }
 
@@ -150,9 +150,23 @@ sub rserve_query {
     my $query = shift;
     $query = "set.seed($problemSeed)\n" . $query;
     my $rserve_client = Statistics::R::IO::Rserve->new(server => $Rserve->{host}, _usesocket => 1);
-    my $result = $rserve_client->eval($query);
+    my $result = _try_eval($rserve_client, $query);
     $rserve_client->close;
     _unref_rexp($result)
+}
+
+
+## Evaluates an R expression guarding it inside an R `try` function
+##
+## Returns the result as a REXP if no exceptions were raised, or
+## `die`s with the text of the exception message.
+sub _try_eval {
+    my ($rserve, $query) = @_;
+
+    my $result = $rserve->eval("try({ $query }, silent=TRUE)");
+    die $result->to_pl->[0] if $result->inherits('try-error');
+
+    $result
 }
 
 

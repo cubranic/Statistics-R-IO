@@ -11,7 +11,7 @@ my $rserve_port = 6311;
 
 if (IO::Socket::INET->new(PeerAddr => $rserve_host,
                           PeerPort => $rserve_port)) {
-    plan tests => 58;
+    plan tests => 59;
 }
 else {
     plan skip_all => "Cannot connect to Rserve server at localhost:6311";
@@ -551,6 +551,21 @@ while ( my ($name, $value) = each %{TEST_CASES()} ) {
                         $value->{desc});
     }
 }
+
+
+subtest 'R runtime errors' => sub {
+    plan tests => 2;
+    
+    like(exception {
+            rserve_eval('1+"a"')
+         }, qr/Error in 1 \+ "a" : non-numeric argument to binary operator/,
+         'rserve_eval');
+    
+    like(exception {
+            rserve_query('1+"a"')
+         }, qr/Error in 1 \+ "a" : non-numeric argument to binary operator/,
+         'rserve_query');
+};
 
 
 my $remote = rserve_start_plot();
