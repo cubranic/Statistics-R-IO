@@ -35,8 +35,13 @@ use Statistics::R::REXP::Unknown;
 
 use Math::Complex qw(cplx);
 
-use constant nan => -sin(9**9**9);
-use constant ninf => -9**9**9;
+use constant nan => unpack 'd>', pack 'H*', '7ff8000000000000';
+die 'Cannot create a known NaN value' unless
+    (1+nan eq nan) && (nan != nan);
+
+use constant ninf => unpack 'd>', pack 'H*', 'fff0000000000000';
+die 'Cannot create a known -Inf value' unless
+    (1+ninf eq ninf) && (ninf == ninf) && (ninf < 0);
 
 use constant TEST_SRC_FILE => {
     empty_clos => LenientSrcFile->new(
