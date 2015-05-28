@@ -546,7 +546,7 @@ my $rserve = Statistics::R::IO::Rserve->new(fh => $error_mock);
 
 like(exception {
     $rserve->eval('testing, please ignore')
-     }, qr/Server returned an error: 65538/,
+     }, qr/R server returned an error: 0x10002/,
     'server error');
 
 

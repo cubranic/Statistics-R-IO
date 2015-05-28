@@ -520,7 +520,7 @@ $error_mock->set_always('peerport', 6311);
 like(exception {
     evalRserve('testing, please ignore',
                $error_mock),
-     }, qr/Server returned an error: 65538/,
+     }, qr/R server returned an error: 0x10002/,
     'server error');
 
 

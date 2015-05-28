@@ -315,7 +315,7 @@ sub _send_command {
     my ($status, $length) = unpack VV => substr($response, 0, 8);
     if ($status & CMD_RESP) {
         unless ($status == RESP_OK) {
-            croak 'Server returned an error: ' . $status
+            croak 'R server returned an error: ' . sprintf("0x%X", $status)
         }
     }
     elsif ($status & CMD_OOB) {
