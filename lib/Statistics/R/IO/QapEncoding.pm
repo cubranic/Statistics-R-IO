@@ -152,13 +152,13 @@ sub sexp_data {
         # expression vector
         expsxp($object_info, $attributes)
     } elsif ($object_info->{object_type} == XT_LIST_NOTAG) {
-        # pairlist
-        die "not implemented: $object_info->{object_type}";
+        # pairlist with no tags
+        $object_info->{has_tags} = 0;
         listsxp($object_info)
     } elsif ($object_info->{object_type} == XT_LIST_TAG) {
         # pairlist with tags
         $object_info->{has_tags} = 1;
-        tagged_pairlist($object_info)
+        listsxp($object_info)
     } elsif ($object_info->{object_type} == XT_LANG_NOTAG) {
         # language without tags
         $object_info->{has_tags} = 0;
@@ -207,15 +207,21 @@ sub maybe_attributes {
 
 
 sub tagged_pairlist_to_rexp_hash {
-    my $list = shift;
-    return unless ref $list eq ref [];
+    my $list = shift or return;
+    
+    croak "Tagged element has an attribute?!"
+        if exists $list->{attributes} &&
+        grep {$_ ne 'names'} keys %{$list->{attributes}};
+    
+    my @elements = @{$list->elements};
+    my @names = @{$list->attributes->{names}->elements};
+    die 'length of tags does not match the elements' unless
+        scalar(@elements) == scalar(@names);
 
     my %rexps;
-    foreach my $element (@$list) {
-        croak "Tagged element has an attribute?!"
-            if exists $element->{attribute};
-        my $name = $element->{tag}->name;
-        $rexps{$name} = $element->{value};
+    while (my $name = shift(@names)) {
+        my $value = shift(@elements);
+        $rexps{$name} = $value;
     }
     %rexps
 }
@@ -509,6 +515,41 @@ sub tagged_pairlist {
 }
 
 
+## At the REXP level, pairlists are treated the same as generic
+## vectors, i.e., as instances of type List. Tags, if present, become
+## the name attribute.
+sub listsxp {
+    my $object_info = shift;
+    ## The `tagged_pairlist` returns an array of cons cells, and we
+    ## must separate the tags from the elements before invoking the
+    ## List constructor, with the tags becoming the names attribute
+    bind(tagged_pairlist($object_info),
+         sub {
+             my $list = shift or return;
+
+             my @elements;
+             my @names;
+             foreach my $element (@$list) {
+                 my $tag = $element->{tag};
+                 my $value = $element->{value};
+                 push @elements, $value;
+                 push @names, $tag ? $tag->name : '';
+             }
+
+             my %args = (elements => [ @elements ]);
+             ## if no element is tagged, then don't construct the
+             ## 'names' attribute
+             if (grep {exists $_->{tag}} @$list) {
+                 $args{attributes} =  {
+                     names => Statistics::R::REXP::Character->new([ @names ])
+                 };
+             }
+
+             mreturn(Statistics::R::REXP::List->new(%args))
+         })
+}
+
+
 ## Language expressions are pairlists, but with a certain structure:
 ## - the first element is the reference (name or another language
 ##   expression) to the function call
@@ -516,7 +557,7 @@ sub tagged_pairlist {
 ##   tags to name them
 sub langsxp {
     my ($object_info, $attributes) = (shift, shift);
-    ## After the pairlist has been parsed by `listsxp`, we want to
+    ## After the pairlist has been parsed by `tagged_pairlist`, we
     ## separate the tags from the elements before invoking the Language
     ## constructor, with the tags becoming the names attribute
     bind(tagged_pairlist($object_info),
