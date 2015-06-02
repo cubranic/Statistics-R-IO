@@ -273,6 +273,14 @@ use constant TEST_CASES => {
         expr => 'list(NULL)',
         value => Statistics::R::REXP::List->new( [
             Statistics::R::REXP::Null->new() ]) },
+    'pairlist_untagged' => {
+        desc => 'a pairlist with no named elements',
+        expr => 'as.pairlist(list(1L, 2L, 3L))',
+        value => Statistics::R::REXP::List->new( [
+            Statistics::R::REXP::Integer->new([ 1 ]),
+            Statistics::R::REXP::Integer->new([ 2 ]),
+            Statistics::R::REXP::Integer->new([ 3 ]),
+        ])},
     'expr_null' => {
         desc => 'expression(NULL)',
         expr => 'expression(NULL)',
