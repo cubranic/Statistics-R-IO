@@ -281,6 +281,18 @@ use constant TEST_CASES => {
             Statistics::R::REXP::Integer->new([ 2 ]),
             Statistics::R::REXP::Integer->new([ 3 ]),
         ])},
+    'pairlist_tagged' => {
+        desc => 'a pairlist with named elements',
+        expr => 'as.pairlist(list(foo=1L, 2L, c=3L))',
+        value => Statistics::R::REXP::List->new(
+            elements => [
+                Statistics::R::REXP::Integer->new([ 1 ]),
+                Statistics::R::REXP::Integer->new([ 2 ]),
+                Statistics::R::REXP::Integer->new([ 3 ]),
+            ],
+            attributes => {
+                names => Statistics::R::REXP::Character->new(['foo', '', 'c'])
+            })},
     'expr_null' => {
         desc => 'expression(NULL)',
         expr => 'expression(NULL)',
