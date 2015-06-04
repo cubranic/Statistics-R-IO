@@ -276,6 +276,7 @@ use constant TEST_CASES => {
     'pairlist_untagged' => {
         desc => 'a pairlist with no named elements',
         expr => 'as.pairlist(list(1L, 2L, 3L))',
+        skip => 'rds',
         value => Statistics::R::REXP::List->new( [
             Statistics::R::REXP::Integer->new([ 1 ]),
             Statistics::R::REXP::Integer->new([ 2 ]),
@@ -284,6 +285,7 @@ use constant TEST_CASES => {
     'pairlist_tagged' => {
         desc => 'a pairlist with named elements',
         expr => 'as.pairlist(list(foo=1L, 2L, c=3L))',
+        skip => 'rds',
         value => Statistics::R::REXP::List->new(
             elements => [
                 Statistics::R::REXP::Integer->new([ 1 ]),
