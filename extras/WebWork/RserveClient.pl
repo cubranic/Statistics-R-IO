@@ -193,12 +193,14 @@ sub rserve_start_plot {
     _rserve_warn_no_config && return unless $Rserve->{host};
     
     my $device = shift // 'png';
+    my $width = shift // 300;
+    my $height = shift // 300;
 
     die "Unsupported image type $device" unless $device =~ /^(png|pdf|jpg)$/;
     my $remote_image = (rserve_eval("tempfile(fileext='.$device')"))[0];
     
     $device =~ s/jpg/jpeg/;
-    rserve_eval("$device('$remote_image')");
+    rserve_eval("$device('$remote_image', width = $width, height = $height)");
 
     $remote_image
 }
