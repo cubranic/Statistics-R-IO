@@ -33,6 +33,8 @@ my $Rserve = {host => $rserve_host}; # fake configuration
 use File::Spec;
 use File::Path;
 use Path::Class;
+use File::Slurp qw(read_file);
+
 my $PG = Test::MockObject::Extends->new();
 
 ## return the last segment of the path
@@ -568,15 +570,29 @@ subtest 'R runtime errors' => sub {
 };
 
 
-my $remote = rserve_start_plot();
-rserve_eval('plot(1)');
-my $local = rserve_finish_plot($remote);
-ok(-e $local, 'rserve plot file');
-Path::Class::file($local)->remove;
+subtest 'Rserve plot' => sub {
+    plan tests => 2;
+    
+    my $remote = rserve_start_plot();
+    rserve_eval('plot(1)');
+    my $local = rserve_finish_plot($remote);
+    ok(-e $local, 'plot file');
+    Path::Class::file($local)->remove;
 
-$remote = (rserve_eval("file.path(system.file(package='base'), 'DESCRIPTION')"))[0];
-$local = rserve_get_file($remote);
-ok(-e $local, 'rserve plot file');
+    
+    $remote = rserve_start_plot('png', 800, 732);
+    rserve_eval('plot(1)');
+    $local = rserve_finish_plot($remote);
+        my $png_contents = read_file($local);
+    like($png_contents, qr/^.PNG\r\n.*IHDR\0\0\x03\x20\0\0\x02\xDC/s,
+         'figure dimensions');
+    Path::Class::file($local)->remove;
+};
+
+
+my $remote = (rserve_eval("file.path(system.file(package='base'), 'DESCRIPTION')"))[0];
+my $local = rserve_get_file($remote);
+ok(-e $local, 'rserve remote file');
 Path::Class::file($local)->remove;
 
 subtest 'missing configuration' => sub {
