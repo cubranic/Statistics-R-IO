@@ -569,21 +569,27 @@ subtest 'R runtime errors' => sub {
 
 
 subtest 'Rserve plot' => sub {
-    plan tests => 2;
+    plan tests => 4;
     
     my $remote = rserve_start_plot();
     rserve_eval('plot(1)');
     my $local = rserve_finish_plot($remote);
+    my $png_contents = read_file($local);
     ok(-e $local, 'plot file');
+    ok($png_contents =~ qr/^.PNG\r\n.*IHDR\0\0\x01\xE0\0\0\x01\xE0/s,
+       'default figure dimensions (480x480)') or
+           diag('True file type: ' . `file $local`);
     Path::Class::file($local)->remove;
 
     
     $remote = rserve_start_plot('png', 800, 732);
     rserve_eval('plot(1)');
     $local = rserve_finish_plot($remote);
-        my $png_contents = read_file($local);
-    like($png_contents, qr/^.PNG\r\n.*IHDR\0\0\x03\x20\0\0\x02\xDC/s,
-         'figure dimensions');
+    $png_contents = read_file($local);
+    ok(-e $local, 'plot file');
+    ok($png_contents =~ qr/^.PNG\r\n.*IHDR\0\0\x03\x20\0\0\x02\xDC/s,
+       'custom figure dimensions') or
+           diag('True file type: ' . `file $local`);
     Path::Class::file($local)->remove;
 };
 
