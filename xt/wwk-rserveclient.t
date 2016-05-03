@@ -5,9 +5,7 @@ use warnings FATAL => 'all';
 
 use Test::More;
 my $rserve_host = $ENV{RSERVE_HOST} || 'localhost';
-
-die "Specifying RSERVE_PORT is not yet supported" if $ENV{RSERVE_PORT};
-my $rserve_port = 6311;
+my $rserve_port = $ENV{RSERVE_PORT} || 6311;
 
 if (IO::Socket::INET->new(PeerAddr => $rserve_host,
                           PeerPort => $rserve_port)) {
