@@ -26,6 +26,7 @@ has fh => (
                 croak "socket: $!";
             connect($fh, sockaddr_in($self->port, inet_aton($self->server))) ||
                 croak "connect: $!";
+            bless $fh, 'IO::Handle'
         }
         else {
             $fh = IO::Socket::INET->new(PeerAddr => $self->server,
