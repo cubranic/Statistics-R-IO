@@ -3,34 +3,26 @@ package Statistics::R::REXP::EmptyEnvironment;
 
 use 5.010;
 
-use Moose;
+use Class::Tiny::Antlers;
 use namespace::clean;
 
 extends 'Statistics::R::REXP::Environment';
 
 
-has '+attributes' => (
-    trigger => sub {
-        die 'Empty environment has no attributes'
-    });
+sub BUILD {
+    my ($self, $args) = @_;
 
-has '+frame' => (
-    trigger => sub {
-        die 'Nothing can be assigned to the empty environment'
-    });
-
-has '+enclosure' => (
-    trigger => sub {
-        die 'Empty environment has no enclosure'
-    });
+    # Required attribute type
+    die 'Empty environment has no attributes' if defined $self->attributes;
+    die 'Nothing can be assigned to the empty environment' if exists $args->{frame};
+    die 'Empty environment has no enclosure' if defined $self->enclosure;
+}
 
 
-around name => sub {
+sub name {
     'R_EmptyEnv'
-};
+}
 
-
-__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::EmptyEnvironment
 

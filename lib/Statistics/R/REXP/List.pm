@@ -3,12 +3,12 @@ package Statistics::R::REXP::List;
 
 use 5.010;
 
-use Scalar::Util qw(weaken);
+use Scalar::Util qw(blessed weaken);
 
-use Moose;
+use Class::Tiny::Antlers;
 use namespace::clean;
 
-with 'Statistics::R::REXP::Vector';
+extends 'Statistics::R::REXP::Vector';
 use overload;
 
 
@@ -52,8 +52,6 @@ sub to_pl {
 
 sub _type { 'list'; }
 
-
-__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::List
 

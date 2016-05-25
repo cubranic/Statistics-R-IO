@@ -3,10 +3,10 @@ package Statistics::R::REXP::Null;
 
 use 5.010;
 
-use Moose;
+use Class::Tiny::Antlers;
 use namespace::clean;
 
-with 'Statistics::R::REXP';
+extends 'Statistics::R::REXP';
 
 
 use constant sexptype => 'NILSXP';
@@ -29,8 +29,6 @@ sub to_pl {
     undef
 }
 
-
-__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::Null
 

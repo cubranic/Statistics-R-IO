@@ -5,19 +5,31 @@ use 5.010;
 
 use Scalar::Util qw( blessed );
 
-use Moose::Role;
-
-requires qw( sexptype to_pl );
+use Class::Tiny::Antlers;
 
 has attributes => (
     is => 'ro',
-    isa => 'HashRef',
 );
 
 use overload
     eq => sub { shift->_eq(@_) },
     ne => sub { ! shift->_eq(@_) };
 
+
+sub BUILD {
+    my ($self, $args) = @_;
+
+    die "This is an abstract class and must be subclassed" if ref($self) eq __PACKAGE__;
+
+    # Required methods
+    for my $req ( qw/sexptype to_pl/ ) {
+        die "$req method required" unless $self->can($req);
+    }
+    
+    # Required attribute type
+    die 'Attribute (attributes) does not pass the type constraint' if defined $self->attributes && 
+        ref($self->attributes) ne 'HASH'
+}
 
 sub _eq {
     my ($self, $obj) = (shift, shift);
@@ -107,9 +119,9 @@ __END__
 =head1 DESCRIPTION
 
 An object of this class represents a native R object. This class
-cannot be directly instantiated (it's a L<Moose::Role>), because it is
-intended as a base abstract class with concrete subclasses to
-represent specific object types.
+cannot be directly instantiated (it will die if you call C<new> on
+it), because it is intended as a base abstract class with concrete
+subclasses to represent specific object types.
 
 An R object has a value and an optional set of named attributes, which
 themselves are R objects. Because the meaning of 'value' depends on

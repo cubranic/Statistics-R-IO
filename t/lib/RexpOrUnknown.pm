@@ -7,13 +7,12 @@ use Scalar::Util qw(blessed);
 
 use Statistics::R::REXP::Unknown;
 
-use Moose;
+use Class::Tiny::Antlers qw(-default around);
 use namespace::clean;
 
 has obj => (
     is => 'ro',
-    required => 1,
-    );
+);
 
 use overload
     '""' => sub {
@@ -39,6 +38,11 @@ sub BUILDARGS {
     else {
         return @_
     }
+}
+
+sub BUILD {
+    my ($self, $args) = (shift, shift);
+    die 'Attribute (obj) is required' unless exists $args->{obj};
 }
 
 1; # end of RexpOrUnknown

@@ -3,19 +3,15 @@ package Statistics::R::REXP::Unknown;
 
 use 5.010;
 
-use Scalar::Util qw(looks_like_number);
+use Scalar::Util qw(looks_like_number blessed);
 
-use Moose;
-use Statistics::R::REXP::Types;
+use Class::Tiny::Antlers qw(-default around);
 use namespace::clean;
 
-with 'Statistics::R::REXP';
+extends 'Statistics::R::REXP';
 
 has _sexptype => (
     is => 'ro',
-    isa => 'SexpType',
-    required => 1,
-    coerce => 1,
 );
 
 use overload
@@ -23,12 +19,14 @@ use overload
 
 sub BUILDARGS {
     my $class = shift;
+    my $attributes = {};
+    
     if ( scalar @_ == 1) {
         if ( ref $_[0] eq 'HASH' ) {
-            return $_[0]
+            $attributes = $_[0]
         }
         else {
-            return { _sexptype => $_[0] }
+            $attributes->{_sexptype} = $_[0]
         }
     }
     elsif ( @_ % 2 ) {
@@ -36,8 +34,23 @@ sub BUILDARGS {
                 . " You passed an odd number of arguments\n";
     }
     else {
-        return { @_ };
+        $attributes = { @_ };
     }
+    
+    if (blessed($attributes->{_sexptype}) &&
+        $attributes->{_sexptype}->isa('Statistics::R::REXP::Unknown')) {
+        $attributes->{_sexptype} = $attributes->{_sexptype}->sexptype
+    }
+    $attributes
+}
+
+
+sub BUILD {
+    my ($self, $args) = @_;
+
+    die 'Attribute (_sexptype) does not pass the type constraint' unless
+        looks_like_number($self->sexptype) &&
+        ($self->sexptype >= 0) && ($self->sexptype <= 255)
 }
 
 
@@ -57,8 +70,6 @@ sub to_pl {
     undef
 }
 
-
-__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::Unknown
 

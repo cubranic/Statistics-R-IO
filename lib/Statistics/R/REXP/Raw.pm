@@ -5,28 +5,41 @@ use 5.010;
 
 use Scalar::Util qw(looks_like_number);
 
-use Moose;
+use Class::Tiny::Antlers;
 use namespace::clean;
 
-with 'Statistics::R::REXP::Vector';
+extends 'Statistics::R::REXP::Vector';
 use overload;
 
 
 use constant sexptype => 'RAWSXP';
 
-has '+attributes' => (
-    trigger => sub {
-        die 'Raw vectors cannot have attributes'
-    });
-
-has '+elements' => (
-    isa => 'RawElements',
-);
-
 sub _type { 'raw'; }
 
 
-__PACKAGE__->meta->make_immutable;
+sub BUILDARGS {
+    my $class = shift;
+    my $attributes = $class->SUPER::BUILDARGS(@_);
+
+    if (ref($attributes->{elements}) eq 'ARRAY') {
+        $attributes->{elements} = [
+            map int,
+                Statistics::R::REXP::Vector::_flatten(@{$attributes->{elements}})
+        ]
+    }
+    $attributes
+}
+
+
+sub BUILD {
+    my ($self, $args) = @_;
+
+    # Required attribute type
+    die 'Raw vectors cannot have attributes' if defined $self->attributes;
+    die 'Elements of raw vectors must be 0-255' if defined $self->elements &&
+        grep { !($_ >= 0 && $_ <= 255) } @{$self->elements}
+}
+
 
 1; # End of Statistics::R::REXP::Raw
 

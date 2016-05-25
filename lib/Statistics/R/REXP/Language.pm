@@ -5,25 +5,30 @@ use 5.010;
 
 use Scalar::Util qw(blessed);
 
-use Moose;
+use Class::Tiny::Antlers;
 use namespace::clean;
 
 extends 'Statistics::R::REXP::List';
 
 use constant sexptype => 'LANGSXP';
 
-has '+elements' => (
-    isa => 'LanguageElements',
-);
+
+sub BUILD {
+    my ($self, $args) = @_;
+
+    # Required attribute type
+    die 'The first element must be a Symbol or Language' if defined $self->elements &&
+        !(blessed $self->elements->[0] &&
+              ($self->elements->[0]->isa('Statistics::R::REXP::Language') ||
+               $self->elements->[0]->isa('Statistics::R::REXP::Symbol')))
+}
 
 sub to_pl {
     Statistics::R::REXP::Vector::to_pl(@_)
 }
 
-around _type => sub { 'language' };
+sub _type { 'language' };
 
-
-__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::Language
 

@@ -3,34 +3,25 @@ package Statistics::R::REXP::BaseEnvironment;
 
 use 5.010;
 
-use Moose;
+use Class::Tiny::Antlers;
 use namespace::clean;
 
 extends 'Statistics::R::REXP::Environment';
 
 
-has '+attributes' => (
-    trigger => sub {
-        die 'Base environment has implicit attributes'
-    });
+sub BUILD {
+    my ($self, $args) = @_;
 
-has '+frame' => (
-    trigger => sub {
-        die 'Nothing can be assigned to the base environment'
-    });
+    # Required attribute type
+    die 'Base environment has implicit attributes' if defined $self->attributes;
+    die 'Nothing can be assigned to the base environment' if exists $args->{frame};
+    die 'Base environment has an implicit enclosure' if defined $self->enclosure;
+}
 
-has '+enclosure' => (
-    trigger => sub {
-        die 'Base environment has an implicit enclosure'
-    });
-
-
-around name => sub {
+sub name {
     'R_BaseEnv'
-};
+}
 
-
-__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::BaseEnvironment
 

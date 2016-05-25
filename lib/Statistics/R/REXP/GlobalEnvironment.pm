@@ -3,29 +3,24 @@ package Statistics::R::REXP::GlobalEnvironment;
 
 use 5.010;
 
-use Moose;
+use Class::Tiny::Antlers;
 use namespace::clean;
 
 extends 'Statistics::R::REXP::Environment';
 
 
-has '+attributes' => (
-    trigger => sub {
-        die 'Global environment has implicit attributes'
-    });
+sub BUILD {
+    my ($self, $args) = @_;
 
-has '+enclosure' => (
-    trigger => sub {
-        die 'Global environment has an implicit enclosure'
-    });
+    # Required attribute type
+    die 'Global environment has implicit attributes' if defined $self->attributes;
+    die 'Global environment has an implicit enclosure' if defined $self->enclosure;
+}
 
-
-around name => sub {
+sub name {
     'R_GlobalEnvironment'
-};
+}
 
-
-__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::GlobalEnvironment
 

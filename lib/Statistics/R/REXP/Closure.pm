@@ -5,10 +5,10 @@ use 5.010;
 
 use Scalar::Util qw(refaddr blessed);
 
-use Moose;
+use Class::Tiny::Antlers qw(-default around);
 use namespace::clean;
 
-with 'Statistics::R::REXP';
+extends 'Statistics::R::REXP';
 
 
 use constant sexptype => 'CLOSXP';
@@ -16,24 +16,19 @@ use constant sexptype => 'CLOSXP';
 has args => (
     is => 'ro',
     default => sub { [] },
-    isa => 'ArrayRef[Str]',
 );
 
 has defaults => (
     is => 'ro',
     default => sub { [] },
-    isa => 'ArrayRef[Maybe[Statistics::R::REXP]]',
 );
 
 has body => (
     is => 'ro',
-    required => 1,
-    isa => 'Statistics::R::REXP',
 );
 
 has environment => (
     is => 'ro',
-    isa => 'Maybe[Statistics::R::REXP::Environment]',
 );
 
 
@@ -70,8 +65,24 @@ sub BUILDARGS {
 
 
 sub BUILD {
-    my $self = shift;
+    my ($self, $args) = (shift, shift);
 
+    # Required attribute
+    die 'Attribute (body) is required' unless defined $args->{body};
+    
+    # Required attribute type
+    die 'Attribute (args) does not pass the type constraint' if ref($self->args) ne 'ARRAY' ||
+        grep { ref $_ } @{$self->args};
+    
+    die 'Attribute (defaults) does not pass the type constraint' if ref($self->defaults) ne 'ARRAY' ||
+        grep { defined($_) && ! (blessed($_) && $_->isa('Statistics::R::REXP')) } @{$self->defaults};
+    
+    die 'Attribute (body) does not pass the type constraint' unless
+        blessed($self->body) && $self->body->isa('Statistics::R::REXP');
+    
+    die 'Attribute (environment) does not pass the type constraint' if defined $self->environment &&
+        !(blessed($self->environment) && $self->environment->isa('Statistics::R::REXP::Environment'));
+    
     my $defaults_length = @{$self->defaults};
     if ($defaults_length) {
         die 'argument names don\'t match their defaults' 
@@ -83,11 +94,11 @@ around _eq => sub {
     my $orig = shift;
     return unless $orig->(@_);
     my ($self, $obj) = (shift, shift);
-    _compare_deeply($self->args, $obj->args) &&
+    Statistics::R::REXP::_compare_deeply($self->args, $obj->args) &&
         ((scalar(grep {$_} @{$self->defaults}) == scalar(grep {$_} @{$obj->defaults})) ||
-         _compare_deeply($self->defaults, $obj->defaults)) &&
-        _compare_deeply($self->body, $obj->body) &&
-        _compare_deeply($self->environment, $obj->environment)
+         Statistics::R::REXP::_compare_deeply($self->defaults, $obj->defaults)) &&
+        Statistics::R::REXP::_compare_deeply($self->body, $obj->body) &&
+        Statistics::R::REXP::_compare_deeply($self->environment, $obj->environment)
 };
 
 
@@ -95,8 +106,6 @@ sub to_pl {
     die "Closures do not have a native Perl representation"
 }
 
-
-__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::Closure
 

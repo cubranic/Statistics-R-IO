@@ -5,7 +5,7 @@ use 5.010;
 
 use Scalar::Util qw(blessed);
 
-use Moose;
+use Class::Tiny::Antlers;
 use namespace::clean;
 
 extends 'Statistics::R::REXP::List';
@@ -16,10 +16,8 @@ sub to_pl {
     Statistics::R::REXP::Vector::to_pl(@_)
 }
 
-around _type => sub { 'expression' };
+sub _type { 'expression' };
 
-
-__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::Expression
 

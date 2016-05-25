@@ -3,12 +3,11 @@ package Statistics::R::IO::ParserState;
 
 use 5.010;
 
-use Moose;
+use Class::Tiny::Antlers;
 use namespace::clean;
 
 has data => (
     is => 'ro',
-    isa => 'ArrayRef',
     default => sub { [] },
 );
 
@@ -23,14 +22,39 @@ has singletons => (
 );
 
 
-around BUILDARGS => sub {
-    my $orig = shift;
-    my $attributes = $orig->(@_);
-    my $x = $attributes->{data};
-    $attributes->{data} = (!ref($x)) ? [split //, $x] : $x;
-    $attributes
-};
+sub BUILDARGS {
+    my $class = shift;
+    my $attributes = {};
+    
+    if ( scalar @_ == 1) {
+        if ( ref $_[0] eq 'HASH' ) {
+            $attributes = $_[0]
+        }
+        else {
+            $attributes->{name} = $_[0]
+        }
+    }
+    elsif ( @_ % 2 ) {
+        die "The new() method for $class expects a hash reference or a key/value list."
+                . " You passed an odd number of arguments\n";
+    }
+    else {
+        $attributes = { @_ };
+    }
 
+    # split strings into a list of individual characters
+    if (defined $attributes->{data} && !ref($attributes->{data})) {
+        $attributes->{data} = [split //, $attributes->{data}];
+    }
+        
+    $attributes
+}
+
+sub BUILD {
+    my $self = shift;
+    
+    die 'foo' unless ref($self->data) eq 'ARRAY'
+}
 
 sub at {
     my $self = shift;
@@ -66,8 +90,6 @@ sub eof {
 }
 
     
-__PACKAGE__->meta->make_immutable;
-
 1;
 
 __END__

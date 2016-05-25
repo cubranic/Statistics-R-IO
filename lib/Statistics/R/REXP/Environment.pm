@@ -5,10 +5,10 @@ use 5.010;
 
 use Scalar::Util qw(refaddr blessed);
 
-use Moose;
+use Class::Tiny::Antlers qw(-default around);
 use namespace::clean;
 
-with 'Statistics::R::REXP';
+extends 'Statistics::R::REXP';
 
 use constant sexptype => 'ENVSXP';
 
@@ -17,12 +17,10 @@ has frame => (
     default => sub {
         { }
     },
-    isa => 'HashRef[Statistics::R::REXP]',
 );
 
 has enclosure => (
     is => 'ro',
-    isa => 'Maybe[Statistics::R::REXP::Environment]',
 );
 
 
@@ -52,12 +50,25 @@ sub BUILDARGS {
     }
 }
 
+
+sub BUILD {
+    my ($self, $args) = @_;
+
+    # Required attribute type
+    die 'Attribute (frame) does not pass the type constraint' if ref($self->frame) ne 'HASH' ||
+        grep { ! (blessed($_) && $_->isa('Statistics::R::REXP')) } values(%{$self->frame});
+    
+    die 'Attribute (enclosure) does not pass the type constraint' if defined $self->enclosure &&
+        !(blessed($self->enclosure) && $self->enclosure->isa('Statistics::R::REXP::Environment'));
+}
+
+
 around _eq => sub {
     my $orig = shift;
     return unless $orig->(@_);
     my ($self, $obj) = (shift, shift);
-    _compare_deeply($self->frame, $obj->frame) &&
-        _compare_deeply($self->enclosure, $obj->enclosure)
+    Statistics::R::REXP::_compare_deeply($self->frame, $obj->frame) &&
+        Statistics::R::REXP::_compare_deeply($self->enclosure, $obj->enclosure)
 };
 
 
@@ -73,8 +84,6 @@ sub to_pl {
     die "Environments do not have a native Perl representation"
 }
 
-
-__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::Environment
 

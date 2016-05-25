@@ -5,7 +5,7 @@ use 5.010;
 
 use Scalar::Util qw(looks_like_number);
 
-use Moose;
+use Class::Tiny::Antlers qw(-default around);
 use namespace::clean;
 
 extends 'Statistics::R::REXP::Environment';

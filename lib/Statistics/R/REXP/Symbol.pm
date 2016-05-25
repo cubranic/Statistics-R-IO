@@ -5,20 +5,18 @@ use 5.010;
 
 use Scalar::Util qw(blessed);
 
-use Moose;
-use Statistics::R::REXP::Types;
+use Class::Tiny::Antlers qw(-default around);
+#use Statistics::R::REXP::Types;
 use namespace::clean;
 
-with 'Statistics::R::REXP';
+extends 'Statistics::R::REXP';
 
 
 use constant sexptype => 'SYMSXP';
 
 has name => (
     is => 'ro',
-    isa => 'SymbolName',
     default => '',
-    coerce => 1,
 );
 
 use overload
@@ -26,12 +24,14 @@ use overload
 
 sub BUILDARGS {
     my $class = shift;
+    my $attributes = {};
+    
     if ( scalar @_ == 1) {
         if ( ref $_[0] eq 'HASH' ) {
-            return $_[0]
+            $attributes = $_[0]
         }
         else {
-            return { name => $_[0] }
+            $attributes->{name} = $_[0]
         }
     }
     elsif ( @_ % 2 ) {
@@ -39,10 +39,21 @@ sub BUILDARGS {
                 . " You passed an odd number of arguments\n";
     }
     else {
-        return { @_ };
+        $attributes = { @_ };
     }
+    
+    if (blessed($attributes->{name}) &&
+        $attributes->{name}->isa('Statistics::R::REXP::Symbol')) {
+        $attributes->{name} = $attributes->{name}->name
+    }
+    $attributes
 }
 
+sub BUILD {
+    my ($self, $args) = @_;
+
+    die 'Attribute (name) does not pass the type constraint' unless ref(\$self->name) eq 'SCALAR'
+}
 
 around _eq => sub {
     my $orig = shift;
@@ -55,8 +66,6 @@ sub to_pl {
     $self->name
 }
 
-
-__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::Symbol
 

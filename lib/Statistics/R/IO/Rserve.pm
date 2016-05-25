@@ -3,14 +3,14 @@ package Statistics::R::IO::Rserve;
 
 use 5.010;
 
-use Moose;
+use Class::Tiny::Antlers;
 
 use Statistics::R::IO::REXPFactory;
 use Statistics::R::IO::QapEncoding;
 
 use Socket;
 use IO::Socket::INET ();
-use Scalar::Util qw(blessed looks_like_number);
+use Scalar::Util qw(blessed looks_like_number openhandle);
 use Carp;
 
 use namespace::clean;
@@ -18,7 +18,6 @@ use namespace::clean;
 
 has fh => (
     is => 'ro',
-    lazy => 1,
     default => sub {
         my $self = shift;
         my $fh;
@@ -43,31 +42,26 @@ has fh => (
             substr($response, 0, 12) eq 'Rsrv0103QAP1';
         $fh
     },
-    isa => 'FileHandle',
 );
 
 has server => (
     is => 'ro',
-    isa => 'Str',
     default => 'localhost',
 );
 
 has port => (
     is => 'ro',
     default => 6311,
-    isa => 'Int',
 );
 
 
 has _autoclose => (
     is => 'ro',
-    writer => "_set_autoclose",
 );
 
 
 has _autoflush => (
     is => 'ro',
-    lazy => 1,
     default => sub {
         my $self = shift;
         $self->_usesocket ? 1 : 0
@@ -191,6 +185,21 @@ sub BUILDARGS {
 }
 
 
+sub BUILD {
+    my ($self, $args) = @_;
+
+    # Required attribute types
+    die 'Attribute (fh) does not pass the type constraint' if
+        defined($args->{fh}) &&
+        !((ref($args->{fh}) eq "GLOB" && Scalar::Util::openhandle($args->{fh})) ||
+         (blessed($args->{fh}) && $args->{fh}->isa("IO::Handle")));
+    die 'Attribute (server) does not pass the type constraint' if
+        exists($args->{server}) && (!defined($args->{server}) || ref($args->{server}));
+    die 'Attribute (port) does not pass the type constraint' unless
+        looks_like_number($self->port) && (int($self->port) == $self->port);
+}
+
+
 ## Extracts host address and port from the given socket handle (either
 ## as an object or a "classic" socket)
 sub _fh_host_port {
@@ -203,6 +212,13 @@ sub _fh_host_port {
         return ($fh->peerhost, $fh->peerport)
     }
     return undef
+}
+
+
+## Private setter for autoclose used in the default handler of 'fh'
+sub _set_autoclose {
+    my $self = shift;
+    $self->{_autoclose} = shift
 }
 
 
@@ -353,8 +369,6 @@ sub DEMOLISH {
     $self->close if $self->_autoclose
 }
 
-
-__PACKAGE__->meta->make_immutable;
 
 1;
 

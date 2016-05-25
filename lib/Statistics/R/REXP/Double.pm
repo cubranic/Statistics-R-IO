@@ -5,24 +5,40 @@ use 5.010;
 
 use Scalar::Util qw(looks_like_number);
 
-use Moose;
+use Class::Tiny::Antlers;
 use namespace::clean;
 
-with 'Statistics::R::REXP::Vector';
+extends 'Statistics::R::REXP::Vector';
 use overload;
 
 
 use constant sexptype => 'REALSXP';
 
-has '+elements' => (
-    isa => 'DoubleElements',
-);
-
-
 sub _type { 'double'; }
 
 
-__PACKAGE__->meta->make_immutable;
+sub BUILDARGS {
+    my $class = shift;
+    my $attributes = $class->SUPER::BUILDARGS(@_);
+
+    if (ref($attributes->{elements}) eq 'ARRAY') {
+        $attributes->{elements} = [
+            map { looks_like_number($_) ? $_ : undef }
+                Statistics::R::REXP::Vector::_flatten(@{$attributes->{elements}})
+        ]
+    }
+    $attributes
+}
+
+
+sub BUILD {
+    my ($self, $args) = @_;
+
+    # Required attribute type
+    die 'Attribute (elements) does not pass the type constraint' if defined($self->elements) &&
+        grep { defined($_) && !looks_like_number($_) } @{$self->elements}
+}
+
 
 1; # End of Statistics::R::REXP::Double
 

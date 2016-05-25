@@ -3,18 +3,44 @@ package Statistics::R::REXP::Complex;
 
 use 5.010;
 
-use Moose;
+use Scalar::Util qw(blessed looks_like_number);
+use Math::Complex qw();
+
+use Class::Tiny::Antlers qw(-default around);
 use namespace::clean;
 
-with 'Statistics::R::REXP::Vector';
+extends 'Statistics::R::REXP::Vector';
 use overload;
 
 
 use constant sexptype => 'CPLXSXP';
 
-has '+elements' => (
-    isa => 'ComplexElements',
-    );
+
+sub BUILDARGS {
+    my $class = shift;
+    my $attributes = $class->SUPER::BUILDARGS(@_);
+
+    if (ref($attributes->{elements}) eq 'ARRAY') {
+        $attributes->{elements} = [
+            map { (blessed($_) && $_->isa('Math::Complex')) ? $_ :
+                      looks_like_number $_ ? Math::Complex::cplx($_) :
+                          undef }
+                Statistics::R::REXP::Vector::_flatten(@{$attributes->{elements}})
+        ]
+    }
+    $attributes
+}
+
+
+sub BUILD {
+    my ($self, $args) = @_;
+
+    # Required attribute type
+    die 'Attribute (elements) does not pass the type constraint' if defined $self->elements &&
+        grep { defined($_) && !(blessed($_) && $_->isa('Math::Complex') ||
+                   Scalar::Util::looks_like_number($_)) }
+             @{$self->elements}
+}
 
 
 around _eq => sub {
@@ -44,8 +70,6 @@ around _eq => sub {
 
 sub _type { 'complex'; }
 
-
-__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::Complex
 
