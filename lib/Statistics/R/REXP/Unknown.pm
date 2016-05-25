@@ -20,11 +20,37 @@ has _sexptype => (
 use overload
     '""' => sub { 'Unknown' };
 
+sub BUILDARGS {
+    my $class = shift;
+    if ( scalar @_ == 1) {
+        if ( ref $_[0] eq 'HASH' ) {
+            return $_[0]
+        }
+        else {
+            return { _sexptype => $_[0] }
+        }
+    }
+    elsif ( @_ % 2 ) {
+        die "The new() method for $class expects a hash reference or a key/value list."
+                . " You passed an odd number of arguments\n";
+    }
+    else {
+        return { @_ };
+    }
+}
+
+
 sub sexptype {
     my $self = shift;
 
     $self->_sexptype
 }
+
+around _eq => sub {
+    my $orig = shift;
+    $orig->(@_) and ($_[0]->sexptype eq $_[1]->sexptype);
+};
+
 
 sub to_pl {
     undef
