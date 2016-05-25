@@ -263,7 +263,7 @@ sub nosxp {
          sub {
              my $sexp_id = shift or return;
 
-             my %args = (_sexptype => $sexp_id);
+             my %args = (sexptype => $sexp_id);
              if ($attributes) {
                  $args{attributes} = $attributes
              }

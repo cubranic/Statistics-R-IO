@@ -10,7 +10,7 @@ use namespace::clean;
 
 extends 'Statistics::R::REXP';
 
-has _sexptype => (
+has sexptype => (
     is => 'ro',
 );
 
@@ -26,7 +26,7 @@ sub BUILDARGS {
             $attributes = $_[0]
         }
         else {
-            $attributes->{_sexptype} = $_[0]
+            $attributes->{sexptype} = $_[0]
         }
     }
     elsif ( @_ % 2 ) {
@@ -37,9 +37,9 @@ sub BUILDARGS {
         $attributes = { @_ };
     }
     
-    if (blessed($attributes->{_sexptype}) &&
-        $attributes->{_sexptype}->isa('Statistics::R::REXP::Unknown')) {
-        $attributes->{_sexptype} = $attributes->{_sexptype}->sexptype
+    if (blessed($attributes->{sexptype}) &&
+        $attributes->{sexptype}->isa('Statistics::R::REXP::Unknown')) {
+        $attributes->{sexptype} = $attributes->{sexptype}->sexptype
     }
     $attributes
 }
@@ -48,17 +48,11 @@ sub BUILDARGS {
 sub BUILD {
     my ($self, $args) = @_;
 
-    die 'Attribute (_sexptype) does not pass the type constraint' unless
+    die 'Attribute (sexptype) does not pass the type constraint' unless
         looks_like_number($self->sexptype) &&
         ($self->sexptype >= 0) && ($self->sexptype <= 255)
 }
 
-
-sub sexptype {
-    my $self = shift;
-
-    $self->_sexptype
-}
 
 around _eq => sub {
     my $orig = shift;

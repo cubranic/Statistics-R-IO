@@ -457,7 +457,7 @@ check_rserve_eval(
                                     class => Statistics::R::REXP::Character->new([
                                         'terms', 'formula'
                                                                                  ]),
-                                        '.Environment' => Statistics::R::REXP::Unknown->new(_sexptype => 4),
+                                        '.Environment' => Statistics::R::REXP::Unknown->new(sexptype => 4),
                                         predvars => Statistics::R::REXP::Language->new(
                                             elements => [
                                                 Statistics::R::REXP::Symbol->new('list'),
@@ -512,7 +512,7 @@ check_rserve_eval(
                                                 class => Statistics::R::REXP::Character->new([
                                                     'terms', 'formula'
                                                                                              ]),
-                                                    '.Environment' => Statistics::R::REXP::Unknown->new(_sexptype => 4),
+                                                    '.Environment' => Statistics::R::REXP::Unknown->new(sexptype => 4),
                                                     predvars => Statistics::R::REXP::Language->new(
                                                         elements => [
                                                             Statistics::R::REXP::Symbol->new('list'),
