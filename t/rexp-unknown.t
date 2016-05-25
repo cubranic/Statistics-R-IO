@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 19;
+use Test::More tests => 20;
 use Test::Fatal;
 
 use Statistics::R::REXP::Unknown;
@@ -14,6 +14,7 @@ is($unk, $unk, 'self equality');
 
 my $unk_2 = Statistics::R::REXP::Unknown->new(_sexptype => 42);
 is($unk, $unk_2, 'unknown equality');
+is(Statistics::R::REXP::Unknown->new($unk_2), $unk, 'copy constructor');
 is(Statistics::R::REXP::Unknown->new(42), $unk, 'scalar constructor');
 
 ## error checking in constructor arguments

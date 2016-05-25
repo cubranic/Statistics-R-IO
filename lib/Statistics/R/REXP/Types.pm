@@ -218,6 +218,8 @@ coerce 'SymbolName',
 
 
 ## Used by Unknown
+class_type 'Statistics::R::REXP::Unknown';
+
 subtype 'SexpType',
     as 'Int',
     where {
@@ -228,3 +230,7 @@ subtype 'SexpType',
             $_[1] . " >= 0 && " . $_[1] . " <= 255";
     },
     message { "SEXP type must be a number in range 0-255" };
+
+coerce 'SexpType',
+    from 'Statistics::R::REXP::Unknown',
+    via { $_->sexptype };

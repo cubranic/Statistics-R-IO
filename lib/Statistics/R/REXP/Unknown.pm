@@ -15,6 +15,7 @@ has _sexptype => (
     is => 'ro',
     isa => 'SexpType',
     required => 1,
+    coerce => 1,
 );
 
 use overload
