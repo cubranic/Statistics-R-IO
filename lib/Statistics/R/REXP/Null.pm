@@ -75,8 +75,6 @@ returns C<undef>.
 
 =back
 
-=for Pod::Coverage BUILDARGS is_null
-
 
 =head1 BUGS AND LIMITATIONS
 
@@ -90,5 +88,8 @@ L<Statistics::R::IO> for bug reporting.
 =head1 SUPPORT
 
 See L<Statistics::R::IO> for support and contact information.
+
+
+=for Pod::Coverage BUILDARGS is_null
 
 =cut

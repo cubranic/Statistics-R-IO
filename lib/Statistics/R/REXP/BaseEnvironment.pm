@@ -63,8 +63,6 @@ Just as in R, the name of the BaseEnvironment is "R_BaseEnv".
 
 =back
 
-=for Pod::Coverage BUILD
-
 
 =head1 BUGS AND LIMITATIONS
 
@@ -78,5 +76,7 @@ L<Statistics::R::IO> for bug reporting.
 =head1 SUPPORT
 
 See L<Statistics::R::IO> for support and contact information.
+
+=for Pod::Coverage BUILD
 
 =cut

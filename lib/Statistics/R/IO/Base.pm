@@ -165,8 +165,6 @@ when the object is destroyed.
 
 =back
 
-=for Pod::Coverage BUILDARGS DEMOLISH
-
 
 =head1 BUGS AND LIMITATIONS
 
@@ -181,5 +179,7 @@ L<Statistics::R::IO> for bug reporting.
 
 See L<Statistics::R::IO> for support and contact information.
 
+
+=for Pod::Coverage BUILDARGS DEMOLISH
 
 =cut

@@ -144,8 +144,6 @@ Human-friendly description of the vector type (e.g., "double" vs.
 
 =back
 
-=for Pod::Coverage BUILDARGS BUILD is_vector
-
 
 =head1 BUGS AND LIMITATIONS
 
@@ -159,5 +157,8 @@ L<Statistics::R::IO> for bug reporting.
 =head1 SUPPORT
 
 See L<Statistics::R::IO> for support and contact information.
+
+
+=for Pod::Coverage BUILDARGS BUILD is_vector
 
 =cut

@@ -160,8 +160,6 @@ call this access will raise an exception.
 
 =back
 
-=for Pod::Coverage BUILDARGS BUILD
-
 
 =head1 BUGS AND LIMITATIONS
 
@@ -175,5 +173,8 @@ L<Statistics::R::IO> for bug reporting.
 =head1 SUPPORT
 
 See L<Statistics::R::IO> for support and contact information.
+
+
+=for Pod::Coverage BUILDARGS BUILD
 
 =cut
