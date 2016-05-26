@@ -95,4 +95,6 @@ L<Statistics::R::IO> for bug reporting.
 
 See L<Statistics::R::IO> for support and contact information.
 
+=for Pod::Coverage BUILD
+
 =cut

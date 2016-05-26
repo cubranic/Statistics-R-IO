@@ -493,7 +493,7 @@ constructor, but not if it was passed in as a pre-opened handle.
 
 =back
 
-=for Pod::Coverage BUILDARGS DEMOLISH
+=for Pod::Coverage BUILDARGS BUILD DEMOLISH
 =for Pod::Coverage CMD_OCcall CMD_OCinit CMD_OOB CMD_RESP CMD_SPECIAL_MASK CMD_assignSEXP
 CMD_attachSession CMD_closeFile CMD_createFile CMD_ctrl CMD_ctrlEval
 CMD_ctrlShutdown CMD_ctrlSource CMD_detachSession CMD_detachedVoidEval

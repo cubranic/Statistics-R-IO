@@ -108,6 +108,8 @@ SEXPTYPE of complex vectors is C<CPLXSXP>.
 
 =back
 
+=for Pod::Coverage BUILDARGS BUILD
+
 
 =head1 BUGS AND LIMITATIONS
 

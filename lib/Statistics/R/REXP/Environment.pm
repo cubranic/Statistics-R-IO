@@ -160,7 +160,7 @@ call this access will raise an exception.
 
 =back
 
-=for Pod::Coverage BUILDARGS
+=for Pod::Coverage BUILDARGS BUILD
 
 
 =head1 BUGS AND LIMITATIONS

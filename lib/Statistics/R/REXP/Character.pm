@@ -74,6 +74,8 @@ SEXPTYPE of character vectors is C<STRSXP>.
 
 =back
 
+=for Pod::Coverage BUILDARGS BUILD is_vector
+
 
 =head1 BUGS AND LIMITATIONS
 

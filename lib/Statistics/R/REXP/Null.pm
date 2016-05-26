@@ -75,7 +75,7 @@ returns C<undef>.
 
 =back
 
-=for Pod::Coverage is_null
+=for Pod::Coverage BUILDARGS is_null
 
 
 =head1 BUGS AND LIMITATIONS

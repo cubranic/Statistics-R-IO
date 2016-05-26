@@ -63,6 +63,8 @@ Just as in R, the name of the BaseEnvironment is "R_BaseEnv".
 
 =back
 
+=for Pod::Coverage BUILD
+
 
 =head1 BUGS AND LIMITATIONS
 

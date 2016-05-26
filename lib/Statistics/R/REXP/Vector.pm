@@ -137,10 +137,14 @@ Perl value of the language vector is an array reference to the Perl
 values of its C<elements>. (That is, it's equivalent to C<map
 {$_->to_pl}, $vec->elements>.)
 
+=item type
+
+Human-friendly description of the vector type (e.g., "double" vs.
+"list"). For the true R type, use L<sexptype>.
 
 =back
 
-=for Pod::Coverage BUILDARGS is_vector
+=for Pod::Coverage BUILDARGS BUILD is_vector
 
 
 =head1 BUGS AND LIMITATIONS
