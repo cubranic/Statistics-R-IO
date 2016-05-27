@@ -27,6 +27,7 @@ use Statistics::R::REXP::Symbol;
 use Statistics::R::REXP::Null;
 use Statistics::R::REXP::GlobalEnvironment;
 use Statistics::R::REXP::Unknown;
+use Statistics::R::REXP::S4;
 
 use Carp;
 
@@ -176,6 +177,9 @@ sub sexp_data {
     } elsif ($object_info->{object_type} == XT_UNKNOWN) {
         # unknown
         nosxp($object_info, $attributes)
+    } elsif ($object_info->{object_type} == XT_S4) {
+        # unknown
+        s4sxp($object_info, $attributes)
     } else {
         error "unimplemented XT_TYPE: " . $object_info->{object_type}
     }
@@ -243,6 +247,24 @@ sub tagged_pairlist_to_attribute_hash {
     %rexp_hash
 }
 
+
+sub s4sxp {
+    my ($object_info, $attributes) = (shift, shift);
+    my $class = $attributes->{class}->elements;
+    croak "S4 'class' must be a single-element array" unless
+        ref($class) eq 'ARRAY' && scalar(@{$class}) == 1;
+    my $package = $attributes->{class}->attributes->{package}->elements;
+    croak "S4 'package' must be a single-element array" unless
+        ref($package) eq 'ARRAY' && scalar(@{$package}) == 1;
+    
+    # the remaining attributes should be object's slots
+    delete $attributes->{class};
+    my $slots = $attributes;
+    
+    mreturn(Statistics::R::REXP::S4->new(class => $class->[0],
+                                         package => $package->[0],
+                                         slots => $slots))
+}
 
 sub symsxp {
     my $object_info = shift;
