@@ -27,7 +27,7 @@ is(Statistics::R::REXP::Double->new(Statistics::R::REXP::List->new([3.3, [4.7, 1
 ## error checking in constructor arguments
 like(exception {
         Statistics::R::REXP::Double->new(sub {1+1})
-     }, qr/Attribute \(elements\) does not pass the type constraint/,
+     }, qr/Attribute 'elements' must be an array reference/,
      'error-check in single-arg constructor');
 like(exception {
         Statistics::R::REXP::Double->new(1, 2, 3)
@@ -35,7 +35,7 @@ like(exception {
      'odd constructor arguments');
 like(exception {
         Statistics::R::REXP::Double->new(elements => {foo => 1, bar => 2})
-     }, qr/Attribute \(elements\) does not pass the type constraint/,
+     }, qr/Attribute 'elements' must be an array reference/,
      'bad elements argument');
 
 my $another_vec = Statistics::R::REXP::Double->new(elements => [3, 4.7, 11]);

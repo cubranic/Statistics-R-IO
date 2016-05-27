@@ -55,7 +55,7 @@ sub BUILD {
     }
     
     # Required attribute type
-    die 'Attribute (elements) does not pass the type constraint' if defined $self->elements &&
+    die "Attribute 'elements' must be an array reference" if defined $self->elements &&
         ref($self->elements) ne 'ARRAY'
 }
 

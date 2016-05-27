@@ -35,7 +35,7 @@ sub BUILD {
     my ($self, $args) = @_;
 
     # Required attribute type
-    die 'Attribute (elements) does not pass the type constraint' if defined $self->elements &&
+    die "Elements of the 'elements' attribute must be integers" if defined $self->elements &&
         grep { defined($_) && !(looks_like_number($_) && int($_) == $_) } @{$self->elements}
 }
 

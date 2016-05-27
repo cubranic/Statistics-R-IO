@@ -32,7 +32,7 @@ is(Statistics::R::REXP::Expression->new(Statistics::R::REXP::List->new([Statisti
 ## error checking in constructor arguments
 like(exception {
         Statistics::R::REXP::Expression->new(sub {1+1})
-     }, qr/Attribute \(elements\) does not pass the type constraint/,
+     }, qr/Attribute 'elements' must be an array reference/,
      'error-check in single-arg constructor');
 like(exception {
         Statistics::R::REXP::Expression->new(1, 2, 3)
@@ -40,7 +40,7 @@ like(exception {
      'odd constructor arguments');
 like(exception {
         Statistics::R::REXP::Expression->new(elements => {foo => 1, bar => 2})
-     }, qr/Attribute \(elements\) does not pass the type constraint/,
+     }, qr/Attribute 'elements' must be an array reference/,
      'bad elements argument');
 
 my $another_expression = Statistics::R::REXP::Expression->new([Statistics::R::REXP::Symbol->new('bla'), 4, 11.2]);

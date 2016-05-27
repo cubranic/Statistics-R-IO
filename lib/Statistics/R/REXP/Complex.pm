@@ -36,7 +36,8 @@ sub BUILD {
     my ($self, $args) = @_;
 
     # Required attribute type
-    die 'Attribute (elements) does not pass the type constraint' if defined $self->elements &&
+    die "Elements of the 'elements' attribute must be scalar numbers or instances of Math::Complex" if 
+        defined $self->elements &&
         grep { defined($_) && !(blessed($_) && $_->isa('Math::Complex') ||
                    Scalar::Util::looks_like_number($_)) }
              @{$self->elements}

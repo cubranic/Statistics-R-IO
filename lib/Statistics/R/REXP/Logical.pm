@@ -33,7 +33,7 @@ sub BUILD {
     my ($self, $args) = @_;
 
     # Required attribute type
-    die 'Attribute (elements) does not pass the type constraint' if defined $self->elements &&
+    die "Elements of the 'elements' attribute must be 0, 1, or undef" if defined $self->elements &&
         grep { defined($_) && ($_ != 1 && $_ != 0) } @{$self->elements}
 }
 

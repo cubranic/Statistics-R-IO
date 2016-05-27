@@ -29,7 +29,7 @@ is(Statistics::R::REXP::List->new(Statistics::R::REXP::Double->new([3.3, 4, 11])
 ## error checking in constructor arguments
 like(exception {
         Statistics::R::REXP::List->new(sub {1+1})
-     }, qr/Attribute \(elements\) does not pass the type constraint/,
+     }, qr/Attribute 'elements' must be an array reference/,
      'error-check in single-arg constructor');
 like(exception {
         Statistics::R::REXP::List->new(1, 2, 3)
@@ -37,7 +37,7 @@ like(exception {
      'odd constructor arguments');
 like(exception {
         Statistics::R::REXP::List->new(elements => {foo => 1, bar => 2})
-     }, qr/Attribute \(elements\) does not pass the type constraint/,
+     }, qr/Attribute 'elements' must be an array reference/,
      'bad elements argument');
 
 my $another_list = Statistics::R::REXP::List->new(elements => [3.3, 4, 10.9]);

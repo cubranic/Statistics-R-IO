@@ -32,7 +32,7 @@ like(exception {
      'error-check in empty vec constructor');
 like(exception {
         Statistics::R::REXP::Language->new(sub {1+1})
-     }, qr/Attribute \(elements\) does not pass the type constraint/,
+     }, qr/Attribute 'elements' must be an array reference/,
      'error-check in single-arg constructor');
 like(exception {
         Statistics::R::REXP::Language->new(1, 2, 3)
@@ -44,7 +44,7 @@ like(exception {
      'bad call argument');
 like(exception {
         Statistics::R::REXP::Language->new(elements => {foo => 1, bar => 2})
-     }, qr/Attribute \(elements\) does not pass the type constraint/,
+     }, qr/Attribute 'elements' must be an array reference/,
      'bad elements argument');
 
 my $another_language = Statistics::R::REXP::Language->new([Statistics::R::REXP::Symbol->new('bla'), 4, 11.2]);

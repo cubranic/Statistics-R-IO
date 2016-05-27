@@ -32,7 +32,7 @@ sub BUILD {
     my ($self, $args) = @_;
 
     # Required attribute type
-    die 'Attribute (elements) does not pass the type constraint' if defined($self->elements) &&
+    die "Elements of the 'elements' attribute must be scalar values" if defined($self->elements) &&
         grep { ref($_) } @{$self->elements}
 }
 
