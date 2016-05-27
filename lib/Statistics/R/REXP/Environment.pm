@@ -55,10 +55,10 @@ sub BUILD {
     my ($self, $args) = @_;
 
     # Required attribute type
-    die 'Attribute (frame) does not pass the type constraint' if ref($self->frame) ne 'HASH' ||
+    die "Attribute 'frame' must be a reference to a hash of REXPs" if ref($self->frame) ne 'HASH' ||
         grep { ! (blessed($_) && $_->isa('Statistics::R::REXP')) } values(%{$self->frame});
     
-    die 'Attribute (enclosure) does not pass the type constraint' if defined $self->enclosure &&
+    die "Attribute 'enclosure' must be an instance of Environment" if defined $self->enclosure &&
         !(blessed($self->enclosure) && $self->enclosure->isa('Statistics::R::REXP::Environment'));
 }
 
