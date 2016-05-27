@@ -522,13 +522,13 @@ like(exception {
 ## bad arguments to new
 like(exception {
     Statistics::R::IO::RDS->new
-     }, qr/Attribute \(fh\) is required/, 'new with no args');
+     }, qr/Attribute 'fh' is required/, 'new with no args');
 like(exception {
     Statistics::R::IO::RDS->new([])
      }, qr/Single parameters to new/, 'new with array ref');
 like(exception {
     Statistics::R::IO::RDS->new(fh => [])
-     }, qr/Attribute \(fh\) does not pass the type constraint/,
+     }, qr/Attribute 'fh' must be an instance of IO::Handle or an open filehandle/,
      'bad fh');
 
 

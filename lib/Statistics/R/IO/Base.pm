@@ -11,14 +11,11 @@ use IO::Uncompress::Bunzip2 ();
 use Scalar::Util qw(blessed);
 use Carp;
 
-use Moose::Role;
+use Class::Tiny::Antlers;
 
-requires qw( read );
 
 has fh => (
     is => 'ro',
-    required => 1,
-    isa => 'FileHandle',
 );
 
 
@@ -47,6 +44,23 @@ sub BUILDARGS {
     }
 }
 
+
+sub BUILD {
+    my ($self, $args) = @_;
+
+    die "This is an abstract class and must be subclassed" if ref($self) eq __PACKAGE__;
+
+    # Required methods
+    die "'read' method required" unless $self->can('read');
+
+    # Required attribute types
+    die "Attribute 'fh' is required" unless defined($args->{fh});
+    
+    die "Attribute 'fh' must be an instance of IO::Handle or an open filehandle" if
+        defined($args->{fh}) &&
+        !((ref($args->{fh}) eq "GLOB" && Scalar::Util::openhandle($args->{fh})) ||
+         (blessed($args->{fh}) && $args->{fh}->isa("IO::Handle")));
+}
 
 sub _read_and_uncompress {
     my $self = shift;
@@ -110,9 +124,9 @@ __END__
 =head1 DESCRIPTION
 
 An object of this class represents a handle to an R-related file. This
-class cannot be directly instantiated (it's a L<Moose::Role>), because
-it is intended as a base abstract class with concrete subclasses to
-parse specific types of files, such as RDS or RData.
+class cannot be directly instantiated (it will die if you call C<new>
+on it), because it is intended as a base abstract class with concrete
+subclasses to parse specific types of files, such as RDS or RData.
 
 
 =head1 METHODS
@@ -180,6 +194,6 @@ L<Statistics::R::IO> for bug reporting.
 See L<Statistics::R::IO> for support and contact information.
 
 
-=for Pod::Coverage BUILDARGS DEMOLISH
+=for Pod::Coverage BUILDARGS BUILD DEMOLISH
 
 =cut

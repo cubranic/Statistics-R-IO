@@ -222,7 +222,11 @@ Requires perl 5.010 or newer.
 
 =over
 
-=item * Moose
+=item * Class::Tiny
+
+=item * Class::Tiny::Antlers
+
+=item * Class::Method::Modifiers
 
 =item * namespace::clean
 

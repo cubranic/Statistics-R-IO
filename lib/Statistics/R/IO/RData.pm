@@ -3,9 +3,9 @@ package Statistics::R::IO::RData;
 
 use 5.010;
 
-use Moose;
+use Class::Tiny::Antlers;
 
-with 'Statistics::R::IO::Base';
+extends 'Statistics::R::IO::Base';
 
 use Statistics::R::IO::REXPFactory;
 use Carp;
@@ -30,8 +30,6 @@ sub read {
 }
 
     
-__PACKAGE__->meta->make_immutable;
-
 1;
 
 __END__
