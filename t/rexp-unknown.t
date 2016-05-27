@@ -20,7 +20,7 @@ is(Statistics::R::REXP::Unknown->new(42), $unk, 'scalar constructor');
 ## error checking in constructor arguments
 like(exception {
         Statistics::R::REXP::Unknown->new([1, 2, 3])
-     }, qr/Attribute \(sexptype\) does not pass the type constraint/,
+     }, qr/Attribute 'sexptype' must be a number in range 0-255/,
      'error-check in single-arg constructor');
 like(exception {
         Statistics::R::REXP::Unknown->new(1, 2, 3)
@@ -28,7 +28,7 @@ like(exception {
      'odd constructor arguments');
 like(exception {
         Statistics::R::REXP::Unknown->new(sexptype => [1, 2, 3])
-     }, qr/Attribute \(sexptype\) does not pass the type constraint/,
+     }, qr/Attribute 'sexptype' must be a number in range 0-255/,
      'bad name argument');
 
 my $unk_foo = Statistics::R::REXP::Unknown->new(sexptype => 100);

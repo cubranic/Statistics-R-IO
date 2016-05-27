@@ -48,7 +48,7 @@ sub BUILDARGS {
 sub BUILD {
     my ($self, $args) = @_;
 
-    die 'Attribute (sexptype) does not pass the type constraint' unless
+    die "Attribute 'sexptype' must be a number in range 0-255" unless
         looks_like_number($self->sexptype) &&
         ($self->sexptype >= 0) && ($self->sexptype <= 255)
 }
