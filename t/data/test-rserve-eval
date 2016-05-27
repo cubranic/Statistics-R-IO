@@ -2,11 +2,19 @@
 
 test_eval <- function(c, expr_name, expr_text) {
     expr <- c(charToRaw(expr_text), as.raw(0))
-    stopifnot(length(expr) <= 250)
+    request <- if (length(expr) <= 251) {
+        c(as.raw(c(3, 0, 0, 0, length(expr)+4, 0, 0, 0,
+                   0, 0, 0, 0, 0, 0, 0, 0,
+                   4, length(expr), 0, 0)), expr)
+    } else if (length(expr <= 65531)) {
+        len <- length(expr)
+        hi_len <- as.integer(len %/% 256)
+        lo_len <- as.integer(len %% 256)
+        c(as.raw(c(3L, 0, 0, 0, lo_len + 4L, hi_len, 0, 0,
+                   0, 0, 0, 0, 0, 0, 0, 0,
+                   4L, lo_len, hi_len, 0)), expr)
+    } else stop('expression is too long')
     
-    request <- c(as.raw(c(3, 0, 0, 0, length(expr)+4, 0, 0, 0,
-                          0, 0, 0, 0, 0, 0, 0, 0,
-                          4, length(expr), 0, 0)), expr)
     writeBin(request, c)
 
     r <- readBin(c, 'int', 4, 'little')
