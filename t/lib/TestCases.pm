@@ -743,7 +743,6 @@ use constant TEST_CASES => {
          t1 <- track(x = 1:4, y = 2:4 + 0)
          t1
         })',
-        skip => 'rds',
         value => Statistics::R::REXP::S4->new(
             class => 'track',
             package => '.GlobalEnv',
@@ -762,7 +761,6 @@ use constant TEST_CASES => {
          t1s <- trackCurve(t1, smooth = 1:3)
          t1s
         })',
-        skip => 'rds',
         value => Statistics::R::REXP::S4->new(
             class => 'trackCurve',
             package => '.GlobalEnv',

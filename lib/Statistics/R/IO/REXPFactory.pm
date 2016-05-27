@@ -125,6 +125,9 @@ sub object_data {
     } elsif ($object_info->{object_type} == 3) {
         # closure
         closxp($object_info)
+    } elsif ($object_info->{object_type} == 25) {
+        # closure
+        s4sxp($object_info)
     } elsif ($object_info->{object_type} == 0xfb) {
         # encoded R_MissingArg, i.e., empty symbol
         mreturn(Statistics::R::REXP::Symbol->new)
@@ -513,6 +516,30 @@ sub closxp {
 }
 
 
+sub s4sxp {
+    my $object_info = shift;
+    bind(object_content,
+         sub {
+             my $attr = shift;
+             my $attributes = { tagged_pairlist_to_attribute_hash($attr) };
+             my $class = $attributes->{class}->elements;
+             croak "S4 'class' must be a single-element array" unless
+                 ref($class) eq 'ARRAY' && scalar(@{$class}) == 1;
+             my $package = $attributes->{class}->attributes->{package}->elements;
+             croak "S4 'package' must be a single-element array" unless
+                 ref($package) eq 'ARRAY' && scalar(@{$package}) == 1;
+             
+             # the remaining attributes should be object's slots
+             delete $attributes->{class};
+             my $slots = $attributes;
+             
+             mreturn(Statistics::R::REXP::S4->new(class => $class->[0],
+                                                  package => $package->[0],
+                                                  slots => $slots))
+         })
+}
+
+
 sub unserialize {
     my $data = shift;
     return error "Unserialize requires a scalar data" if ref $data && ref $data ne ref [];
@@ -573,7 +600,8 @@ L<Statistics::R::IO::ParserState> at the end of serialization.
 
 
 =item intsxp, langsxp, lglsxp, listsxp, rawsxp, realsxp, refsxp,
-strsxp, symsxp, vecsxp, envsxp, charsxp, cplxsxp, closxp, expsxp
+strsxp, symsxp, vecsxp, envsxp, charsxp, cplxsxp, closxp, expsxp,
+s4sxp
 
 Parsers for the corresponding R SEXP-types.
 
