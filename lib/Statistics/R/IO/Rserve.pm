@@ -190,13 +190,13 @@ sub BUILD {
     my ($self, $args) = @_;
 
     # Required attribute types
-    die 'Attribute (fh) does not pass the type constraint' if
+    die "Attribute 'fh' must be an instance of IO::Handle or an open filehandle" if
         defined($args->{fh}) &&
         !((ref($args->{fh}) eq "GLOB" && Scalar::Util::openhandle($args->{fh})) ||
          (blessed($args->{fh}) && $args->{fh}->isa("IO::Handle")));
-    die 'Attribute (server) does not pass the type constraint' if
+    die "Attribute 'server' must be scalar value" if
         exists($args->{server}) && (!defined($args->{server}) || ref($args->{server}));
-    die 'Attribute (port) does not pass the type constraint' unless
+    die "Attribute 'port' must be an integer" unless
         looks_like_number($self->port) && (int($self->port) == $self->port);
 }
 

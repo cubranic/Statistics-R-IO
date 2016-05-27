@@ -565,16 +565,16 @@ subtest 'undef server' => sub {
     
     like(exception {
         Statistics::R::IO::Rserve->new(server => undef)
-         }, qr/Attribute \(server\) does not pass the type constraint/,
+         }, qr/Attribute 'server' must be scalar value/,
          'explicit server argument');
 
     like(exception {
         Statistics::R::IO::Rserve->new(server => undef, _usesocket=>1)
-         }, qr/Attribute \(server\) does not pass the type constraint/,
+         }, qr/Attribute 'server' must be scalar value/,
          'explicit with low-level sockets');
 
     like(exception {
         Statistics::R::IO::Rserve->new(undef)
-         }, qr/Attribute \(server\) does not pass the type constraint/,
+         }, qr/Attribute 'server' must be scalar value/,
          'implicit server argument')
 }
