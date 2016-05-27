@@ -20,7 +20,7 @@ is(Statistics::R::REXP::Symbol->new('sym'), $sym, 'string constructor');
 ## error checking in constructor arguments
 like(exception {
         Statistics::R::REXP::Symbol->new([1, 2, 3])
-     }, qr/Attribute \(name\) does not pass the type constraint/,
+     }, qr/Attribute 'name' must be a scalar value/,
      'error-check in single-arg constructor');
 like(exception {
         Statistics::R::REXP::Symbol->new(1, 2, 3)
@@ -28,7 +28,7 @@ like(exception {
      'odd constructor arguments');
 like(exception {
         Statistics::R::REXP::Symbol->new(name => [1, 2, 3])
-     }, qr/Attribute \(name\) does not pass the type constraint/,
+     }, qr/Attribute 'name' must be a scalar value/,
      'bad name argument');
 
 my $sym_foo = Statistics::R::REXP::Symbol->new(name => 'foo');

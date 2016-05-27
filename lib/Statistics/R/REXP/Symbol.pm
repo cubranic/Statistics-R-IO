@@ -52,7 +52,7 @@ sub BUILDARGS {
 sub BUILD {
     my ($self, $args) = @_;
 
-    die 'Attribute (name) does not pass the type constraint' unless ref(\$self->name) eq 'SCALAR'
+    die "Attribute 'name' must be a scalar value" unless ref(\$self->name) eq 'SCALAR'
 }
 
 around _eq => sub {
