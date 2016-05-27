@@ -1,27 +1,34 @@
 package Statistics::R::REXP::Language;
 # ABSTRACT: an R language vector
-$Statistics::R::REXP::Language::VERSION = '0.101';
+$Statistics::R::REXP::Language::VERSION = '1.0';
 use 5.010;
 
 use Scalar::Util qw(blessed);
 
-use Moose;
+use Class::Tiny::Antlers;
 use namespace::clean;
 
 extends 'Statistics::R::REXP::List';
 
-has '+elements' => (
-    isa => 'LanguageElements',
-);
+use constant sexptype => 'LANGSXP';
+
+
+sub BUILD {
+    my ($self, $args) = @_;
+
+    # Required attribute type
+    die 'The first element must be a Symbol or Language' if defined $self->elements &&
+        !(blessed $self->elements->[0] &&
+              ($self->elements->[0]->isa('Statistics::R::REXP::Language') ||
+               $self->elements->[0]->isa('Statistics::R::REXP::Symbol')))
+}
 
 sub to_pl {
     Statistics::R::REXP::Vector::to_pl(@_)
 }
 
-around _type => sub { 'language' };
+sub _type { 'language' };
 
-
-__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::Language
 
@@ -37,7 +44,7 @@ Statistics::R::REXP::Language - an R language vector
 
 =head1 VERSION
 
-version 0.101
+version 1.0
 
 =head1 SYNOPSIS
 
@@ -71,6 +78,10 @@ doesn't follow this restriction will raise an exception.
 
 =over
 
+=item sexptype
+
+SEXPTYPE of language vectors is C<LANGSXP>.
+
 =item to_pl
 
 Perl value of the language vector is an array reference to the Perl
@@ -91,13 +102,15 @@ L<Statistics::R::IO> for bug reporting.
 
 See L<Statistics::R::IO> for support and contact information.
 
+=for Pod::Coverage BUILD
+
 =head1 AUTHOR
 
 Davor Cubranic <cubranic@stat.ubc.ca>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2014 by University of British Columbia.
+This software is Copyright (c) 2016 by University of British Columbia.
 
 This is free software, licensed under:
 

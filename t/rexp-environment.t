@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 18;
+use Test::More tests => 19;
 use Test::Fatal;
 
 use Statistics::R::REXP::Environment;
@@ -28,10 +28,15 @@ like(exception {
      }, qr/odd number of arguments/,
      'odd constructor arguments');
 
+## Frame must be a hash of REXPs
+like(exception {
+        Statistics::R::REXP::Environment->new(frame => {foo => 1, bar => 3})
+     }, qr/Attribute 'frame' must be a reference to a hash of REXPs/,
+     'error-check in single-arg constructor');
 ## Enclosure must be another Environment
 like(exception {
          Statistics::R::REXP::Environment->new(enclosure => 'foo')
-     }, qr/Attribute \(enclosure\) does not pass the type constraint/,
+     }, qr/Attribute 'enclosure' must be an instance of Environment/,
      'bad env enclosure');
 
 my $env_foo = Statistics::R::REXP::Environment->new(enclosure => $env);
@@ -66,7 +71,7 @@ isnt($env_attr, $another_sym_attr, 'inequality considers attributes deeply');
 ## attributes must be a hash
 like(exception {
         Statistics::R::REXP::Environment->new(attributes => 1)
-     }, qr/Attribute \(attributes\) does not pass the type constraint/,
+     }, qr/Attribute 'attributes' must be a hash reference/,
      'setting non-HASH attributes');
 
 ## Perl representation

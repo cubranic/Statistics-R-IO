@@ -1,23 +1,42 @@
 package Statistics::R::REXP::Logical;
 # ABSTRACT: an R logical vector
-$Statistics::R::REXP::Logical::VERSION = '0.101';
+$Statistics::R::REXP::Logical::VERSION = '1.0';
 use 5.010;
 
-use Moose;
+use Class::Tiny::Antlers;
 use namespace::clean;
 
-with 'Statistics::R::REXP::Vector';
+extends 'Statistics::R::REXP::Vector';
 use overload;
 
 
-has '+elements' => (
-    isa => 'LogicalElements',
-    );
+use constant sexptype => 'LGLSXP';
 
 sub _type { 'logical'; }
 
 
-__PACKAGE__->meta->make_immutable;
+sub BUILDARGS {
+    my $class = shift;
+    my $attributes = $class->SUPER::BUILDARGS(@_);
+
+    if (ref($attributes->{elements}) eq 'ARRAY') {
+        $attributes->{elements} = [
+            map { defined $_ ? ($_ ? 1 : 0) : undef }
+                Statistics::R::REXP::Vector::_flatten(@{$attributes->{elements}})
+        ]
+    }
+    $attributes
+}
+
+
+sub BUILD {
+    my ($self, $args) = @_;
+
+    # Required attribute type
+    die "Elements of the 'elements' attribute must be 0, 1, or undef" if defined $self->elements &&
+        grep { defined($_) && ($_ != 1 && $_ != 0) } @{$self->elements}
+}
+
 
 1; # End of Statistics::R::REXP::Logical
 
@@ -33,7 +52,7 @@ Statistics::R::REXP::Logical - an R logical vector
 
 =head1 VERSION
 
-version 0.101
+version 1.0
 
 =head1 SYNOPSIS
 
@@ -57,6 +76,14 @@ elements are boolean (true/false) values. Elements have value 1 or 0,
 corresponding to C<TRUE> and C<FALSE>, respectively, while missing
 values (C<NA> in R) have value C<undef>.
 
+=over
+
+=item sexptype
+
+SEXPTYPE of logical vectors is C<LGLSXP>.
+
+=back
+
 =head1 BUGS AND LIMITATIONS
 
 Classes in the C<REXP> hierarchy are intended to be immutable. Please
@@ -69,13 +96,15 @@ L<Statistics::R::IO> for bug reporting.
 
 See L<Statistics::R::IO> for support and contact information.
 
+=for Pod::Coverage BUILDARGS BUILD
+
 =head1 AUTHOR
 
 Davor Cubranic <cubranic@stat.ubc.ca>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2014 by University of British Columbia.
+This software is Copyright (c) 2016 by University of British Columbia.
 
 This is free software, licensed under:
 

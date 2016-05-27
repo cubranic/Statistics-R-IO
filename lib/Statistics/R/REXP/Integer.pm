@@ -1,25 +1,44 @@
 package Statistics::R::REXP::Integer;
 # ABSTRACT: an R integer vector
-$Statistics::R::REXP::Integer::VERSION = '0.101';
+$Statistics::R::REXP::Integer::VERSION = '1.0';
 use 5.010;
 
 use Scalar::Util qw(looks_like_number);
 
-use Moose;
+use Class::Tiny::Antlers;
 use namespace::clean;
 
-with 'Statistics::R::REXP::Vector';
+extends 'Statistics::R::REXP::Vector';
 use overload;
 
 
-has '+elements' => (
-    isa => 'IntegerElements',
-);
+use constant sexptype => 'INTSXP';
 
 sub _type { 'integer'; }
 
 
-__PACKAGE__->meta->make_immutable;
+sub BUILDARGS {
+    my $class = shift;
+    my $attributes = $class->SUPER::BUILDARGS(@_);
+
+    if (ref($attributes->{elements}) eq 'ARRAY') {
+        $attributes->{elements} = [
+            map { looks_like_number($_) ? int($_ + ($_ <=> 0) * 0.5) : undef }
+                Statistics::R::REXP::Vector::_flatten(@{$attributes->{elements}})
+        ]
+    }
+    $attributes
+}
+
+
+sub BUILD {
+    my ($self, $args) = @_;
+
+    # Required attribute type
+    die "Elements of the 'elements' attribute must be integers" if defined $self->elements &&
+        grep { defined($_) && !(looks_like_number($_) && int($_) == $_) } @{$self->elements}
+}
+
 
 1; # End of Statistics::R::REXP::Integer
 
@@ -35,7 +54,7 @@ Statistics::R::REXP::Integer - an R integer vector
 
 =head1 VERSION
 
-version 0.101
+version 1.0
 
 =head1 SYNOPSIS
 
@@ -57,6 +76,14 @@ L<Statistics::R::REXP::Vector>, with the added restriction that its
 elements are truncated to integer values. Elements that are not
 numbers have value C<undef>, as do elements with R value C<NA>.
 
+=over
+
+=item sexptype
+
+SEXPTYPE of integer vectors is C<INTSXP>.
+
+=back
+
 =head1 BUGS AND LIMITATIONS
 
 Classes in the C<REXP> hierarchy are intended to be immutable. Please
@@ -69,13 +96,15 @@ L<Statistics::R::IO> for bug reporting.
 
 See L<Statistics::R::IO> for support and contact information.
 
+=for Pod::Coverage BUILDARGS BUILD
+
 =head1 AUTHOR
 
 Davor Cubranic <cubranic@stat.ubc.ca>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2014 by University of British Columbia.
+This software is Copyright (c) 2016 by University of British Columbia.
 
 This is free software, licensed under:
 

@@ -5,13 +5,11 @@ use warnings FATAL => 'all';
 
 use Test::More;
 my $rserve_host = $ENV{RSERVE_HOST} || 'localhost';
-
-die "Specifying RSERVE_PORT is not yet supported" if $ENV{RSERVE_PORT};
-my $rserve_port = 6311;
+my $rserve_port = $ENV{RSERVE_PORT} || 6311;
 
 if (IO::Socket::INET->new(PeerAddr => $rserve_host,
                           PeerPort => $rserve_port)) {
-    plan tests => 58;
+    plan tests => 61;
 }
 else {
     plan skip_all => "Cannot connect to Rserve server at localhost:6311";
@@ -33,6 +31,8 @@ my $Rserve = {host => $rserve_host}; # fake configuration
 use File::Spec;
 use File::Path;
 use Path::Class;
+use File::Slurp qw(read_file);
+
 my $PG = Test::MockObject::Extends->new();
 
 ## return the last segment of the path
@@ -553,15 +553,50 @@ while ( my ($name, $value) = each %{TEST_CASES()} ) {
 }
 
 
-my $remote = rserve_start_plot();
-rserve_eval('plot(1)');
-my $local = rserve_finish_plot($remote);
-ok(-e $local, 'rserve plot file');
-Path::Class::file($local)->remove;
+subtest 'R runtime errors' => sub {
+    plan tests => 2;
+    
+    like(exception {
+            rserve_eval('1+"a"')
+         }, qr/Error in 1 \+ "a" : non-numeric argument to binary operator/,
+         'rserve_eval');
+    
+    like(exception {
+            rserve_query('1+"a"')
+         }, qr/Error in 1 \+ "a" : non-numeric argument to binary operator/,
+         'rserve_query');
+};
 
-$remote = (rserve_eval("file.path(system.file(package='base'), 'DESCRIPTION')"))[0];
-$local = rserve_get_file($remote);
-ok(-e $local, 'rserve plot file');
+
+subtest 'Rserve plot' => sub {
+    plan tests => 4;
+    
+    my $remote = rserve_start_plot();
+    rserve_eval('plot(1)');
+    my $local = rserve_finish_plot($remote);
+    my $png_contents = read_file($local);
+    ok(-e $local, 'plot file');
+    ok($png_contents =~ qr/^.PNG\r\n.*IHDR\0\0\x01\xE0\0\0\x01\xE0/s,
+       'default figure dimensions (480x480)') or
+           diag('True file type: ' . `file $local`);
+    Path::Class::file($local)->remove;
+
+    
+    $remote = rserve_start_plot('png', 800, 732);
+    rserve_eval('plot(1)');
+    $local = rserve_finish_plot($remote);
+    $png_contents = read_file($local);
+    ok(-e $local, 'plot file');
+    ok($png_contents =~ qr/^.PNG\r\n.*IHDR\0\0\x03\x20\0\0\x02\xDC/s,
+       'custom figure dimensions') or
+           diag('True file type: ' . `file $local`);
+    Path::Class::file($local)->remove;
+};
+
+
+my $remote = (rserve_eval("file.path(system.file(package='base'), 'DESCRIPTION')"))[0];
+my $local = rserve_get_file($remote);
+ok(-e $local, 'rserve remote file');
 Path::Class::file($local)->remove;
 
 subtest 'missing configuration' => sub {

@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 56;
+use Test::More tests => 60;
 use Test::Fatal;
 use Test::MockObject::Extends;
 
@@ -546,7 +546,7 @@ my $rserve = Statistics::R::IO::Rserve->new(fh => $error_mock);
 
 like(exception {
     $rserve->ser_eval('testing, please ignore')
-     }, qr/Server returned an error: 65538/,
+     }, qr/R server returned an error: 0x10002/,
     'server error');
 
 

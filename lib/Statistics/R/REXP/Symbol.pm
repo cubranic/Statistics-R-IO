@@ -1,21 +1,22 @@
 package Statistics::R::REXP::Symbol;
 # ABSTRACT: an R symbol
-$Statistics::R::REXP::Symbol::VERSION = '0.101';
+$Statistics::R::REXP::Symbol::VERSION = '1.0';
 use 5.010;
 
 use Scalar::Util qw(blessed);
 
-use Moose;
-use Statistics::R::REXP::Types;
+use Class::Tiny::Antlers qw(-default around);
+#use Statistics::R::REXP::Types;
 use namespace::clean;
 
-with 'Statistics::R::REXP';
+extends 'Statistics::R::REXP';
+
+
+use constant sexptype => 'SYMSXP';
 
 has name => (
     is => 'ro',
-    isa => 'SymbolName',
     default => '',
-    coerce => 1,
 );
 
 use overload
@@ -23,12 +24,14 @@ use overload
 
 sub BUILDARGS {
     my $class = shift;
+    my $attributes = {};
+    
     if ( scalar @_ == 1) {
         if ( ref $_[0] eq 'HASH' ) {
-            return $_[0]
+            $attributes = $_[0]
         }
         else {
-            return { name => $_[0] }
+            $attributes->{name} = $_[0]
         }
     }
     elsif ( @_ % 2 ) {
@@ -36,10 +39,21 @@ sub BUILDARGS {
                 . " You passed an odd number of arguments\n";
     }
     else {
-        return { @_ };
+        $attributes = { @_ };
     }
+    
+    if (blessed($attributes->{name}) &&
+        $attributes->{name}->isa('Statistics::R::REXP::Symbol')) {
+        $attributes->{name} = $attributes->{name}->name
+    }
+    $attributes
 }
 
+sub BUILD {
+    my ($self, $args) = @_;
+
+    die "Attribute 'name' must be a scalar value" unless ref(\$self->name) eq 'SCALAR'
+}
 
 around _eq => sub {
     my $orig = shift;
@@ -52,8 +66,6 @@ sub to_pl {
     $self->name
 }
 
-
-__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::Symbol
 
@@ -69,7 +81,7 @@ Statistics::R::REXP::Symbol - an R symbol
 
 =head1 VERSION
 
-version 0.101
+version 1.0
 
 =head1 SYNOPSIS
 
@@ -94,13 +106,15 @@ C<Statistics::R::REXP::Symbol> inherits from L<Statistics::R::REXP>.
 
 String value of the symbol.
 
+=item sexptype
+
+SEXPTYPE of symbols is C<SYMSXP>.
+
 =item to_pl
 
 Perl value of the symbol is just its C<name>.
 
 =back
-
-=for Pod::Coverage BUILDARGS
 
 =head1 BUGS AND LIMITATIONS
 
@@ -114,13 +128,15 @@ L<Statistics::R::IO> for bug reporting.
 
 See L<Statistics::R::IO> for support and contact information.
 
+=for Pod::Coverage BUILDARGS BUILD
+
 =head1 AUTHOR
 
 Davor Cubranic <cubranic@stat.ubc.ca>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2014 by University of British Columbia.
+This software is Copyright (c) 2016 by University of British Columbia.
 
 This is free software, licensed under:
 

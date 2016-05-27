@@ -4,20 +4,20 @@
       "Davor Cubranic <cubranic@stat.ubc.ca>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 5.014, CPAN::Meta::Converter version 2.140640",
+   "generated_by" : "Dist::Zilla version 6.005, CPAN::Meta::Converter version 2.143240",
    "license" : [
       "gpl_3"
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
-      "version" : "2"
+      "version" : 2
    },
    "name" : "Statistics-R-IO",
    "prereqs" : {
       "configure" : {
          "requires" : {
-            "ExtUtils::MakeMaker" : "6.30",
-            "File::ShareDir::Install" : "0.03"
+            "ExtUtils::MakeMaker" : "0",
+            "File::ShareDir::Install" : "0.06"
          }
       },
       "develop" : {
@@ -30,8 +30,10 @@
       "runtime" : {
          "requires" : {
             "Carp" : "0",
+            "Class::Method::Modifiers" : "0",
+            "Class::Tiny" : "0",
+            "Class::Tiny::Antlers" : "0.023",
             "Math::Complex" : "0",
-            "Moose" : "2.0",
             "Scalar::Util" : "0",
             "namespace::clean" : "0.24",
             "perl" : "5.010"
@@ -60,6 +62,6 @@
          "web" : "https://github.com/cubranic/Statistics-R-IO"
       }
    },
-   "version" : "0.101"
+   "version" : "1.0"
 }
 

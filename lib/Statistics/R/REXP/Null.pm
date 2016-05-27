@@ -1,13 +1,15 @@
 package Statistics::R::REXP::Null;
 # ABSTRACT: the R null object
-$Statistics::R::REXP::Null::VERSION = '0.101';
+$Statistics::R::REXP::Null::VERSION = '1.0';
 use 5.010;
 
-use Moose;
+use Class::Tiny::Antlers;
 use namespace::clean;
 
-with 'Statistics::R::REXP';
+extends 'Statistics::R::REXP';
 
+
+use constant sexptype => 'NILSXP';
 
 sub BUILDARGS {
     my $class = shift;
@@ -28,8 +30,6 @@ sub to_pl {
 }
 
 
-__PACKAGE__->meta->make_immutable;
-
 1; # End of Statistics::R::REXP::Null
 
 __END__
@@ -44,7 +44,7 @@ Statistics::R::REXP::Null - the R null object
 
 =head1 VERSION
 
-version 0.101
+version 1.0
 
 =head1 SYNOPSIS
 
@@ -69,6 +69,10 @@ adds no methods of its own.
 
 =over
 
+=item sexptype
+
+SEXPTYPE of null objects is C<NILSXP>.
+
 =item to_pl
 
 The Perl value of C<NULL> is C<undef>.
@@ -79,8 +83,6 @@ Null objects have no attributes, so the attributes accessor always
 returns C<undef>.
 
 =back
-
-=for Pod::Coverage is_null
 
 =head1 BUGS AND LIMITATIONS
 
@@ -94,13 +96,15 @@ L<Statistics::R::IO> for bug reporting.
 
 See L<Statistics::R::IO> for support and contact information.
 
+=for Pod::Coverage BUILDARGS is_null
+
 =head1 AUTHOR
 
 Davor Cubranic <cubranic@stat.ubc.ca>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2014 by University of British Columbia.
+This software is Copyright (c) 2016 by University of British Columbia.
 
 This is free software, licensed under:
 

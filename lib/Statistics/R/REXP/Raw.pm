@@ -1,30 +1,45 @@
 package Statistics::R::REXP::Raw;
 # ABSTRACT: an R raw vector
-$Statistics::R::REXP::Raw::VERSION = '0.101';
+$Statistics::R::REXP::Raw::VERSION = '1.0';
 use 5.010;
 
 use Scalar::Util qw(looks_like_number);
 
-use Moose;
+use Class::Tiny::Antlers;
 use namespace::clean;
 
-with 'Statistics::R::REXP::Vector';
+extends 'Statistics::R::REXP::Vector';
 use overload;
 
 
-has '+attributes' => (
-    trigger => sub {
-        die 'Raw vectors cannot have attributes'
-    });
-
-has '+elements' => (
-    isa => 'RawElements',
-);
+use constant sexptype => 'RAWSXP';
 
 sub _type { 'raw'; }
 
 
-__PACKAGE__->meta->make_immutable;
+sub BUILDARGS {
+    my $class = shift;
+    my $attributes = $class->SUPER::BUILDARGS(@_);
+
+    if (ref($attributes->{elements}) eq 'ARRAY') {
+        $attributes->{elements} = [
+            map int,
+                Statistics::R::REXP::Vector::_flatten(@{$attributes->{elements}})
+        ]
+    }
+    $attributes
+}
+
+
+sub BUILD {
+    my ($self, $args) = @_;
+
+    # Required attribute type
+    die 'Raw vectors cannot have attributes' if defined $self->attributes;
+    die 'Elements of raw vectors must be 0-255' if defined $self->elements &&
+        grep { !($_ >= 0 && $_ <= 255) } @{$self->elements}
+}
+
 
 1; # End of Statistics::R::REXP::Raw
 
@@ -40,7 +55,7 @@ Statistics::R::REXP::Raw - an R raw vector
 
 =head1 VERSION
 
-version 0.101
+version 1.0
 
 =head1 SYNOPSIS
 
@@ -65,6 +80,14 @@ elements are byte values and cannot have missing values. Trying to
 create a raw vectors with elements that are not numbers in range 0-255
 will raise an exception.
 
+=over
+
+=item sexptype
+
+SEXPTYPE of raw vectors is C<RAWSXP>.
+
+=back
+
 =head1 BUGS AND LIMITATIONS
 
 Classes in the C<REXP> hierarchy are intended to be immutable. Please
@@ -77,13 +100,15 @@ L<Statistics::R::IO> for bug reporting.
 
 See L<Statistics::R::IO> for support and contact information.
 
+=for Pod::Coverage BUILDARGS BUILD
+
 =head1 AUTHOR
 
 Davor Cubranic <cubranic@stat.ubc.ca>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2014 by University of British Columbia.
+This software is Copyright (c) 2016 by University of British Columbia.
 
 This is free software, licensed under:
 

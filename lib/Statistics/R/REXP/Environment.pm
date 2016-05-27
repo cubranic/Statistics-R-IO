@@ -1,26 +1,26 @@
 package Statistics::R::REXP::Environment;
 # ABSTRACT: an R environment
-$Statistics::R::REXP::Environment::VERSION = '0.101';
+$Statistics::R::REXP::Environment::VERSION = '1.0';
 use 5.010;
 
 use Scalar::Util qw(refaddr blessed);
 
-use Moose;
+use Class::Tiny::Antlers qw(-default around);
 use namespace::clean;
 
-with 'Statistics::R::REXP';
+extends 'Statistics::R::REXP';
+
+use constant sexptype => 'ENVSXP';
 
 has frame => (
     is => 'ro',
     default => sub {
         { }
     },
-    isa => 'HashRef[Statistics::R::REXP]',
 );
 
 has enclosure => (
     is => 'ro',
-    isa => 'Maybe[Statistics::R::REXP::Environment]',
 );
 
 
@@ -50,12 +50,25 @@ sub BUILDARGS {
     }
 }
 
+
+sub BUILD {
+    my ($self, $args) = @_;
+
+    # Required attribute type
+    die "Attribute 'frame' must be a reference to a hash of REXPs" if ref($self->frame) ne 'HASH' ||
+        grep { ! (blessed($_) && $_->isa('Statistics::R::REXP')) } values(%{$self->frame});
+    
+    die "Attribute 'enclosure' must be an instance of Environment" if defined $self->enclosure &&
+        !(blessed($self->enclosure) && $self->enclosure->isa('Statistics::R::REXP::Environment'));
+}
+
+
 around _eq => sub {
     my $orig = shift;
     return unless $orig->(@_);
     my ($self, $obj) = (shift, shift);
-    _compare_deeply($self->frame, $obj->frame) &&
-        _compare_deeply($self->enclosure, $obj->enclosure)
+    Statistics::R::REXP::_compare_deeply($self->frame, $obj->frame) &&
+        Statistics::R::REXP::_compare_deeply($self->enclosure, $obj->enclosure)
 };
 
 
@@ -72,8 +85,6 @@ sub to_pl {
 }
 
 
-__PACKAGE__->meta->make_immutable;
-
 1; # End of Statistics::R::REXP::Environment
 
 __END__
@@ -88,7 +99,7 @@ Statistics::R::REXP::Environment - an R environment
 
 =head1 VERSION
 
-version 0.101
+version 1.0
 
 =head1 SYNOPSIS
 
@@ -147,14 +158,16 @@ Environments can be named, although this is not normally settable from
 R code. Typically, only the system environments (such as namespaces),
 and environments created by C<attach>-ing an object, have a name.
 
+=item sexptype
+
+SEXPTYPE of environments is C<ENVSXP>.
+
 =item to_pl
 
 Environments do not have a native Perl representation and trying to
 call this access will raise an exception.
 
 =back
-
-=for Pod::Coverage BUILDARGS
 
 =head1 BUGS AND LIMITATIONS
 
@@ -168,13 +181,15 @@ L<Statistics::R::IO> for bug reporting.
 
 See L<Statistics::R::IO> for support and contact information.
 
+=for Pod::Coverage BUILDARGS BUILD
+
 =head1 AUTHOR
 
 Davor Cubranic <cubranic@stat.ubc.ca>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2014 by University of British Columbia.
+This software is Copyright (c) 2016 by University of British Columbia.
 
 This is free software, licensed under:
 

@@ -1,5 +1,16 @@
 Revision history for Statistics-R-IO
 
+1.0     28 May 2016
+        - switch from Moose to Class::Tiny and Class::Tiny::Antlers (#52)
+        - Implement S4 SEXPs (#49)
+        - QAP parsing of tagged and untagged pairlists (#47)
+        - Add a 'sexptype' attribute to REXPs
+        - Add an `inherits` method to the 'REXP' class (#45)
+        - Add a copy and single-argument constructor to Unknown
+        - Allow specyfing image dimensions in the WebWork macro (#51)
+        - Capture R error message from Rserve::eval (#43)
+        - Fix failing tests wit NaN/Inf on Windows (#40)
+
 0.101   23 December 2014
         - Fix failing tests involving comparison with infinity/NaN (#40)
         - Better handling of unopened server file handle in destructor (#41)

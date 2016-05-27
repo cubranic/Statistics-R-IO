@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 57;
+use Test::More tests => 61;
 use Test::Fatal;
 use Test::MockObject::Extends;
 
@@ -546,7 +546,7 @@ my $rserve = Statistics::R::IO::Rserve->new(fh => $error_mock);
 
 like(exception {
     $rserve->eval('testing, please ignore')
-     }, qr/Server returned an error: 65538/,
+     }, qr/R server returned an error: 0x10002/,
     'server error');
 
 
@@ -565,16 +565,16 @@ subtest 'undef server' => sub {
     
     like(exception {
         Statistics::R::IO::Rserve->new(server => undef)
-         }, qr/server.*Validation failed for 'Str' with value undef/,
+         }, qr/Attribute 'server' must be scalar value/,
          'explicit server argument');
 
     like(exception {
         Statistics::R::IO::Rserve->new(server => undef, _usesocket=>1)
-         }, qr/server.*Validation failed for 'Str' with value undef/,
+         }, qr/Attribute 'server' must be scalar value/,
          'explicit with low-level sockets');
 
     like(exception {
         Statistics::R::IO::Rserve->new(undef)
-         }, qr/server.*Validation failed for 'Str' with value undef/,
+         }, qr/Attribute 'server' must be scalar value/,
          'implicit server argument')
 }

@@ -27,7 +27,7 @@ is(Statistics::R::REXP::Integer->new(Statistics::R::REXP::List->new([3.3, [4, '1
 ## error checking in constructor arguments
 like(exception {
         Statistics::R::REXP::Integer->new(sub {1+1})
-     }, qr/Attribute \(elements\) does not pass the type constraint/,
+     }, qr/Attribute 'elements' must be an array reference/,
      'error-check in single-arg constructor');
 like(exception {
         Statistics::R::REXP::Integer->new(1, 2, 3)
@@ -35,7 +35,7 @@ like(exception {
      'odd constructor arguments');
 like(exception {
         Statistics::R::REXP::Integer->new(elements => {foo => 1, bar => 2})
-     }, qr/Attribute \(elements\) does not pass the type constraint/,
+     }, qr/Attribute 'elements' must be an array reference/,
      'bad elements argument');
 
 my $another_vec = Statistics::R::REXP::Integer->new(elements => [3, 4, 1]);
@@ -95,7 +95,7 @@ isnt($vec_attr, $another_vec_attr, 'inequality considers attributes deeply');
 ## attributes must be a hash
 like(exception {
         Statistics::R::REXP::Integer->new(attributes => 1)
-     }, qr/Attribute \(attributes\) does not pass the type constraint/,
+     }, qr/Attribute 'attributes' must be a hash reference/,
      'setting non-HASH attributes');
 
 ## Perl representation

@@ -1,36 +1,34 @@
 package Statistics::R::REXP::Closure;
 # ABSTRACT: an R closure
-$Statistics::R::REXP::Closure::VERSION = '0.101';
+$Statistics::R::REXP::Closure::VERSION = '1.0';
 use 5.010;
 
 use Scalar::Util qw(refaddr blessed);
 
-use Moose;
+use Class::Tiny::Antlers qw(-default around);
 use namespace::clean;
 
-with 'Statistics::R::REXP';
+extends 'Statistics::R::REXP';
+
+
+use constant sexptype => 'CLOSXP';
 
 has args => (
     is => 'ro',
     default => sub { [] },
-    isa => 'ArrayRef[Str]',
 );
 
 has defaults => (
     is => 'ro',
     default => sub { [] },
-    isa => 'ArrayRef[Maybe[Statistics::R::REXP]]',
 );
 
 has body => (
     is => 'ro',
-    required => 1,
-    isa => 'Statistics::R::REXP',
 );
 
 has environment => (
     is => 'ro',
-    isa => 'Maybe[Statistics::R::REXP::Environment]',
 );
 
 
@@ -67,8 +65,24 @@ sub BUILDARGS {
 
 
 sub BUILD {
-    my $self = shift;
+    my ($self, $args) = (shift, shift);
 
+    # Required attribute
+    die 'Attribute (body) is required' unless defined $args->{body};
+    
+    # Required attribute type
+    die "Attribute 'args' must be a reference to an array of scalars" if ref($self->args) ne 'ARRAY' ||
+        grep { ref $_ } @{$self->args};
+    
+    die "Attribute 'defaults' must be a reference to an array of REXPs" if ref($self->defaults) ne 'ARRAY' ||
+        grep { defined($_) && ! (blessed($_) && $_->isa('Statistics::R::REXP')) } @{$self->defaults};
+    
+    die "Attribute 'body' must be a reference to an instance of Statistics::R::REXP" unless
+        blessed($self->body) && $self->body->isa('Statistics::R::REXP');
+    
+    die "Attribute 'environment' must be an instance of Environment" if defined $self->environment &&
+        !(blessed($self->environment) && $self->environment->isa('Statistics::R::REXP::Environment'));
+    
     my $defaults_length = @{$self->defaults};
     if ($defaults_length) {
         die 'argument names don\'t match their defaults' 
@@ -80,11 +94,11 @@ around _eq => sub {
     my $orig = shift;
     return unless $orig->(@_);
     my ($self, $obj) = (shift, shift);
-    _compare_deeply($self->args, $obj->args) &&
+    Statistics::R::REXP::_compare_deeply($self->args, $obj->args) &&
         ((scalar(grep {$_} @{$self->defaults}) == scalar(grep {$_} @{$obj->defaults})) ||
-         _compare_deeply($self->defaults, $obj->defaults)) &&
-        _compare_deeply($self->body, $obj->body) &&
-        _compare_deeply($self->environment, $obj->environment)
+         Statistics::R::REXP::_compare_deeply($self->defaults, $obj->defaults)) &&
+        Statistics::R::REXP::_compare_deeply($self->body, $obj->body) &&
+        Statistics::R::REXP::_compare_deeply($self->environment, $obj->environment)
 };
 
 
@@ -92,8 +106,6 @@ sub to_pl {
     die "Closures do not have a native Perl representation"
 }
 
-
-__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::Closure
 
@@ -109,7 +121,7 @@ Statistics::R::REXP::Closure - an R closure
 
 =head1 VERSION
 
-version 0.101
+version 1.0
 
 =head1 SYNOPSIS
 
@@ -177,14 +189,16 @@ variables. This attribute is optional because some serialization
 mechanisms (notably Rserve's QAP), do not save the closure's
 environment.
 
+=item sexptype
+
+SEXPTYPE of closures is C<CLOSSXP>.
+
 =item to_pl
 
 Closures do not have a native Perl representation and trying to call
 this access will raise an exception.
 
 =back
-
-=for Pod::Coverage BUILDARGS BUILD
 
 =head1 BUGS AND LIMITATIONS
 
@@ -198,13 +212,15 @@ L<Statistics::R::IO> for bug reporting.
 
 See L<Statistics::R::IO> for support and contact information.
 
+=for Pod::Coverage BUILDARGS BUILD
+
 =head1 AUTHOR
 
 Davor Cubranic <cubranic@stat.ubc.ca>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2014 by University of British Columbia.
+This software is Copyright (c) 2016 by University of British Columbia.
 
 This is free software, licensed under:
 

@@ -1,36 +1,27 @@
 package Statistics::R::REXP::BaseEnvironment;
 # ABSTRACT: the base R environment (C<baseenv()>)
-$Statistics::R::REXP::BaseEnvironment::VERSION = '0.101';
+$Statistics::R::REXP::BaseEnvironment::VERSION = '1.0';
 use 5.010;
 
-use Moose;
+use Class::Tiny::Antlers;
 use namespace::clean;
 
 extends 'Statistics::R::REXP::Environment';
 
 
-has '+attributes' => (
-    trigger => sub {
-        die 'Base environment has implicit attributes'
-    });
+sub BUILD {
+    my ($self, $args) = @_;
 
-has '+frame' => (
-    trigger => sub {
-        die 'Nothing can be assigned to the base environment'
-    });
+    # Required attribute type
+    die 'Base environment has implicit attributes' if defined $self->attributes;
+    die 'Nothing can be assigned to the base environment' if exists $args->{frame};
+    die 'Base environment has an implicit enclosure' if defined $self->enclosure;
+}
 
-has '+enclosure' => (
-    trigger => sub {
-        die 'Base environment has an implicit enclosure'
-    });
-
-
-around name => sub {
+sub name {
     'R_BaseEnv'
-};
+}
 
-
-__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::BaseEnvironment
 
@@ -46,7 +37,7 @@ Statistics::R::REXP::BaseEnvironment - the base R environment (C<baseenv()>)
 
 =head1 VERSION
 
-version 0.101
+version 1.0
 
 =head1 SYNOPSIS
 
@@ -93,13 +84,15 @@ L<Statistics::R::IO> for bug reporting.
 
 See L<Statistics::R::IO> for support and contact information.
 
+=for Pod::Coverage BUILD
+
 =head1 AUTHOR
 
 Davor Cubranic <cubranic@stat.ubc.ca>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2014 by University of British Columbia.
+This software is Copyright (c) 2016 by University of British Columbia.
 
 This is free software, licensed under:
 

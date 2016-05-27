@@ -1,6 +1,6 @@
 package Statistics::R::IO::Parser;
 # ABSTRACT: Functions for parsing R data files
-$Statistics::R::IO::Parser::VERSION = '0.101';
+$Statistics::R::IO::Parser::VERSION = '1.0';
 use 5.010;
 use strict;
 use warnings FATAL => 'all';
@@ -455,7 +455,7 @@ Statistics::R::IO::Parser - Functions for parsing R data files
 
 =head1 VERSION
 
-version 0.101
+version 1.0
 
 =head1 SYNOPSIS
 
@@ -738,7 +738,7 @@ Davor Cubranic <cubranic@stat.ubc.ca>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2014 by University of British Columbia.
+This software is Copyright (c) 2016 by University of British Columbia.
 
 This is free software, licensed under:
 

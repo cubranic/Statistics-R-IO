@@ -1,31 +1,69 @@
 package Statistics::R::REXP::Unknown;
 # ABSTRACT: R object not representable in Rserve
-$Statistics::R::REXP::Unknown::VERSION = '0.101';
+$Statistics::R::REXP::Unknown::VERSION = '1.0';
 use 5.010;
 
-use Scalar::Util qw(looks_like_number);
+use Scalar::Util qw(looks_like_number blessed);
 
-use Moose;
-use Statistics::R::REXP::Types;
+use Class::Tiny::Antlers qw(-default around);
 use namespace::clean;
 
-with 'Statistics::R::REXP';
+extends 'Statistics::R::REXP';
 
 has sexptype => (
     is => 'ro',
-    isa => 'SexpType',
-    required => 1,
 );
 
 use overload
     '""' => sub { 'Unknown' };
 
+sub BUILDARGS {
+    my $class = shift;
+    my $attributes = {};
+    
+    if ( scalar @_ == 1) {
+        if ( ref $_[0] eq 'HASH' ) {
+            $attributes = $_[0]
+        }
+        else {
+            $attributes->{sexptype} = $_[0]
+        }
+    }
+    elsif ( @_ % 2 ) {
+        die "The new() method for $class expects a hash reference or a key/value list."
+                . " You passed an odd number of arguments\n";
+    }
+    else {
+        $attributes = { @_ };
+    }
+    
+    if (blessed($attributes->{sexptype}) &&
+        $attributes->{sexptype}->isa('Statistics::R::REXP::Unknown')) {
+        $attributes->{sexptype} = $attributes->{sexptype}->sexptype
+    }
+    $attributes
+}
+
+
+sub BUILD {
+    my ($self, $args) = @_;
+
+    die "Attribute 'sexptype' must be a number in range 0-255" unless
+        looks_like_number($self->sexptype) &&
+        ($self->sexptype >= 0) && ($self->sexptype <= 255)
+}
+
+
+around _eq => sub {
+    my $orig = shift;
+    $orig->(@_) and ($_[0]->sexptype eq $_[1]->sexptype);
+};
+
+
 sub to_pl {
     undef
 }
 
-
-__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::Unknown
 
@@ -41,7 +79,7 @@ Statistics::R::REXP::Unknown - R object not representable in Rserve
 
 =head1 VERSION
 
-version 0.101
+version 1.0
 
 =head1 SYNOPSIS
 
@@ -87,13 +125,15 @@ L<Statistics::R::IO> for bug reporting.
 
 See L<Statistics::R::IO> for support and contact information.
 
+=for Pod::Coverage BUILDARGS BUILD
+
 =head1 AUTHOR
 
 Davor Cubranic <cubranic@stat.ubc.ca>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2014 by University of British Columbia.
+This software is Copyright (c) 2016 by University of British Columbia.
 
 This is free software, licensed under:
 

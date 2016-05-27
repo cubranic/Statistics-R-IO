@@ -1,36 +1,28 @@
 package Statistics::R::REXP::EmptyEnvironment;
 # ABSTRACT: the empty R environment (C<emptyenv()>)
-$Statistics::R::REXP::EmptyEnvironment::VERSION = '0.101';
+$Statistics::R::REXP::EmptyEnvironment::VERSION = '1.0';
 use 5.010;
 
-use Moose;
+use Class::Tiny::Antlers;
 use namespace::clean;
 
 extends 'Statistics::R::REXP::Environment';
 
 
-has '+attributes' => (
-    trigger => sub {
-        die 'Empty environment has no attributes'
-    });
+sub BUILD {
+    my ($self, $args) = @_;
 
-has '+frame' => (
-    trigger => sub {
-        die 'Nothing can be assigned to the empty environment'
-    });
-
-has '+enclosure' => (
-    trigger => sub {
-        die 'Empty environment has no enclosure'
-    });
+    # Required attribute type
+    die 'Empty environment has no attributes' if defined $self->attributes;
+    die 'Nothing can be assigned to the empty environment' if exists $args->{frame};
+    die 'Empty environment has no enclosure' if defined $self->enclosure;
+}
 
 
-around name => sub {
+sub name {
     'R_EmptyEnv'
-};
+}
 
-
-__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::EmptyEnvironment
 
@@ -46,7 +38,7 @@ Statistics::R::REXP::EmptyEnvironment - the empty R environment (C<emptyenv()>)
 
 =head1 VERSION
 
-version 0.101
+version 1.0
 
 =head1 SYNOPSIS
 
@@ -94,13 +86,15 @@ L<Statistics::R::IO> for bug reporting.
 
 See L<Statistics::R::IO> for support and contact information.
 
+=for Pod::Coverage BUILD
+
 =head1 AUTHOR
 
 Davor Cubranic <cubranic@stat.ubc.ca>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2014 by University of British Columbia.
+This software is Copyright (c) 2016 by University of British Columbia.
 
 This is free software, licensed under:
 

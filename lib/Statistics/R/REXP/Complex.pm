@@ -1,18 +1,47 @@
 package Statistics::R::REXP::Complex;
 # ABSTRACT: an R numeric vector
-$Statistics::R::REXP::Complex::VERSION = '0.101';
+$Statistics::R::REXP::Complex::VERSION = '1.0';
 use 5.010;
 
-use Moose;
+use Scalar::Util qw(blessed looks_like_number);
+use Math::Complex qw();
+
+use Class::Tiny::Antlers qw(-default around);
 use namespace::clean;
 
-with 'Statistics::R::REXP::Vector';
+extends 'Statistics::R::REXP::Vector';
 use overload;
 
 
-has '+elements' => (
-    isa => 'ComplexElements',
-    );
+use constant sexptype => 'CPLXSXP';
+
+
+sub BUILDARGS {
+    my $class = shift;
+    my $attributes = $class->SUPER::BUILDARGS(@_);
+
+    if (ref($attributes->{elements}) eq 'ARRAY') {
+        $attributes->{elements} = [
+            map { (blessed($_) && $_->isa('Math::Complex')) ? $_ :
+                      looks_like_number $_ ? Math::Complex::cplx($_) :
+                          undef }
+                Statistics::R::REXP::Vector::_flatten(@{$attributes->{elements}})
+        ]
+    }
+    $attributes
+}
+
+
+sub BUILD {
+    my ($self, $args) = @_;
+
+    # Required attribute type
+    die "Elements of the 'elements' attribute must be scalar numbers or instances of Math::Complex" if 
+        defined $self->elements &&
+        grep { defined($_) && !(blessed($_) && $_->isa('Math::Complex') ||
+                   Scalar::Util::looks_like_number($_)) }
+             @{$self->elements}
+}
 
 
 around _eq => sub {
@@ -43,8 +72,6 @@ around _eq => sub {
 sub _type { 'complex'; }
 
 
-__PACKAGE__->meta->make_immutable;
-
 1; # End of Statistics::R::REXP::Complex
 
 __END__
@@ -59,7 +86,7 @@ Statistics::R::REXP::Complex - an R numeric vector
 
 =head1 VERSION
 
-version 0.101
+version 1.0
 
 =head1 SYNOPSIS
 
@@ -73,8 +100,8 @@ version 0.101
 
 =head1 DESCRIPTION
 
-An object of this class represents an R numeric (aka double) vector
-(C<REALSXP>).
+An object of this class represents an R complex vector
+(C<CPLXSXP>).
 
 =head1 METHODS
 
@@ -82,6 +109,14 @@ C<Statistics::R::REXP:Complex> inherits from
 L<Statistics::R::REXP::Vector>, with the added restriction that its
 elements are complex numbers. Elements that are not numbers have value
 C<undef>, as do elements with R value C<NA>.
+
+=over
+
+=item sexptype
+
+SEXPTYPE of complex vectors is C<CPLXSXP>.
+
+=back
 
 =head1 BUGS AND LIMITATIONS
 
@@ -95,13 +130,15 @@ L<Statistics::R::IO> for bug reporting.
 
 See L<Statistics::R::IO> for support and contact information.
 
+=for Pod::Coverage BUILDARGS BUILD
+
 =head1 AUTHOR
 
 Davor Cubranic <cubranic@stat.ubc.ca>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2014 by University of British Columbia.
+This software is Copyright (c) 2016 by University of British Columbia.
 
 This is free software, licensed under:
 

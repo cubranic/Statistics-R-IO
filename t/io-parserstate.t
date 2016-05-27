@@ -23,12 +23,15 @@ ok(!$state->eof, 'starting eof');
 my $next_state = $state->next;
 is_deeply($next_state,
           Statistics::R::IO::ParserState->new(data => 'foobar',
-                                              position =>1),
+                                              position => 1,
+                                              singletons => []), # bypass lazy attribute ctor
           "next");
 is($next_state->at, 'o', 'next value');
 is($next_state->position, 1, 'next position');
 is_deeply($state,
-          Statistics::R::IO::ParserState->new(data => 'foobar'),
+          Statistics::R::IO::ParserState->new(data => 'foobar',
+                                              position => 0, # bypass lazy attribute ctor
+                                              singletons => []),
           "next doesn't mutate in place");
 
 

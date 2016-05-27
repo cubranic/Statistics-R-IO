@@ -1,16 +1,16 @@
 package Statistics::R::IO::Rserve;
 # ABSTRACT: Supply object methods for Rserve communication
-$Statistics::R::IO::Rserve::VERSION = '0.101';
+$Statistics::R::IO::Rserve::VERSION = '1.0';
 use 5.010;
 
-use Moose;
+use Class::Tiny::Antlers;
 
 use Statistics::R::IO::REXPFactory;
 use Statistics::R::IO::QapEncoding;
 
 use Socket;
 use IO::Socket::INET ();
-use Scalar::Util qw(blessed looks_like_number);
+use Scalar::Util qw(blessed looks_like_number openhandle);
 use Carp;
 
 use namespace::clean;
@@ -18,7 +18,6 @@ use namespace::clean;
 
 has fh => (
     is => 'ro',
-    lazy => 1,
     default => sub {
         my $self = shift;
         my $fh;
@@ -27,6 +26,7 @@ has fh => (
                 croak "socket: $!";
             connect($fh, sockaddr_in($self->port, inet_aton($self->server))) ||
                 croak "connect: $!";
+            bless $fh, 'IO::Handle'
         }
         else {
             $fh = IO::Socket::INET->new(PeerAddr => $self->server,
@@ -43,31 +43,26 @@ has fh => (
             substr($response, 0, 12) eq 'Rsrv0103QAP1';
         $fh
     },
-    isa => 'FileHandle',
 );
 
 has server => (
     is => 'ro',
-    isa => 'Str',
     default => 'localhost',
 );
 
 has port => (
     is => 'ro',
     default => 6311,
-    isa => 'Int',
 );
 
 
 has _autoclose => (
     is => 'ro',
-    writer => "_set_autoclose",
 );
 
 
 has _autoflush => (
     is => 'ro',
-    lazy => 1,
     default => sub {
         my $self = shift;
         $self->_usesocket ? 1 : 0
@@ -191,6 +186,21 @@ sub BUILDARGS {
 }
 
 
+sub BUILD {
+    my ($self, $args) = @_;
+
+    # Required attribute types
+    die "Attribute 'fh' must be an instance of IO::Handle or an open filehandle" if
+        defined($args->{fh}) &&
+        !((ref($args->{fh}) eq "GLOB" && Scalar::Util::openhandle($args->{fh})) ||
+         (blessed($args->{fh}) && $args->{fh}->isa("IO::Handle")));
+    die "Attribute 'server' must be scalar value" if
+        exists($args->{server}) && (!defined($args->{server}) || ref($args->{server}));
+    die "Attribute 'port' must be an integer" unless
+        looks_like_number($self->port) && (int($self->port) == $self->port);
+}
+
+
 ## Extracts host address and port from the given socket handle (either
 ## as an object or a "classic" socket)
 sub _fh_host_port {
@@ -203,6 +213,13 @@ sub _fh_host_port {
         return ($fh->peerhost, $fh->peerport)
     }
     return undef
+}
+
+
+## Private setter for autoclose used in the default handler of 'fh'
+sub _set_autoclose {
+    my $self = shift;
+    $self->{_autoclose} = shift
 }
 
 
@@ -315,7 +332,7 @@ sub _send_command {
     my ($status, $length) = unpack VV => substr($response, 0, 8);
     if ($status & CMD_RESP) {
         unless ($status == RESP_OK) {
-            croak 'Server returned an error: ' . $status
+            croak 'R server returned an error: ' . sprintf("0x%X", $status)
         }
     }
     elsif ($status & CMD_OOB) {
@@ -354,8 +371,6 @@ sub DEMOLISH {
 }
 
 
-__PACKAGE__->meta->make_immutable;
-
 1;
 
 __END__
@@ -370,7 +385,7 @@ Statistics::R::IO::Rserve - Supply object methods for Rserve communication
 
 =head1 VERSION
 
-version 0.101
+version 1.0
 
 =head1 SYNOPSIS
 
@@ -485,18 +500,6 @@ constructor, but not if it was passed in as a pre-opened handle.
 
 =back
 
-=for Pod::Coverage BUILDARGS DEMOLISH
-=for Pod::Coverage CMD_OCcall CMD_OCinit CMD_OOB CMD_RESP CMD_SPECIAL_MASK CMD_assignSEXP
-CMD_attachSession CMD_closeFile CMD_createFile CMD_ctrl CMD_ctrlEval
-CMD_ctrlShutdown CMD_ctrlSource CMD_detachSession CMD_detachedVoidEval
-CMD_eval CMD_keyReq CMD_login CMD_openFile CMD_readFile CMD_removeFile
-CMD_secLogin CMD_serAssign CMD_serEEval CMD_serEval CMD_setBufferSize
-CMD_setEncoding CMD_setSEXP CMD_shutdown CMD_switch CMD_voidEval
-CMD_writeFile
-
-=for Pod::Coverage OOB_MSG OOB_SEND
-=for Pod::Coverage RESP_ERR RESP_OK
-
 =head1 BUGS AND LIMITATIONS
 
 Instances of this class are intended to be immutable. Please do not
@@ -509,13 +512,25 @@ L<Statistics::R::IO> for bug reporting.
 
 See L<Statistics::R::IO> for support and contact information.
 
+=for Pod::Coverage BUILDARGS BUILD DEMOLISH
+=for Pod::Coverage CMD_OCcall CMD_OCinit CMD_OOB CMD_RESP CMD_SPECIAL_MASK CMD_assignSEXP
+CMD_attachSession CMD_closeFile CMD_createFile CMD_ctrl CMD_ctrlEval
+CMD_ctrlShutdown CMD_ctrlSource CMD_detachSession CMD_detachedVoidEval
+CMD_eval CMD_keyReq CMD_login CMD_openFile CMD_readFile CMD_removeFile
+CMD_secLogin CMD_serAssign CMD_serEEval CMD_serEval CMD_setBufferSize
+CMD_setEncoding CMD_setSEXP CMD_shutdown CMD_switch CMD_voidEval
+CMD_writeFile
+
+=for Pod::Coverage OOB_MSG OOB_SEND
+=for Pod::Coverage RESP_ERR RESP_OK
+
 =head1 AUTHOR
 
 Davor Cubranic <cubranic@stat.ubc.ca>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2014 by University of British Columbia.
+This software is Copyright (c) 2016 by University of British Columbia.
 
 This is free software, licensed under:
 

@@ -1,23 +1,35 @@
 package Statistics::R::REXP;
 # ABSTRACT: base class for R objects (C<SEXP>s)
-$Statistics::R::REXP::VERSION = '0.101';
+$Statistics::R::REXP::VERSION = '1.0';
 use 5.010;
 
 use Scalar::Util qw( blessed );
 
-use Moose::Role;
-
-requires qw( to_pl );
+use Class::Tiny::Antlers;
 
 has attributes => (
     is => 'ro',
-    isa => 'HashRef',
 );
 
 use overload
     eq => sub { shift->_eq(@_) },
     ne => sub { ! shift->_eq(@_) };
 
+
+sub BUILD {
+    my ($self, $args) = @_;
+
+    die "This is an abstract class and must be subclassed" if ref($self) eq __PACKAGE__;
+
+    # Required methods
+    for my $req ( qw/sexptype to_pl/ ) {
+        die "$req method required" unless $self->can($req);
+    }
+    
+    # Required attribute type
+    die "Attribute 'attributes' must be a hash reference" if defined $self->attributes && 
+        ref($self->attributes) ne 'HASH'
+}
 
 sub _eq {
     my ($self, $obj) = (shift, shift);
@@ -77,6 +89,14 @@ sub is_vector {
 }
 
 
+sub inherits {
+    my ($self, $class) = @_;
+    my $attributes = $self->attributes;
+    return unless $attributes && $attributes->{'class'};
+    
+    grep {/^$class$/} @{$attributes->{'class'}->to_pl}
+}
+
 1; # End of Statistics::R::REXP
 
 __END__
@@ -91,7 +111,7 @@ Statistics::R::REXP - base class for R objects (C<SEXP>s)
 
 =head1 VERSION
 
-version 0.101
+version 1.0
 
 =head1 SYNOPSIS
 
@@ -109,9 +129,9 @@ version 0.101
 =head1 DESCRIPTION
 
 An object of this class represents a native R object. This class
-cannot be directly instantiated (it's a L<Moose::Role>), because it is
-intended as a base abstract class with concrete subclasses to
-represent specific object types.
+cannot be directly instantiated (it will die if you call C<new> on
+it), because it is intended as a base abstract class with concrete
+subclasses to represent specific object types.
 
 An R object has a value and an optional set of named attributes, which
 themselves are R objects. Because the meaning of 'value' depends on
@@ -126,6 +146,11 @@ method, although individual subclasses will typically have one.
 =item attributes
 
 Returns a hash reference to the object's attributes.
+
+=item sexptype
+
+Returns the I<name> of the corresponding R SEXP type, as listed in
+L<SEXPTYPE|http://cran.r-project.org/doc/manuals/r-release/R-ints.html#SEXPTYPEs>.
 
 =item to_pl
 
@@ -144,6 +169,11 @@ class hierarchy, this is the case only for C<Statistics::REXP::Null>.
 Returns TRUE if the object is an R vector object. In C<REXP>'s class
 hierarchy, this is the case only for C<Statistics::REXP::Vector> and
 its descendants.
+
+=item inherits CLASS_NAME
+
+Returns TRUE if the object is an instance of R S3-style class
+C<CLASS_NAME>, in the same fashion as the R function C<L<base::inherits|http://stat.ethz.ch/R-manual/R-patched/library/base/html/class.html>>.
 
 =back
 
@@ -166,13 +196,15 @@ L<Statistics::R::IO> for bug reporting.
 
 See L<Statistics::R::IO> for support and contact information.
 
+=for Pod::Coverage BUILD
+
 =head1 AUTHOR
 
 Davor Cubranic <cubranic@stat.ubc.ca>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2014 by University of British Columbia.
+This software is Copyright (c) 2016 by University of British Columbia.
 
 This is free software, licensed under:
 

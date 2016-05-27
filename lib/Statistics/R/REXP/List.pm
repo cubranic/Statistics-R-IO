@@ -1,15 +1,18 @@
 package Statistics::R::REXP::List;
 # ABSTRACT: an R generic vector (list)
-$Statistics::R::REXP::List::VERSION = '0.101';
+$Statistics::R::REXP::List::VERSION = '1.0';
 use 5.010;
 
-use Scalar::Util qw(weaken);
+use Scalar::Util qw(blessed weaken);
 
-use Moose;
+use Class::Tiny::Antlers;
 use namespace::clean;
 
-with 'Statistics::R::REXP::Vector';
+extends 'Statistics::R::REXP::Vector';
 use overload;
+
+
+use constant sexptype => 'VECSXP';
 
 sub _to_s {
     my $self = shift;
@@ -50,8 +53,6 @@ sub to_pl {
 sub _type { 'list'; }
 
 
-__PACKAGE__->meta->make_immutable;
-
 1; # End of Statistics::R::REXP::List
 
 __END__
@@ -66,7 +67,7 @@ Statistics::R::REXP::List - an R generic vector (list)
 
 =head1 VERSION
 
-version 0.101
+version 1.0
 
 =head1 SYNOPSIS
 
@@ -90,6 +91,10 @@ L<Statistics::R::REXP::Vector>, with no added restrictions on the value
 of its elements. Missing values (C<NA> in R) have value C<undef>.
 
 =over
+
+=item sexptype
+
+SEXPTYPE of generic vectors is C<VECSXP>.
 
 =item to_pl
 
@@ -127,7 +132,7 @@ Davor Cubranic <cubranic@stat.ubc.ca>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2014 by University of British Columbia.
+This software is Copyright (c) 2016 by University of British Columbia.
 
 This is free software, licensed under:
 

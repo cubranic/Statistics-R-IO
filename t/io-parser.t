@@ -18,7 +18,8 @@ subtest 'characters' => sub {
     is_deeply(any_char($state),
               ['f',
                Statistics::R::IO::ParserState->new(data => 'foobar',
-                                                   position => 1)],
+                                                   position => 1,
+                                                   singletons => [])], # bypass lazy attribute ctor
               'any_char');
     is_deeply(any_char($state->next->next->next->next->next->next),
               undef,
@@ -30,7 +31,8 @@ subtest 'characters' => sub {
     is_deeply($f_char->($state),
               ['f',
                Statistics::R::IO::ParserState->new(data => 'foobar',
-                                                   position => 1)],
+                                                   position => 1,
+                                                   singletons => [])], # bypass lazy attribute ctor
               'char');
     is($f_char->($state->next),
        undef, 'char doesn\'t match');
@@ -46,7 +48,8 @@ subtest 'characters' => sub {
     is_deeply($foo_string->($state),
               ['foo',
                Statistics::R::IO::ParserState->new(data => 'foobar',
-                                                   position => 3)],
+                                                   position => 3,
+                                                   singletons => [])], # bypass lazy attribute ctor
               'string');
     is($foo_string->($state->next),
        undef, 'string doesn\'t match');
@@ -303,7 +306,8 @@ subtest 'combinators' => sub {
     is_deeply($f_oob_seq->($state),
               [['f', 'oob'],
                Statistics::R::IO::ParserState->new(data => 'foobar',
-                                                   position => 4)],
+                                                   position => 4,
+                                                   singletons => [])], # bypass lazy attribute ctor
               'seq');
     is($f_oob_seq->($state->next),
        undef, 'seq fails');
@@ -315,7 +319,8 @@ subtest 'combinators' => sub {
     is_deeply($many_o_till_b->($state->next),
               [['o', 'o'],
                Statistics::R::IO::ParserState->new(data => 'foobar',
-                                                   position => 3)],
+                                                   position => 3,
+                                                   singletons => [])], # bypass lazy attribute ctor
               'many_till');
     is($many_o_till_b->($state),
        undef, 'many_till fails');
@@ -328,12 +333,14 @@ subtest 'combinators' => sub {
     is_deeply($f_oob_choose->($state),
               ['f',
                Statistics::R::IO::ParserState->new(data => 'foobar',
-                                                   position => 1)],
+                                                   position => 1,
+                                                   singletons => [])], # bypass lazy attribute ctor
               'seq first');
     is_deeply($f_oob_choose->($state->next),
               ['oob',
                Statistics::R::IO::ParserState->new(data => 'foobar',
-                                                   position => 4)],
+                                                   position => 4,
+                                                   singletons => [])], # bypass lazy attribute ctor
               'seq second');
     is($f_oob_choose->($state->next->next->next),
        undef, 'choose fails');
@@ -344,13 +351,15 @@ subtest 'combinators' => sub {
     is_deeply(count(3, \&any_char)->($state),
               [['f', 'o', 'o'],
                Statistics::R::IO::ParserState->new(data => 'foobar',
-                                                   position => 3)],
+                                                   position => 3,
+                                                   singletons => [])], # bypass lazy attribute ctor
               'count 3 any_char');
 
     is_deeply(count(0, \&any_char)->($state),
               [[],
                Statistics::R::IO::ParserState->new(data => 'foobar',
-                                                   position => 0)],
+                                                   position => 0,
+                                                   singletons => [])], # bypass lazy attribute ctor
               'count 0 any_char');
 
     is(count(7, \&any_char)->($state), undef,
@@ -387,6 +396,7 @@ subtest 'singletons' => sub {
     is_deeply(add_singleton('baz')->($state),
               [ 'baz',
                 Statistics::R::IO::ParserState->new(data => 'foobar',
+                                                    position => 0, # bypass lazy attribute ctor
                                                     singletons => [ 'baz' ])],
               'add_singleton');
 
@@ -398,12 +408,14 @@ subtest 'singletons' => sub {
                                      }))->($state),
               [ 'baz',
                 Statistics::R::IO::ParserState->new(data => 'foobar',
+                                                    position => 0, # bypass lazy attribute ctor
                                                     singletons => [ 'baz', 'foo' ])],
               'reserve_singleton');
 
     is_deeply(get_singleton(0)->(add_singleton('bla')->($state)->[1]),
               [ 'bla',
                 Statistics::R::IO::ParserState->new(data => 'foobar',
+                                                    position => 0, # bypass lazy attribute ctor
                                                     singletons => [ 'bla' ])],
               'get_singleton');
 };

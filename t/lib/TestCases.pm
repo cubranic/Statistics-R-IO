@@ -32,11 +32,17 @@ use Statistics::R::REXP::GlobalEnvironment;
 use Statistics::R::REXP::EmptyEnvironment;
 use Statistics::R::REXP::BaseEnvironment;
 use Statistics::R::REXP::Unknown;
+use Statistics::R::REXP::S4;
 
 use Math::Complex qw(cplx);
 
-use constant nan => -sin(9**9**9);
-use constant ninf => -9**9**9;
+use constant nan => unpack 'd>', pack 'H*', '7ff8000000000000';
+die 'Cannot create a known NaN value' unless
+    (1+nan eq nan) && (nan != nan);
+
+use constant ninf => unpack 'd>', pack 'H*', 'fff0000000000000';
+die 'Cannot create a known -Inf value' unless
+    (1+ninf eq ninf) && (ninf == ninf) && (ninf < 0);
 
 use constant TEST_SRC_FILE => {
     empty_clos => LenientSrcFile->new(
@@ -268,6 +274,28 @@ use constant TEST_CASES => {
         expr => 'list(NULL)',
         value => Statistics::R::REXP::List->new( [
             Statistics::R::REXP::Null->new() ]) },
+    'pairlist_untagged' => {
+        desc => 'a pairlist with no named elements',
+        expr => 'as.pairlist(list(1L, 2L, 3L))',
+        skip => 'rds',
+        value => Statistics::R::REXP::List->new( [
+            Statistics::R::REXP::Integer->new([ 1 ]),
+            Statistics::R::REXP::Integer->new([ 2 ]),
+            Statistics::R::REXP::Integer->new([ 3 ]),
+        ])},
+    'pairlist_tagged' => {
+        desc => 'a pairlist with named elements',
+        expr => 'as.pairlist(list(foo=1L, 2L, c=3L))',
+        skip => 'rds',
+        value => Statistics::R::REXP::List->new(
+            elements => [
+                Statistics::R::REXP::Integer->new([ 1 ]),
+                Statistics::R::REXP::Integer->new([ 2 ]),
+                Statistics::R::REXP::Integer->new([ 3 ]),
+            ],
+            attributes => {
+                names => Statistics::R::REXP::Character->new(['foo', '', 'c'])
+            })},
     'expr_null' => {
         desc => 'expression(NULL)',
         expr => 'expression(NULL)',
@@ -706,7 +734,42 @@ use constant TEST_CASES => {
                 class => Statistics::R::REXP::Character->new(['data.frame']),
                 'row.names' => Statistics::R::REXP::Integer->new([1, 2, 3]),
             }
-        )},
+            )},
+    's4' => {
+        desc => 'S4 class',
+        expr => 'local({
+         library(methods)
+         track <- setClass("track", slots = c(x="numeric", y="numeric"))
+         t1 <- track(x = 1:4, y = 2:4 + 0)
+         t1
+        })',
+        value => Statistics::R::REXP::S4->new(
+            class => 'track',
+            package => '.GlobalEnv',
+            slots => {
+                x => Statistics::R::REXP::Integer->new([1, 2, 3, 4]),
+                y => ShortDoubleVector->new([2, 3, 4]),
+            }),
+    },
+    's4_subclass' => {
+        desc => 'S4 subclass',
+        expr => 'local({
+         library(methods)
+         track <- setClass("track", slots = c(x="numeric", y="numeric"))
+         t1 <- track(x = 1:4, y = 2:4 + 0)
+         trackCurve <- setClass("trackCurve", slots = c(smooth = "numeric"), contains = "track")
+         t1s <- trackCurve(t1, smooth = 1:3)
+         t1s
+        })',
+        value => Statistics::R::REXP::S4->new(
+            class => 'trackCurve',
+            package => '.GlobalEnv',
+            slots => {
+                x => Statistics::R::REXP::Integer->new([1, 2, 3, 4]),
+                y => ShortDoubleVector->new([2, 3, 4]),
+                smooth => Statistics::R::REXP::Integer->new([1, 2, 3]),
+            }),
+    },
 };
 
 1;

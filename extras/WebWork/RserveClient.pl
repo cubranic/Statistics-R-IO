@@ -71,11 +71,13 @@ Other than backward compatibility, the only reason for using these
 functions is to start a new clean session within a single problem,
 which shouldn't be a common occurrence.
 
-=item rserve_start_plot [IMG_TYPE]
+=item rserve_start_plot [IMG_TYPE, [WIDTH, HEIGHT]]
 
 Opens a new R graphics device to capture subsequent graphics output in
 a temporary file on the R server. IMG_TYPE can be 'png', 'jpg', or
-'pdf', with 'png' as the default. Returns the name of the remote file.
+'pdf', with 'png' as the default. If left unspecified, WIDTH and
+HEIGHT, will use the R graphics device's default size. Returns the
+name of the remote file.
 
 
 =item rserve_finish_plot REMOTE_NAME
@@ -139,7 +141,7 @@ sub rserve_eval {
     
     rserve_start unless $rserve;
     
-    my $result = $rserve->eval($query);
+    my $result = _try_eval($rserve, $query);
     _unref_rexp($result)
 }
 
@@ -150,9 +152,23 @@ sub rserve_query {
     my $query = shift;
     $query = "set.seed($problemSeed)\n" . $query;
     my $rserve_client = Statistics::R::IO::Rserve->new(server => $Rserve->{host}, _usesocket => 1);
-    my $result = $rserve_client->eval($query);
+    my $result = _try_eval($rserve_client, $query);
     $rserve_client->close;
     _unref_rexp($result)
+}
+
+
+## Evaluates an R expression guarding it inside an R `try` function
+##
+## Returns the result as a REXP if no exceptions were raised, or
+## `die`s with the text of the exception message.
+sub _try_eval {
+    my ($rserve, $query) = @_;
+
+    my $result = $rserve->eval("try({ $query }, silent=TRUE)");
+    die $result->to_pl->[0] if $result->inherits('try-error');
+
+    $result
 }
 
 
@@ -179,12 +195,15 @@ sub rserve_start_plot {
     _rserve_warn_no_config && return unless $Rserve->{host};
     
     my $device = shift // 'png';
+    my $width = shift // '';
+    my $height = shift // '';
 
     die "Unsupported image type $device" unless $device =~ /^(png|pdf|jpg)$/;
     my $remote_image = (rserve_eval("tempfile(fileext='.$device')"))[0];
     
     $device =~ s/jpg/jpeg/;
-    rserve_eval("$device('$remote_image')");
+    
+    rserve_eval("$device('$remote_image', width = ${width}, height = ${height})");
 
     $remote_image
 }

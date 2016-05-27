@@ -1,31 +1,26 @@
 package Statistics::R::REXP::GlobalEnvironment;
 # ABSTRACT: the global R environment (C<.GlobalEnv>)
-$Statistics::R::REXP::GlobalEnvironment::VERSION = '0.101';
+$Statistics::R::REXP::GlobalEnvironment::VERSION = '1.0';
 use 5.010;
 
-use Moose;
+use Class::Tiny::Antlers;
 use namespace::clean;
 
 extends 'Statistics::R::REXP::Environment';
 
 
-has '+attributes' => (
-    trigger => sub {
-        die 'Global environment has implicit attributes'
-    });
+sub BUILD {
+    my ($self, $args) = @_;
 
-has '+enclosure' => (
-    trigger => sub {
-        die 'Global environment has an implicit enclosure'
-    });
+    # Required attribute type
+    die 'Global environment has implicit attributes' if defined $self->attributes;
+    die 'Global environment has an implicit enclosure' if defined $self->enclosure;
+}
 
-
-around name => sub {
+sub name {
     'R_GlobalEnvironment'
-};
+}
 
-
-__PACKAGE__->meta->make_immutable;
 
 1; # End of Statistics::R::REXP::GlobalEnvironment
 
@@ -41,7 +36,7 @@ Statistics::R::REXP::GlobalEnvironment - the global R environment (C<.GlobalEnv>
 
 =head1 VERSION
 
-version 0.101
+version 1.0
 
 =head1 SYNOPSIS
 
@@ -93,13 +88,15 @@ L<Statistics::R::IO> for bug reporting.
 
 See L<Statistics::R::IO> for support and contact information.
 
+=for Pod::Coverage BUILD
+
 =head1 AUTHOR
 
 Davor Cubranic <cubranic@stat.ubc.ca>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2014 by University of British Columbia.
+This software is Copyright (c) 2016 by University of British Columbia.
 
 This is free software, licensed under:
 
