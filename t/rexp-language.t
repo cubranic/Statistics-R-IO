@@ -118,7 +118,7 @@ isnt($language_attr, $another_language_attr, 'inequality considers attributes de
 like(exception {
         Statistics::R::REXP::Language->new(elements => [ Statistics::R::REXP::Symbol->new('foo') ],
                                            attributes => 1)
-     }, qr/Attribute \(attributes\) does not pass the type constraint/,
+     }, qr/Attribute 'attributes' must be a hash reference/,
      'setting non-HASH attributes');
 
 ## Perl representation

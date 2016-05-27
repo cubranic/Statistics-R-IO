@@ -66,7 +66,7 @@ isnt($env_attr, $another_sym_attr, 'inequality considers attributes deeply');
 ## attributes must be a hash
 like(exception {
         Statistics::R::REXP::Environment->new(attributes => 1)
-     }, qr/Attribute \(attributes\) does not pass the type constraint/,
+     }, qr/Attribute 'attributes' must be a hash reference/,
      'setting non-HASH attributes');
 
 ## Perl representation

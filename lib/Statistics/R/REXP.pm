@@ -27,7 +27,7 @@ sub BUILD {
     }
     
     # Required attribute type
-    die 'Attribute (attributes) does not pass the type constraint' if defined $self->attributes && 
+    die "Attribute 'attributes' must be a hash reference" if defined $self->attributes && 
         ref($self->attributes) ne 'HASH'
 }
 

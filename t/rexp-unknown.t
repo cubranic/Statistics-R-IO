@@ -64,7 +64,7 @@ isnt($unk_attr, $another_unk_attr, 'inequality considers attributes deeply');
 like(exception {
         Statistics::R::REXP::Unknown->new(sexptype => 42,
                                           attributes => 1)
-     }, qr/Attribute \(attributes\) does not pass the type constraint/,
+     }, qr/Attribute 'attributes' must be a hash reference/,
      'setting non-HASH attributes');
 
 ## Perl representation

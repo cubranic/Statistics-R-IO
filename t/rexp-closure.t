@@ -92,7 +92,7 @@ isnt($closure_attr, $another_closure_attr, 'inequality considers attributes deep
 like(exception {
         Statistics::R::REXP::Closure->new(body => [ Statistics::R::REXP::Symbol->new('foo') ],
                                           attributes => 1)
-     }, qr/Attribute \(attributes\) does not pass the type constraint/,
+     }, qr/Attribute 'attributes' must be a hash reference/,
      'setting non-HASH attributes');
 
 ## Perl representation
