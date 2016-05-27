@@ -748,7 +748,7 @@ the particular type.
 
 
 =item intsxp, langsxp, lglsxp, listsxp, rawsxp, dblsxp, cplxsxp,
-strsxp, symsxp, vecsxp, expsxp, closxp
+strsxp, symsxp, vecsxp, expsxp, closxp, s4sxp
 
 Parsers for the corresponding R SEXP-types.
 
