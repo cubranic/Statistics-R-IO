@@ -32,6 +32,7 @@ use Statistics::R::REXP::GlobalEnvironment;
 use Statistics::R::REXP::EmptyEnvironment;
 use Statistics::R::REXP::BaseEnvironment;
 use Statistics::R::REXP::Unknown;
+use Statistics::R::REXP::S4;
 
 use Math::Complex qw(cplx);
 
@@ -733,7 +734,44 @@ use constant TEST_CASES => {
                 class => Statistics::R::REXP::Character->new(['data.frame']),
                 'row.names' => Statistics::R::REXP::Integer->new([1, 2, 3]),
             }
-        )},
+            )},
+    's4' => {
+        desc => 'S4 class',
+        expr => 'local({
+         library(methods)
+         track <- setClass("track", slots = c(x="numeric", y="numeric"))
+         t1 <- track(x = 1:4, y = 2:4 + 0)
+         t1
+        })',
+        skip => 'rds',
+        value => Statistics::R::REXP::S4->new(
+            class => 'track',
+            package => '.GlobalEnv',
+            slots => {
+                x => Statistics::R::REXP::Integer->new([1, 2, 3, 4]),
+                y => ShortDoubleVector->new([2, 3, 4]),
+            }),
+    },
+    's4_subclass' => {
+        desc => 'S4 subclass',
+        expr => 'local({
+         library(methods)
+         track <- setClass("track", slots = c(x="numeric", y="numeric"))
+         t1 <- track(x = 1:4, y = 2:4 + 0)
+         trackCurve <- setClass("trackCurve", slots = c(smooth = "numeric"), contains = "track")
+         t1s <- trackCurve(t1, smooth = 1:3)
+         t1s
+        })',
+        skip => 'rds',
+        value => Statistics::R::REXP::S4->new(
+            class => 'trackCurve',
+            package => '.GlobalEnv',
+            slots => {
+                x => Statistics::R::REXP::Integer->new([1, 2, 3, 4]),
+                y => ShortDoubleVector->new([2, 3, 4]),
+                smooth => Statistics::R::REXP::Integer->new([1, 2, 3]),
+            }),
+    },
 };
 
 1;
