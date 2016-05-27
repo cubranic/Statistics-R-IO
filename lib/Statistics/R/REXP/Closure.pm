@@ -71,16 +71,16 @@ sub BUILD {
     die 'Attribute (body) is required' unless defined $args->{body};
     
     # Required attribute type
-    die 'Attribute (args) does not pass the type constraint' if ref($self->args) ne 'ARRAY' ||
+    die "Attribute 'args' must be a reference to an array of scalars" if ref($self->args) ne 'ARRAY' ||
         grep { ref $_ } @{$self->args};
     
-    die 'Attribute (defaults) does not pass the type constraint' if ref($self->defaults) ne 'ARRAY' ||
+    die "Attribute 'defaults' must be a reference to an array of REXPs" if ref($self->defaults) ne 'ARRAY' ||
         grep { defined($_) && ! (blessed($_) && $_->isa('Statistics::R::REXP')) } @{$self->defaults};
     
-    die 'Attribute (body) does not pass the type constraint' unless
+    die "Attribute 'body' must be a reference to an instance of Statistics::R::REXP" unless
         blessed($self->body) && $self->body->isa('Statistics::R::REXP');
     
-    die 'Attribute (environment) does not pass the type constraint' if defined $self->environment &&
+    die "Attribute 'environment' must be an instance of Environment" if defined $self->environment &&
         !(blessed($self->environment) && $self->environment->isa('Statistics::R::REXP::Environment'));
     
     my $defaults_length = @{$self->defaults};

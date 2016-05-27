@@ -42,12 +42,12 @@ like(exception {
      'odd constructor arguments');
 like(exception {
         Statistics::R::REXP::Closure->new(body => {foo => 1, bar => 2})
-     }, qr/Attribute \(body\) does not pass the type constraint/,
+     }, qr/Attribute 'body' must be a reference to an instance of Statistics::R::REXP/,
      'bad body argument');
 like(exception {
          Statistics::R::REXP::Closure->new(body => Statistics::R::REXP::Integer->new([42]),
                                            environment => 'foo')
-     }, qr/Attribute \(environment\) does not pass the type constraint/,
+     }, qr/Attribute 'environment' must be an instance of Environment/,
      'bad env enclosure');
 
 my $another_closure = Statistics::R::REXP::Closure->new(body => Statistics::R::REXP::Symbol->new('foo'));
