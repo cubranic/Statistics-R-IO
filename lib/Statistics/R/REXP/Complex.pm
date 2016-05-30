@@ -1,6 +1,6 @@
 package Statistics::R::REXP::Complex;
 # ABSTRACT: an R numeric vector
-$Statistics::R::REXP::Complex::VERSION = '1.0';
+$Statistics::R::REXP::Complex::VERSION = '1.0001';
 use 5.010;
 
 use Scalar::Util qw(blessed looks_like_number);
@@ -86,7 +86,7 @@ Statistics::R::REXP::Complex - an R numeric vector
 
 =head1 VERSION
 
-version 1.0
+version 1.0001
 
 =head1 SYNOPSIS
 

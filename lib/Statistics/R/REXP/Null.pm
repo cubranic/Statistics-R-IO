@@ -1,6 +1,6 @@
 package Statistics::R::REXP::Null;
 # ABSTRACT: the R null object
-$Statistics::R::REXP::Null::VERSION = '1.0';
+$Statistics::R::REXP::Null::VERSION = '1.0001';
 use 5.010;
 
 use Class::Tiny::Antlers;
@@ -44,7 +44,7 @@ Statistics::R::REXP::Null - the R null object
 
 =head1 VERSION
 
-version 1.0
+version 1.0001
 
 =head1 SYNOPSIS
 

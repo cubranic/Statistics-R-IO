@@ -2,7 +2,7 @@ NAME
     Statistics::R::IO - Perl interface to serialized R data
 
 VERSION
-    version 1.0
+    version 1.0001
 
 SYNOPSIS
         use Statistics::R::IO;
@@ -104,7 +104,11 @@ DEPENDENCIES
     *   Test::More
 
   Additional CPAN modules
-    *   Moose
+    *   Class::Tiny
+
+    *   Class::Tiny::Antlers
+
+    *   Class::Method::Modifiers
 
     *   namespace::clean
 

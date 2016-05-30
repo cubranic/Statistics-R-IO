@@ -1,6 +1,6 @@
 package Statistics::R::REXP::Logical;
 # ABSTRACT: an R logical vector
-$Statistics::R::REXP::Logical::VERSION = '1.0';
+$Statistics::R::REXP::Logical::VERSION = '1.0001';
 use 5.010;
 
 use Class::Tiny::Antlers;
@@ -52,7 +52,7 @@ Statistics::R::REXP::Logical - an R logical vector
 
 =head1 VERSION
 
-version 1.0
+version 1.0001
 
 =head1 SYNOPSIS
 

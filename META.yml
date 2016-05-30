@@ -29,4 +29,4 @@ requires:
 resources:
   homepage: https://github.com/cubranic/Statistics-R-IO
   repository: https://github.com/cubranic/Statistics-R-IO.git
-version: '1.0'
+version: '1.0001'

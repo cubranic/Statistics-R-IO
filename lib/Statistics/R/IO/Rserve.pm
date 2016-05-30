@@ -1,6 +1,6 @@
 package Statistics::R::IO::Rserve;
 # ABSTRACT: Supply object methods for Rserve communication
-$Statistics::R::IO::Rserve::VERSION = '1.0';
+$Statistics::R::IO::Rserve::VERSION = '1.0001';
 use 5.010;
 
 use Class::Tiny::Antlers;
@@ -385,7 +385,7 @@ Statistics::R::IO::Rserve - Supply object methods for Rserve communication
 
 =head1 VERSION
 
-version 1.0
+version 1.0001
 
 =head1 SYNOPSIS
 

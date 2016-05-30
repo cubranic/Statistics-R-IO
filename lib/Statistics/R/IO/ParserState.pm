@@ -1,6 +1,6 @@
 package Statistics::R::IO::ParserState;
 # ABSTRACT: Current state of the IO parser
-$Statistics::R::IO::ParserState::VERSION = '1.0';
+$Statistics::R::IO::ParserState::VERSION = '1.0001';
 use 5.010;
 
 use Class::Tiny::Antlers;
@@ -104,7 +104,7 @@ Statistics::R::IO::ParserState - Current state of the IO parser
 
 =head1 VERSION
 
-version 1.0
+version 1.0001
 
 =head1 SYNOPSIS
 

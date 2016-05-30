@@ -1,6 +1,6 @@
 package Statistics::R::REXP::Character;
 # ABSTRACT: an R character vector
-$Statistics::R::REXP::Character::VERSION = '1.0';
+$Statistics::R::REXP::Character::VERSION = '1.0001';
 use 5.010;
 
 use Class::Tiny::Antlers;
@@ -51,7 +51,7 @@ Statistics::R::REXP::Character - an R character vector
 
 =head1 VERSION
 
-version 1.0
+version 1.0001
 
 =head1 SYNOPSIS
 

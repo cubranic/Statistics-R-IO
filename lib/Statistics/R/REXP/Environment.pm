@@ -1,6 +1,6 @@
 package Statistics::R::REXP::Environment;
 # ABSTRACT: an R environment
-$Statistics::R::REXP::Environment::VERSION = '1.0';
+$Statistics::R::REXP::Environment::VERSION = '1.0001';
 use 5.010;
 
 use Scalar::Util qw(refaddr blessed);
@@ -99,7 +99,7 @@ Statistics::R::REXP::Environment - an R environment
 
 =head1 VERSION
 
-version 1.0
+version 1.0001
 
 =head1 SYNOPSIS
 

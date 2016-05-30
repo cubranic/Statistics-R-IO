@@ -1,6 +1,6 @@
 package Statistics::R::REXP::Vector;
 # ABSTRACT: an R vector
-$Statistics::R::REXP::Vector::VERSION = '1.0';
+$Statistics::R::REXP::Vector::VERSION = '1.0001';
 use 5.010;
 
 use Scalar::Util qw(blessed);
@@ -111,7 +111,7 @@ Statistics::R::REXP::Vector - an R vector
 
 =head1 VERSION
 
-version 1.0
+version 1.0001
 
 =head1 SYNOPSIS
 

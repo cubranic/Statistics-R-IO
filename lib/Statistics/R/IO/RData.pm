@@ -1,11 +1,11 @@
 package Statistics::R::IO::RData;
 # ABSTRACT: Supply object methods for RData files
-$Statistics::R::IO::RData::VERSION = '1.0';
+$Statistics::R::IO::RData::VERSION = '1.0001';
 use 5.010;
 
-use Moose;
+use Class::Tiny::Antlers;
 
-with 'Statistics::R::IO::Base';
+extends 'Statistics::R::IO::Base';
 
 use Statistics::R::IO::REXPFactory;
 use Carp;
@@ -30,8 +30,6 @@ sub read {
 }
 
     
-__PACKAGE__->meta->make_immutable;
-
 1;
 
 __END__
@@ -46,7 +44,7 @@ Statistics::R::IO::RData - Supply object methods for RData files
 
 =head1 VERSION
 
-version 1.0
+version 1.0001
 
 =head1 SYNOPSIS
 

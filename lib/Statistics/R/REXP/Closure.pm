@@ -1,6 +1,6 @@
 package Statistics::R::REXP::Closure;
 # ABSTRACT: an R closure
-$Statistics::R::REXP::Closure::VERSION = '1.0';
+$Statistics::R::REXP::Closure::VERSION = '1.0001';
 use 5.010;
 
 use Scalar::Util qw(refaddr blessed);
@@ -121,7 +121,7 @@ Statistics::R::REXP::Closure - an R closure
 
 =head1 VERSION
 
-version 1.0
+version 1.0001
 
 =head1 SYNOPSIS
 

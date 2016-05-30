@@ -1,6 +1,6 @@
 package Statistics::R::REXP::BaseEnvironment;
 # ABSTRACT: the base R environment (C<baseenv()>)
-$Statistics::R::REXP::BaseEnvironment::VERSION = '1.0';
+$Statistics::R::REXP::BaseEnvironment::VERSION = '1.0001';
 use 5.010;
 
 use Class::Tiny::Antlers;
@@ -37,7 +37,7 @@ Statistics::R::REXP::BaseEnvironment - the base R environment (C<baseenv()>)
 
 =head1 VERSION
 
-version 1.0
+version 1.0001
 
 =head1 SYNOPSIS
 

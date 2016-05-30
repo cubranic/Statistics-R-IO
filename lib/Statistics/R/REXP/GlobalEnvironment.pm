@@ -1,6 +1,6 @@
 package Statistics::R::REXP::GlobalEnvironment;
 # ABSTRACT: the global R environment (C<.GlobalEnv>)
-$Statistics::R::REXP::GlobalEnvironment::VERSION = '1.0';
+$Statistics::R::REXP::GlobalEnvironment::VERSION = '1.0001';
 use 5.010;
 
 use Class::Tiny::Antlers;
@@ -36,7 +36,7 @@ Statistics::R::REXP::GlobalEnvironment - the global R environment (C<.GlobalEnv>
 
 =head1 VERSION
 
-version 1.0
+version 1.0001
 
 =head1 SYNOPSIS
 

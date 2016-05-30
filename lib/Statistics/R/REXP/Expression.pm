@@ -1,6 +1,6 @@
 package Statistics::R::REXP::Expression;
 # ABSTRACT: an R expression vector
-$Statistics::R::REXP::Expression::VERSION = '1.0';
+$Statistics::R::REXP::Expression::VERSION = '1.0001';
 use 5.010;
 
 use Scalar::Util qw(blessed);
@@ -33,7 +33,7 @@ Statistics::R::REXP::Expression - an R expression vector
 
 =head1 VERSION
 
-version 1.0
+version 1.0001
 
 =head1 SYNOPSIS
 
